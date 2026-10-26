@@ -17,6 +17,7 @@ Overwrite the whole file each time. Valid JSON, UTF-8, no comments. Use `null` f
   "title": "Copy Ticket ID",
   "route": "small",
   "suggested_level": 2,
+  "predicted_paths": ["app/src/routes/jobs.ts"],
   "level_reason": "Adds a button to one existing page; its query reads people, so at least L2.",
   "stage": "review",
   "stage_state": "waiting_for_you",
@@ -64,6 +65,7 @@ Overwrite the whole file each time. Valid JSON, UTF-8, no comments. Use `null` f
 |---|---|
 | `route` | `quick` (L0, L1) / `small` (L2) / `large` (L3) / `null` (no level yet) |
 | `suggested_level` | `0`–`3`: the level you propose (SKILL.md, Start; job-options.md, Level floor). Keep it in later writes; change it only when you propose another level. `null` when you have made no proposal |
+| `predicted_paths` | The files you expect the change to touch (up to 50 repo-relative paths), written with `suggested_level`. The dashboard's automatic level runs its rules on them (job-options.md, Automatic level). `[]` or absent when you don't know yet |
 | `level_reason` | one line (under 400 characters) why, from the request and the paths touched; `null` with no proposal |
 | `kind` | `feature` / `bug` (from the job's options when set) |
 | `stage` | `clarify`, `spec`, `refine`, `wireframe`, `investigate`, `spec-update`, `plan`, `implement`, `test`, `review`, `pr1`, `pr2`, `staging-qa`, `pr3`. `clarify` is your own questions before the spec (brief `briefs/<nnn>-clarify.md`; no artifact). `wireframe` is the screens stage (brief `briefs/<nnn>-wireframe.md`, artifact "Wireframes" `wireframes.html` vN, the version from `wireframes.json`). The quick plan uses `plan` (brief `briefs/<nnn>-plan.md`, artifact "Quick plan" `quick-plan.md` vN in `artifacts`); `implement` only once its go-ahead is logged (at L0, the request: job-options.md). Waiting for the human's manual test is `test` with `waiting_for: "answers"` |
