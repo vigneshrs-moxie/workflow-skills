@@ -21,6 +21,7 @@ Input: $ARGUMENTS. The stage, branch and `--dry` (preflight and body only, open 
 From the repository checkout, on the task branch (or pass `--branch`):
 
 ```bash
+# Python 3 (python3, or py -3 on Windows)
 python3 <skill>/preflight.py [--stage 1|2|3|sync] [--branch <name>] [--org <owner/repo>] [--no-fetch] [--json]
 ```
 

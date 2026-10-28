@@ -23,8 +23,17 @@ link() {
   ln -s "$src" "$dst"; echo "linked   $dst"
 }
 
-for d in "$HERE"/skills/*/; do link "${d%/}" "$CLAUDE_DIR/skills/$(basename "$d")"; done
-for f in "$HERE"/agents/*.md; do link "$f" "$CLAUDE_DIR/agents/$(basename "$f")"; done
+# The links, one per line: what in this repo -> which folder under ~/.claude. install.ps1 reads
+# these same lines, so the two scripts always make the same links. A pattern ending in / is folders.
+# link: skills/*/ -> skills
+# link: agents/*.md -> agents
+while read -r _ _ pattern _ folder; do
+  mkdir -p "$CLAUDE_DIR/$folder"
+  for src in "$HERE"/$pattern; do
+    [ -e "$src" ] || continue
+    src="${src%/}"; link "$src" "$CLAUDE_DIR/$folder/$(basename "$src")"
+  done
+done < <(grep '^# link: ' "$HERE/install.sh")
 
 # The git workflow docs (branches, PR stages, releases) the Foreman reads first.
 if [ -d "$GIT_DOCS_DIR/.git" ]; then

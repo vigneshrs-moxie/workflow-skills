@@ -19,6 +19,7 @@ Input: $ARGUMENTS
 - **Title:** the job's title from `options.json` (`title`), else the spec's heading. Keep it on every rebuild: the title sets the page's slug, its revision counter and where notes attach.
 - Build **from the application checkout**, with the full command:
   ```bash
+  # Python 3 (python3, or py -3 on Windows)
   cd <checkout> && python3 ~/.claude/skills/wireframe/build.py --title "<job title>" --sections <scratchpad>/sections.html \
     --sources <scratchpad>/sources.txt [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "…" | --preset …] --job <slug>
   ```

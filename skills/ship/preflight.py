@@ -28,7 +28,7 @@ MIG_DIR = "app/prisma/migrations"
 
 
 def sh(*args, ok=(0,), text=True):
-    r = subprocess.run(list(args), capture_output=True, text=text)
+    r = subprocess.run(list(args), capture_output=True, text=text, encoding="utf-8" if text else None, errors="replace" if text else None)
     return (r.stdout.strip() if r.returncode in ok else None), r.returncode, r.stderr.strip()
 
 
@@ -127,16 +127,16 @@ def risk_flags(files):
 
 
 def job_for(branch):
-    roots = [os.environ.get("WORKSHOP_FEATURES_DIR"), os.path.expanduser("~/.claude/feature-work")]
+    roots = [os.environ.get("WORKSHOP_FEATURES_DIR"), os.path.join(os.path.expanduser("~"), ".claude", "feature-work")]
     for root in [r for r in roots if r]:
         for sp in glob.glob(os.path.join(root, "*", "status.json")):
             try:
-                st = json.load(open(sp))
+                st = json.load(open(sp, encoding="utf-8"))
             except (OSError, ValueError):
                 continue
             if branch and branch in (st.get("branch") or ""):
                 d = os.path.dirname(sp)
-                files = sorted(os.path.relpath(f, d) for f in glob.glob(os.path.join(d, "**", "*.md"), recursive=True) if "/briefs/" not in f)
+                files = sorted(os.path.relpath(f, d) for f in glob.glob(os.path.join(d, "**", "*.md"), recursive=True) if "/briefs/" not in f.replace(os.sep, "/"))
                 return {"slug": os.path.basename(d), "folder": d, "stage": st.get("stage"), "prs": st.get("prs"), "files": files}
     return None
 
