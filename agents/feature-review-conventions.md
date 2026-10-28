@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash, Write
 disallowedTools: Agent, Edit
 ---
 
-Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first).
+Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your inputs are in the facts block below; do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none. Read, Grep and Glob cover what you need.
 
 **Your axis: does the change follow the repository's written rules?**
 - Read the repo's AGENTS.md / CLAUDE.md and the docs they point to; check the diff against each written rule that applies.

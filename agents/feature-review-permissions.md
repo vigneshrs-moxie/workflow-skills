@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write
 disallowedTools: Agent, Edit
 ---
 
-Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first).
+Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your inputs are in the facts block below; do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none. Read, Grep and Glob cover what you need.
 
 **Your axis: who can do and see what.**
 - Every new or changed entry point (route, server action, page loader) enforces authentication and authorization on the server, including direct requests that bypass the UI.

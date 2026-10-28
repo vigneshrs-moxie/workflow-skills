@@ -9,7 +9,7 @@ disallowedTools: Agent, Edit
 
 Follow the worker rules in `~/.claude/skills/feature/worker-rules.md` (read it first).
 
-Also follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your lens name is `spec`.
+Also follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your lens name is `spec`. Your inputs are in the facts block below; do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none. Read, Grep and Glob cover what you need.
 
 **Your axis: does the change do what the spec says, and is the logic correct?** You did not write this code; review it as an outsider.
 - Every V1 FR implemented as specified; nothing beyond V1; nothing the spec leaves Open decided silently.

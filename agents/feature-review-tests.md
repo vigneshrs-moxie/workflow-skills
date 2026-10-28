@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write
 disallowedTools: Agent, Edit
 ---
 
-Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first).
+Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your inputs are in the facts block below; do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none. Find tests with Glob and Grep and read them with Read; the test report says what ran.
 
 **Your axis: do the tests prove the spec?**
 - Map each AC in the spec to the tests that cover it; list ACs with no real coverage.

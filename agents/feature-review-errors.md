@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write
 disallowedTools: Agent, Edit
 ---
 
-Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first).
+Follow the review lens rules in `~/.claude/skills/feature/review-lens-rules.md` (read it first). Your inputs are in the facts block below; do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none. Read, Grep and Glob cover what you need.
 
 **Your axis: what happens when things go wrong.**
 - Each row of the spec's error states and edge cases: is it handled as specified, and does the user see what the spec says?
