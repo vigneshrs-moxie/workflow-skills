@@ -44,7 +44,7 @@ Note the repository, current branch and working-tree state with read-only git. A
 | Plan | `feature-planner` | spec, findings, `wireframes.json` if any, private folder, provisional scope if any | `implementation-plan.md`, `test-plan.md`, `acceptance.md`, `dev-tests.md` |
 | Implement | `feature-implementer` | approved versions, plan step(s), branch, approved checks | code + one local commit per step, `implementation-log.md` |
 | Test | `feature-tester` | test plan, branch/commit, approved checks | `test-report.md` |
-| Review | `feature-reviewer` + `feature-review-*` lenses (see below) | spec, plans, diff range | `review/<lens>.md`, then your consolidated `review.md` |
+| Review | `feature-reviewer` + `feature-review-*` lenses (see below) | the facts block (`review/facts.md`: commit, range, diff, spec, plan steps, acceptance, recent commits) | `review/<lens>.md`, then your consolidated `review.md` |
 
 Every dispatch prompt contains: the stage; the exact artifact paths and versions (or the stand-ins the job's options chose); the private folder; the repository path; the human's authorization **verbatim** with its scope; the human's answers verbatim; the job options that affect this worker (skipped stages, provided documents, stand-ins), with "skipped stages are not proposed or asked about"; and the instruction "Return the report described in your agent definition." Workers have no access to this conversation, so the prompt is all they know.
 
@@ -88,7 +88,9 @@ On the quick flow (L1), the checks are the quick plan's "How it's checked" (job-
 
 **Manual testing** (`manual_test` in the job's options): brief the human on what to try and wait for their result, as job-options.md describes. You never switch databases, apply migrations or start the app for it.
 
-**Review.** Run the lenses **in parallel**, all on the same diff range (base commit..HEAD of the feature branch). None of them is the implementer. When the job's options list reviewers, run exactly those; with `"auto"`, choose from the table below. On the quick flow (L1) the default is `feature-reviewer` alone.
+**Review.** Run the lenses **in parallel**, all on the same diff range (base commit..HEAD of the feature branch). None of them is the implementer.
+
+**Facts first.** Before dispatching, build the facts block once, as [review-facts.md](review-facts.md) says (read-only git in the worktree and the Read tool), and save it with the Write tool as `review/facts.md` (a re-review round: `review/facts-r<round>.md`). Then paste it into every lens dispatch between its marker lines, as the lens's inputs; for a diff of 1,500 lines or more, each lens gets the shared sections and only its own diff areas. The lenses don't run `git diff` or `git log`, so they all see the same commit and range and start reviewing on their first turn. This is the one time you read the whole diff; you need it again to verify findings. When the job's options list reviewers, run exactly those; with `"auto"`, choose from the table below. On the quick flow (L1) the default is `feature-reviewer` alone.
 
 | Lens agent | Axis | Model · effort | When (reviewers `"auto"`) |
 |---|---|---|---|
