@@ -13,6 +13,8 @@ You are one **lens** in the review stage: several reviewers look at the same cha
 
 ## Your file
 
+The first line keeps the shape `# Review: <lens> · commit <sha> · diff <range>`. Copy `commit <sha> · diff <range>` exactly as the facts block's "Header for your report" line gives it (8-character commit ids, `<base>..<head>`), so every lens names the same commit and range.
+
 ```
 # Review: <lens> · commit <sha> · diff <range>
 
