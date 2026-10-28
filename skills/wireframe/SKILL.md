@@ -59,7 +59,7 @@ When the working directory is a git repository, read it before drawing. **Read-o
 - Write every file you read to `<scratchpad>/sources.txt`, one repository-relative path per line; with a cached design, add the files its `sources:` list names, since the screens rest on them too.
 - `<skill>/example/` holds a finished lo-fi page (`sections.html`) and a hi-fi one on a plain-CSS app (`hifi/`), both for a made-up billing app. Read them for the shape of the markup when unsure; never copy their feature.
 
-**Hi-fi: capture the design once.** Run `python3 <skill>/build.py --design-check`. If the cache is fresh, read `~/.claude/wireframes/<repo>/design.md` and use its `theme.css` instead of re-reading the stylesheet and components. If it's stale or missing, follow `reference/design-capture.md` (recipes for Tailwind v4, Tailwind v3, plain CSS, theme objects, and none), write both files, and run `--design-stamp`. No design system: use `--preset admin|consumer|mono` and say so under Questions to settle.
+**Hi-fi: capture the design once.** Run `python3 <skill>/build.py --design-check` with Python 3 (`python3`, or `py -3` on Windows). If the cache is fresh, read `~/.claude/wireframes/<repo>/design.md` and use its `theme.css` instead of re-reading the stylesheet and components. If it's stale or missing, follow `reference/design-capture.md` (recipes for Tailwind v4, Tailwind v3, plain CSS, theme objects, and none), write both files, and run `--design-stamp`. No design system: use `--preset admin|consumer|mono` and say so under Questions to settle.
 
 ## 4. Map the screens (before writing anything)
 
@@ -193,6 +193,7 @@ A sketch build (`--fidelity sketch`) draws the same kit on graph paper in a hand
 ## 6. Build, check, publish, report
 
 ```bash
+# Python 3 (python3, or py -3 on Windows)
 cd <repository, or anywhere for an idea alone> && python3 <skill>/build.py \
   --title "Short feature name" --sections <scratchpad>/sections.html --sources <scratchpad>/sources.txt \
   [--fidelity sketch] [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "Geist"] [--preset admin] [--job <slug>]
@@ -202,13 +203,13 @@ It checks the sections and writes, under `~/.claude/wireframes/<repo>/`: `<slug>
 
 **Look at it before you deliver.** Build with `--draft` while you check (it writes only `<slug>.draft.html` and bumps nothing), then build without it. Check: the screens fit their columns, hi-fi classes compiled (no unstyled markup), text reads in both Light and Dark screens, tabs and hotspots work, callouts match pins. Two ways, never installing anything:
 - Browser tools in this session: open the draft. The extension refuses `file://` links, so this needs something serving the folder; otherwise use the next way.
-- Headless Chrome, when it's installed (macOS: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; Linux: `google-chrome` or `chromium`): `"<chrome>" --headless=new --disable-gpu --hide-scrollbars --window-size=1400,2600 --screenshot=<scratchpad>/check.png "file://<draft path>"`, then Read the PNG. One screenshot of the top; a second with `--window-size=1400,6000` when the page is long.
+- Headless Chrome, when it's installed (macOS: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; Linux: `google-chrome` or `chromium`; Windows: `C:\Program Files\Google\Chrome\Application\chrome.exe`, or Edge's `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`, with a `file:///C:/…` link): `"<chrome>" --headless=new --disable-gpu --hide-scrollbars --window-size=1400,2600 --screenshot=<scratchpad>/check.png "file://<draft path>"`, then Read the PNG. One screenshot of the top; a second with `--window-size=1400,6000` when the page is long.
 Without either, skip the check and say so in the report.
 
 **Publish** the `publish:` file (`<slug>.artifact.html`), never the `.html` one:
 - **Existing URL, published earlier in this conversation:** publish the same file path again. **From an earlier conversation:** read it (`action: "read"`) first, then publish with that `url`. Either way leave out `icon` and `capabilities`.
 - **New:** load the `artifact-capabilities` skill. Publish it with `icon: "wireframe"`, a one-sentence `description` and `capabilities: {"db": {}, "user": {}}`. Then record the link:
-  `python3 <skill>/build.py --record-url <url> --title "Short feature name" [--job <slug>]` (from the same directory).
+  `python3 <skill>/build.py --record-url <url> --title "Short feature name" [--job <slug>]` (from the same directory, with Python 3 (`python3`, or `py -3` on Windows)).
 
 Reply (standalone) or report to the Foreman (in a job) with:
 - the link (or, as the worker, the job files and `wireframes.json` version) and the revision;

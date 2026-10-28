@@ -141,6 +141,7 @@ Other blocks:
 Run from the checkout or worktree that holds the feature:
 
 ```bash
+# Python 3 (python3, or py -3 on Windows)
 cd <worktree> && python3 ~/.claude/skills/review-walkthrough/build.py --title "Short feature name" --sections <scratchpad>/sections.html [--pr <url>] [--mode full]
 ```
 

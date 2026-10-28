@@ -52,11 +52,11 @@ TIERS = {
     "hi": ("Hi-fi", "The app's own design: what it will look like when built."),
     "preset": ("Hi-fi · preset", "A bundled design standing in for the app's: layout, content and wording are decided; the look is a placeholder."),
 }
-HOME = os.path.expanduser("~/.claude/wireframes")
+HOME = os.path.join(os.path.expanduser("~"), ".claude", "wireframes")
 
 
 def git(*args):
-    r = subprocess.run(["git", *args], capture_output=True, text=True)
+    r = subprocess.run(["git", *args], capture_output=True, text=True, encoding="utf-8", errors="replace")
     return r.stdout.strip() if r.returncode == 0 else None
 
 
@@ -250,7 +250,7 @@ def design_check(top, out_dir):
     if not os.path.exists(path):
         print(f"design: none ({path})")
         return 2
-    srcs = design_sources(open(path).read())
+    srcs = design_sources(open(path, encoding="utf-8").read())
     changed = [p for p, h in srcs if sha(os.path.join(top or ".", p)) != h]
     if changed:
         print(f"design: stale, changed since capture: {', '.join(changed)} ({path})")
@@ -263,7 +263,7 @@ def design_stamp(top, out_dir):
     path = os.path.join(out_dir, "design.md")
     if not os.path.exists(path):
         sys.exit(f"no design.md at {path}")
-    md = open(path).read()
+    md = open(path, encoding="utf-8").read()
     fm = re.match(r"---\n(.*?)\n---", md, re.S)
     if not fm:
         sys.exit("design.md needs a frontmatter block with a sources: list (see reference/design-capture.md)")
@@ -277,7 +277,7 @@ def design_stamp(top, out_dir):
             line = f"{m.group(1)}{m.group(2)} {h}"
             n += 1
         lines.append(line)
-    open(path, "w").write(md[: fm.start(1)] + "\n".join(lines) + md[fm.end(1):])
+    open(path, "w", encoding="utf-8").write(md[: fm.start(1)] + "\n".join(lines) + md[fm.end(1):])
     print(f"design: stamped {n} source files in {path}")
 
 
@@ -287,7 +287,7 @@ def gallery(entry):
     mpath = os.path.join(HOME, "manifest.js")
     lines = []
     if os.path.exists(mpath):
-        for line in open(mpath):
+        for line in open(mpath, encoding="utf-8"):
             m = re.match(r"window\.WIREFRAMES\.push\((\{.*\})\);\s*$", line)
             if m:
                 try:
@@ -297,11 +297,11 @@ def gallery(entry):
                 if (old.get("repo"), old.get("slug")) != (entry["repo"], entry["slug"]):
                     lines.append(line.rstrip("\n"))
     lines.append("window.WIREFRAMES.push(" + json.dumps(entry) + ");")
-    open(mpath, "w").write("window.WIREFRAMES = window.WIREFRAMES || [];\n" + "\n".join(lines) + "\n")
+    open(mpath, "w", encoding="utf-8").write("window.WIREFRAMES = window.WIREFRAMES || [];\n" + "\n".join(lines) + "\n")
     index = os.path.join(HOME, "index.html")
     src = os.path.join(HERE, "gallery.html")
     if os.path.exists(src):
-        open(index, "w").write(open(src).read())
+        open(index, "w", encoding="utf-8").write(open(src, encoding="utf-8").read())
     return index
 
 
@@ -337,13 +337,13 @@ def main():
     slug = a.slug or re.sub(r"[^a-z0-9]+", "-", a.title.lower()).strip("-")
     job_dir = None
     if a.job:
-        root = os.path.expanduser(os.environ.get("WORKSHOP_FEATURES_DIR") or "~/.claude/feature-work")
+        root = os.path.expanduser(os.environ.get("WORKSHOP_FEATURES_DIR") or os.path.join("~", ".claude", "feature-work"))
         job_dir = os.path.join(root, a.job)
         if not os.path.isdir(job_dir):
             sys.exit(f"no feature folder at {job_dir}")
     meta_path = os.path.join(out_dir, f"{slug}.json")
     try:
-        meta = json.load(open(meta_path))
+        meta = json.load(open(meta_path, encoding="utf-8"))
     except (OSError, ValueError):
         meta = {}
 
@@ -351,17 +351,17 @@ def main():
         if not re.match(r"https://claude\.ai/(code/)?artifact/[\w-]+$", a.record_url):
             sys.exit("--record-url takes a claude.ai artifact link")
         os.makedirs(out_dir, exist_ok=True)
-        open(os.path.join(out_dir, f"{slug}.url"), "w").write(a.record_url + "\n")
+        open(os.path.join(out_dir, f"{slug}.url"), "w", encoding="utf-8").write(a.record_url + "\n")
         meta["url"] = a.record_url
-        open(meta_path, "w").write(json.dumps(meta, indent=2) + "\n")
+        open(meta_path, "w", encoding="utf-8").write(json.dumps(meta, indent=2) + "\n")
         print(f"saved: {out_dir}/{slug}.url")
         if job_dir:
-            open(os.path.join(job_dir, "wireframes.url"), "w").write(a.record_url + "\n")
+            open(os.path.join(job_dir, "wireframes.url"), "w", encoding="utf-8").write(a.record_url + "\n")
             jpath = os.path.join(job_dir, "wireframes.json")
             if os.path.exists(jpath):
-                info = json.load(open(jpath))
+                info = json.load(open(jpath, encoding="utf-8"))
                 info["url"] = a.record_url
-                open(jpath, "w").write(json.dumps(info, indent=2) + "\n")
+                open(jpath, "w", encoding="utf-8").write(json.dumps(info, indent=2) + "\n")
             print(f"saved: {job_dir}/wireframes.url and wireframes.json")
         if meta.get("file"):
             gallery(meta)
@@ -369,7 +369,7 @@ def main():
     if not (a.title and a.sections):
         sys.exit("pass --title and --sections")
 
-    sections = open(os.path.expanduser(a.sections)).read()
+    sections = open(os.path.expanduser(a.sections), encoding="utf-8").read()
     errors, warnings = check(sections)
     for w in warnings:
         print(f"warning: {w}")
@@ -393,7 +393,7 @@ def main():
     head_extra = foot_extra = ""
     fonts = a.fonts or ""
     if tier == "hi":
-        theme = open(os.path.expanduser(a.theme) if a.theme else os.path.join(HERE, "presets", f"{a.preset}.css")).read()
+        theme = open(os.path.expanduser(a.theme) if a.theme else os.path.join(HERE, "presets", f"{a.preset}.css"), encoding="utf-8").read()
         if re.search(r"^\s*@import\b", theme, re.M):
             print("warning: dropped @import lines from the theme (the in-page compiler includes Tailwind itself)")
             theme = re.sub(r"^\s*@import\b[^\n]*\n", "", theme, flags=re.M)
@@ -416,7 +416,7 @@ def main():
 
     sources = []
     if a.sources:
-        sources = [l.strip() for l in open(os.path.expanduser(a.sources)) if l.strip()]
+        sources = [l.strip() for l in open(os.path.expanduser(a.sources), encoding="utf-8") if l.strip()]
     if sources:
         rows = "\n".join(f"            <code>{html.escape(s)}</code>" for s in sources)
         sources_html = (
@@ -441,13 +441,13 @@ def main():
     jpath = os.path.join(job_dir, "wireframes.json") if job_dir else None
     if jpath:
         try:
-            prev = json.load(open(jpath))
+            prev = json.load(open(jpath, encoding="utf-8"))
         except (OSError, ValueError):
             prev = {}
     revision = max(int(meta.get("revision", 0)), int(prev.get("version", 0))) + (0 if a.draft else 1)
     revision = max(revision, 1)
 
-    page = open(os.path.join(HERE, "template.html")).read()
+    page = open(os.path.join(HERE, "template.html"), encoding="utf-8").read()
     for k, v in {
         "{{TITLE}}": f"{a.title} wireframes",
         "{{META}}": meta_line,
@@ -473,39 +473,39 @@ def main():
            + page + "</body></html>")
     if a.draft:
         draft = os.path.join(out_dir, f"{slug}.draft.html")
-        open(draft, "w").write(doc)
+        open(draft, "w", encoding="utf-8").write(doc)
         print(f"draft: {draft}  (open this from disk; nothing else was written)")
         return
     out = os.path.join(out_dir, f"{slug}.html")
     pub = os.path.join(out_dir, f"{slug}.artifact.html")
-    open(out, "w").write(doc)
-    open(pub, "w").write(page)
+    open(out, "w", encoding="utf-8").write(doc)
+    open(pub, "w", encoding="utf-8").write(page)
     url_file = os.path.join(out_dir, f"{slug}.url")
-    url = (open(url_file).read().strip() if os.path.exists(url_file) else None) or meta.get("url")
+    url = (open(url_file, encoding="utf-8").read().strip() if os.path.exists(url_file) else None) or meta.get("url")
     if job_dir and not url:
         job_url_file = os.path.join(job_dir, "wireframes.url")
-        url = (open(job_url_file).read().strip() if os.path.exists(job_url_file) else None) or prev.get("url")
+        url = (open(job_url_file, encoding="utf-8").read().strip() if os.path.exists(job_url_file) else None) or prev.get("url")
     info = summary(sections)
     where_text = re.sub(r"<[^>]+>", "", where)
     brief_md = brief(a.title, tier_key, where_text, sources, sections, info)
     brief_path = os.path.join(out_dir, f"{slug}.brief.md")
-    open(brief_path, "w").write(brief_md)
+    open(brief_path, "w", encoding="utf-8").write(brief_md)
     built = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     meta = {"title": a.title, "slug": slug, "repo": repo, "tier": tier_key, "revision": revision,
             "file": f"{repo}/{slug}.html", "publish": f"{repo}/{slug}.artifact.html", "brief": f"{repo}/{slug}.brief.md",
             "url": url, "built_at": built}
-    open(meta_path, "w").write(json.dumps(meta, indent=2) + "\n")
+    open(meta_path, "w", encoding="utf-8").write(json.dumps(meta, indent=2) + "\n")
     print(f"file: {out}  (open this from disk)")
     print(f"publish: {pub}  (publish this with the Artifact tool)")
     print(f"brief: {brief_path}")
     print(f"revision: {revision}")
     if job_dir:
-        open(os.path.join(job_dir, "wireframes.html"), "w").write(doc)
-        open(os.path.join(job_dir, "wireframes.brief.md"), "w").write(brief_md)
+        open(os.path.join(job_dir, "wireframes.html"), "w", encoding="utf-8").write(doc)
+        open(os.path.join(job_dir, "wireframes.brief.md"), "w", encoding="utf-8").write(brief_md)
         job_info = {"schema_version": 2, "version": revision, "title": a.title,
                     "fidelity": "high" if tier == "hi" else "low", "tier": tier_key, "url": url, "page": "wireframes.html",
                     "brief": "wireframes.brief.md", "source": out, "repo": top, "built_at": built, **info}
-        open(jpath, "w").write(json.dumps(job_info, indent=2) + "\n")
+        open(jpath, "w", encoding="utf-8").write(json.dumps(job_info, indent=2) + "\n")
         print(f"job: {job_dir}/wireframes.html, wireframes.json and wireframes.brief.md (version {revision})")
     index = gallery(meta)
     print(f"gallery: {index}")
