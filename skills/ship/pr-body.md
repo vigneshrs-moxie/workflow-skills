@@ -17,7 +17,11 @@ Short: nobody reads a long PR #1. About 10 lines, no template sections, no limit
 - <3–5 bullets, one line each. A migration gets one line, with "apply before the code deploys" if it must.>
 
 **Tests:** <one line: what passed, e.g. `npm run check` and build pass; manual test passed locally. Say "not run" for anything that didn't.>
+
+**Decisions:** docs/decisions/<TICKET>-<slug>.md
 ```
+
+The Decisions line links the job's decisions file when it rides this PR (`docs/decisions/ORBIT-0479-feedback-api.md`, committed as `docs(decisions): ORBIT-479 decisions`); leave the line out when there is none, or when Orbit still ignores `docs/decisions/`.
 
 ## PR #2 (org branch → staging)
 
@@ -97,6 +101,24 @@ Raj: please review and submit an approving review on the latest commit. <Domain 
 - After deploy: <smoke tests to run, by whom>.
 
 Approval from someone other than the author is required before a human merges.
+```
+
+## Follow-up PR #1 (fork → org branch, the fixes for a review round on PR #2)
+
+Title: `Follow-up for <reviewer>’s review on PR #2`. Ground Control writes this body itself when it opens the PR on Send back; from the terminal, write the same.
+
+```markdown
+Follow-up for <reviewer>’s review on PR #2 (<PR #2 link>), round <n>.
+
+## What changed
+- <short sha> <commit subject>
+- …one line per commit on the fork branch not yet on the org branch…
+
+## Answers
+- <file:line>: fixed in <short sha>
+- …the Fixed items only; the replies themselves are on PR #2…
+
+The replies to each comment are on PR #2. Merging this brings the fixes onto PR #2.
 ```
 
 ## Sync PR (fork → org branch, after resolving conflicts with staging)
