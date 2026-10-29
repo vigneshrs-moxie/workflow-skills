@@ -22,8 +22,9 @@ The **facts block** is everything the review lenses need to know about the chang
 4. **Plan steps.** The implementation plan's step list, one line per step (its heading), with the plan's version. On the quick flow, the quick plan's "Where" list.
 5. **Acceptance criteria.** `acceptance.md` as it is, with its version. When the job has none, the spec's acceptance criteria (or the quick plan's numbered criteria), and say which.
 6. **Spec.** The spec in full, with its path and version. When the job's options use a stand-in (`quick-plan.md`, `requirements.md` or a provided document), paste that instead and name it; when the spec stage was skipped, say so in one line.
-7. **Other inputs, by path only.** The test plan, `dev-tests.md`, `implementation-log.md`, `test-report.md`, `findings.md`, `wireframes.json` and the checklists for this job's layer tags (`~/.claude/skills/feature/checklists/`), each with its version, or "none" when the job has no such file. Lenses read these with the Read tool when their axis needs them; they are not pasted.
-8. **The diff.** See below.
+7. **Not doing.** The job's `## Not doing` list from `decisions.md` in the private folder, its lines as they are (`- <item> (<reason>)`), under the heading `## Not doing`. When the file has no such list or it is empty, the one line "none". These are things the job left out on purpose; the lens rules say how lenses treat them.
+8. **Other inputs, by path only.** The test plan, `dev-tests.md`, `implementation-log.md`, `test-report.md`, `findings.md`, `wireframes.json` and the checklists for this job's layer tags (`~/.claude/skills/feature/checklists/`), each with its version, or "none" when the job has no such file. Lenses read these with the Read tool when their axis needs them; they are not pasted.
+9. **The diff.** See below.
 
 ## The diff
 
@@ -55,7 +56,7 @@ Headings are `### Diff · db`, `### Diff · tests`, `### Diff · ui`, `### Diff 
 | `performance` | server, ui |
 | `ui` | ui |
 
-The facts file holds every area once; each lens prompt carries sections 1 to 7 plus its own areas, and its first line after the marker says which areas it got: "Diff areas in this prompt: server, ui (the diff was 2,589 lines)." When a lens's areas still come to more than 1,500 lines, paste them all the same and note in the review brief that the change is large enough to be worth splitting next time.
+The facts file holds every area once; each lens prompt carries sections 1 to 8 plus its own areas, and its first line after the marker says which areas it got: "Diff areas in this prompt: server, ui (the diff was 2,589 lines)." When a lens's areas still come to more than 1,500 lines, paste them all the same and note in the review brief that the change is large enough to be worth splitting next time.
 
 ## Example (top of a facts file)
 
