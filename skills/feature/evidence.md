@@ -1,6 +1,6 @@
 # Evidence at the test stage
 
-Proof a person can look at for each acceptance line: screenshots and a short video of the app doing what the line says, on the job's own Try it server, signed in as the dev bypass user, against the local database copy. The tester writes one Playwright spec per line; the Feature Workshop dashboard (Ground Control) runs them, keeps the pictures and the video in the job folder and shows them on the gate card. A person pastes the gate card's link on the ticket.
+Proof a person can look at for each acceptance line: screenshots and a short video of the app doing what the line says, on the job's own Try it server, signed in as the dev bypass user, against the local database copy. The tester writes one Playwright spec per line; the Feature Workshop dashboard runs them, keeps the pictures and the video in the job folder and shows them on the gate card. A person pastes the gate card's link on the ticket.
 
 ## When
 

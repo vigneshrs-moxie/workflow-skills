@@ -10,9 +10,9 @@ The brief exactly as shown to the human, numbered from `001` and never overwritt
 
 Overwrite the whole file each time. Valid JSON, UTF-8, no comments. Use `null` for anything not known; never guess.
 
-**Two versions.** Version 2 is version 1 plus the `ticket` block, and the block is required in it. Write `"schema_version": 2` when the job's `options.json` names a ticket (`ticket.key`, set when the job was started from an Orbit ticket in Ground Control's Inbox); keep its key exactly. Write `"schema_version": 1` for any other job; version 1 files stay valid.
+**Two versions.** Version 2 is version 1 plus the `ticket` block, and the block is required in it. Write `"schema_version": 2` when the job's `options.json` names a ticket (`ticket.key`, set when the job was started from an Orbit ticket in the dashboard's Inbox); keep its key exactly. Write `"schema_version": 1` for any other job; version 1 files stay valid.
 
-**Checked on every write.** The dashboard checks each `status.json` you write during a reply against its schema (`dashboard/lib/status-schema.json` in Ground Control). A wrong type (text where a number goes), a value outside its list (a `stage`, `stage_state`, `waiting_for`, PR `state` or ticket `level` not named below), a missing `slug`, `stage` or `stage_state`, or version 1 on a job started from a ticket is an error. A key the schema doesn't know is allowed (the dashboard ignores it), and so is anything the display only cuts (a fourth question, a link not on GitHub). When a write has errors you get one message in this session: `status.json is invalid: <errors>. Rewrite the whole file to match ~/.claude/skills/feature/status-json.md and write it again.` Do exactly that: fix every error it lists, write the whole file again, then carry on with what you were doing. After three such messages in a row the human gets a card instead, so don't argue with the check or work around it.
+**Checked on every write.** The dashboard checks each `status.json` you write during a reply against its schema (`dashboard/lib/status-schema.json` in the dashboard's repository). A wrong type (text where a number goes), a value outside its list (a `stage`, `stage_state`, `waiting_for`, PR `state` or ticket `level` not named below), a missing `slug`, `stage` or `stage_state`, or version 1 on a job started from a ticket is an error. A key the schema doesn't know is allowed (the dashboard ignores it), and so is anything the display only cuts (a fourth question, a link not on GitHub). When a write has errors you get one message in this session: `status.json is invalid: <errors>. Rewrite the whole file to match ~/.claude/skills/feature/status-json.md and write it again.` Do exactly that: fix every error it lists, write the whole file again, then carry on with what you were doing. After three such messages in a row the human gets a card instead, so don't argue with the check or work around it.
 
 Version 1, a job with no ticket:
 
@@ -98,7 +98,7 @@ Version 2, a job started from ticket ORBIT-479 (every version 1 field as above, 
 
 `ticket` is `{ "key", "title", "url", "level" }`:
 
-- `key`: `ORBIT-<n>`, uppercase, exactly the key in `options.json`. The job, its branch and the ticket share it: the branch is `feature/orbit-<n>-<short-title>` (`fix/` for a bug; git-workflow.md), and Ground Control has already named the job's folder `orbit-<n>-<short-title>`.
+- `key`: `ORBIT-<n>`, uppercase, exactly the key in `options.json`. The job, its branch and the ticket share it: the branch is `feature/orbit-<n>-<short-title>` (`fix/` for a bug; git-workflow.md), and the dashboard has already named the job's folder `orbit-<n>-<short-title>`.
 - `title`: the ticket's title as Orbit gives it, or `null`.
 - `url`: the ticket's `https://` link, or `null`.
 - `level`: the job's level as `L0`–`L3` (from `options.json`, else your `suggested_level`), or `null` with neither.
