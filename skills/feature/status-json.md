@@ -143,6 +143,7 @@ The dashboard writes them in the first `status.json` when it starts the section;
 | `artifacts` | paths relative to the private folder where possible, otherwise absolute. Versions exactly as on disk. From the plan on, include "Acceptance criteria" `acceptance.md` and "Dev tests" `dev-tests.md` |
 | `branch`, `worktree`, `base_sha` | from implementation on, as recorded in `workflow-status.md` (worktree path absolute); `null` before |
 | `prs` | always the three PR stages from the git workflow. `state`: `not_started` · `open` · `changes_requested` · `approved` · `merged` · `closed`. `url` once the PR exists. Record only what you saw on GitHub; never mark a PR merged or approved on assumption |
+| `stack_suggested` | any job, optional: your first brief thinks the ticket is big enough for a stack (stack.md, When to propose one); why, in one plain sentence under 400 characters. The Job page shows it with "Run as a stack instead". Set it to `null` once the human has answered; absent or `null` otherwise |
 | `stack`, `section` | a section of a stack only, both or neither (see A section of a stack above): its parent job's folder name and its name in `stack.md`; keep them as the dashboard wrote them |
 | `ticket` | version 2 only, and required there: `{ key, title, url, level }` (see The ticket above). Not read in version 1 |
 | `session_id` | this conductor session's ID if you know it; otherwise `null` (the dashboard finds it from the session logs) |
