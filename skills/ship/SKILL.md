@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Move a finished branch through the team's three pull-request stages from the terminal, outside a /feature job or after one hands off. Fork branch to the same-named org branch (PR #1, you self-review and merge), org branch to staging (PR #2, Raj reviews), staging to main (PR #3, the release summary), plus the sync route when PR #2 conflicts with staging. It reads the git workflow docs, runs a read-only preflight (remotes, PR state on GitHub, only-my-commits check, merge simulation, migration numbers against main and staging, risk flags, CI), writes the PR body in the team's style, and opens the PR only when you say so. Never merges, approves, pushes to staging or main, or deploys. Use when the user says ship, open the PR, PR #1/#2/#3, release, staging PR, sync with staging, or asks what would go to main.
+description: Move a finished branch through the team's three pull-request stages from the terminal, outside a /feature job or after one hands off. Fork branch to the same-named org branch (PR #1, you self-review and merge), org branch to staging (PR #2, Raj reviews), staging to main (PR #3, the release summary), plus the sync route when PR #2 conflicts with staging, and review rounds (changes asked for, fixed one commit per item, replies drafted, sent back through a follow-up PR #1 on the human's yes). It reads the git workflow docs, runs a read-only preflight (remotes, PR state on GitHub, only-my-commits check, merge simulation, migration numbers against main and staging, risk flags, CI), writes the PR body in the team's style, and opens the PR only when you say so. Never merges, approves, pushes to staging or main, or deploys. Use when the user says ship, open the PR, PR #1/#2/#3, release, staging PR, sync with staging, Raj asked for changes, review round, or asks what would go to main.
 argument-hint: "[1 | 2 | 3 | release | sync | hotfix] [branch] [--dry]"
 ---
 
@@ -82,7 +82,22 @@ Follow `staging-conflicts.md` step by step; the preflight already lists the conf
 
 PR #1 as usual from a `fix/*` branch cut from main; PR #2 targets **main** instead of staging, with the human's explicit release-owner authorization recorded in the body; then a reviewed `main → staging` sync. Never choose this route yourself.
 
-## 3. After opening
+## 3. Review rounds
+
+Opening a PR is half of it. Very often the reviewer (Raj, on PR #2) asks for changes. **A review round** is everything one reviewer asked for in one go: their "Request changes" review and its comments (or two comments or more within ten minutes of each other), plus the checks that failed on the same commit. A comment that arrives before the round goes back joins it; one that arrives after opens the next round. Ground Control groups a round for you and keeps it in the job folder (`review/rounds/round-<n>.md`); from the terminal, read the PR's reviews and comments yourself (`gh pr view <n> --repo <org repo> --comments`, `gh api repos/<org repo>/pulls/<n>/comments`), read only.
+
+`<skill>/review-rounds.md` has the steps, the reply style and examples. In short:
+
+1. **A plan per item first**, before changing anything: for each comment, its kind (change, question, nit, or a failed check) and what you will do (fix it, answer it, or keep it as it is and why). With a job folder, write it to `status.json` `prs[<n>].rounds` (state `planning`); show it to the human. Items the human left out are not worked on.
+2. **Fix on the fork branch, in the job's worktree**, one commit per item or per small group, each commit message naming the comment it answers (`fix(feedback): name the id feedbackId (Raj's review, comment on api.ts:40)`). Run the checks the profile names (Orbit: `npm run check`) and the tests the change touches; say what ran in the round's `checks` line.
+3. **Draft a reply for every comment**: short, polite, specific ("Fixed in a1b2c3d: renamed to `feedbackId`." / "Kept as it is: … because …" / the answer). A failed check gets no reply: the push runs it again. Each item's `reply` in `status.json`; the round's state `ready` when every item is done.
+4. **Never push, reply, resolve, re-request or merge without the human's yes.** With Ground Control, one go on "Send back" does them all, in order, each listed first and logged: push to the fork, the follow-up PR #1, a reply per comment, resolve only the Fixed ones, ask the reviewer again. From the terminal, ask for one yes per action as everywhere in this skill.
+5. **A change asked for on PR #2 travels through the fork:** commit on the fork branch → push to the fork (never to the org, never forced) → a **follow-up PR #1** (fork → the same-named org branch, body from `pr-body.md` "Follow-up PR #1", titled "Follow-up for Raj's review on PR #2") → the human merges it (you review and merge PR #1, as always) → PR #2 shows the new commits → ask Raj to review again (`gh pr edit <n> --repo <org repo> --add-reviewer <handle>`). A change asked for on PR #1 needs no follow-up: push, and the PR has it.
+6. **The base moved and PR #2 conflicts:** follow the Sync procedure above (merge `staging` in, never rebase, so nothing is force-pushed), then send it back the same way.
+7. **Disagreeing is fine:** "Won't change" with the reason, still replied to. A question only: just the reply and the re-request; nothing is pushed.
+8. **Approved:** who merges comes from the profile's `prRoute` (Orbit: PR #1 you, PR #2 Raj, PR #3 the release owner). You never merge PR #2 or #3 from this skill; Ground Control's Merge always asks and only when the route lets the human merge.
+
+## 4. After opening
 
 - Reply with the URL, the exact head → base, what the human does next (merge PR #1 themselves; ask Raj; release owner), and what you did not run.
 - With a `/feature` job folder: update its `status.json` `prs[<n>]` (`url`, `state: "open"`) and `stage` (`pr1`, `pr2`, `pr3`), and add a line to `workflow-status.md`, so the Workshop shows it. Record only what GitHub shows.
