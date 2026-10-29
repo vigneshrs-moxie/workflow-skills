@@ -4,7 +4,12 @@ A **stack** is one big job split into **sections** that are built side by side. 
 
 ## When to propose one
 
-Propose a stack in the plan brief only when the work splits into parts that each own their own files: two to six sections, each buildable and testable on its own, with few dependencies between them (an L3 change across several subsystems, a ticket too big for one review). Say in one line why, and how many sections. Their yes to that brief is the go-ahead to write `stack.md`; it does not start anything.
+Propose a stack only when the work splits into parts that each own their own files: two to six sections, each buildable and testable on its own, with few dependencies between them (an L3 change across several subsystems, a ticket too big for one review).
+
+- **In your first brief**, when the ticket already looks that big, say so in one line ("This ticket looks big enough for a stack: …, about N parts") and write the same reason, one plain sentence, as `stack_suggested` in `status.json` (status-json.md). The Job page shows it with a "Run as a stack instead" button; the human's yes comes back as a message asking you to run it as a stack. Without that yes, carry on as a single job: the suggestion changes nothing by itself. Keep `stack_suggested` in later writes until the human answers, then set it to `null`.
+- **In the plan brief**, propose one when the plan shows the split: say in one line why, and how many sections.
+
+Their yes (the button, a message, or the plan brief's go-ahead) is the go-ahead to write `stack.md`; it does not start anything. A job started with "Run as a stack" (from the Inbox's Start as stack, or New job) is the same yes: write `stack.md` at plan.
 
 ## Writing `stack.md`
 
@@ -12,6 +17,8 @@ Propose a stack in the plan brief only when the work splits into parts that each
 
 ```markdown
 # ORBIT-512 · Work orders v2
+
+The API and the screens touch different folders, so they build side by side; the screens need the API's shapes, so they wait for it. The help page stands alone.
 
 ## Section: api
 The work order API: list, create and close, with its tests. One paragraph: what this section builds and how it is checked.
@@ -34,6 +41,7 @@ Depends on: none
 Order: api, ui, docs
 ```
 
+- **Why it splits this way:** one short paragraph under the title, before the first section, in plain words a newcomer follows: which parts are independent (different files) and so build side by side, and why any part waits for another. The Stack page shows it at the plan check under "Why these parts", with what each dependency means.
 - **One `## Section: <name>` per section.** The name goes into folder and branch names: lower-case letters, numbers and dashes, up to 40 (`api`, `work-order`). Each name once.
 - **The brief** is the paragraph under the heading. It is the section's whole spec: the section skips clarify and spec and starts at plan from it, so say what it builds, what it must not change, and how it is checked.
 - **`Owns:`** the files and folders the section may change, repository-relative, comma-separated or one `- ` line each; `*` matches within a folder, `**` across folders. Every section owns at least one path. **Owned paths don't overlap**: one file, one owner. A file two sections need goes to the one that changes it first; the other depends on it.
@@ -41,7 +49,7 @@ Order: api, ui, docs
 - **`Model:`** and **`Effort:`** (optional): override the stack's model and effort (Opus, high by default) for one section. Effort is `low`, `medium`, `high`, `xhigh` or `max`.
 - **`Order:`** last: every section once, in the order they merge. A section comes after everything it depends on.
 
-Then brief the human in one line: the plan is on the Stack page for approval, with how many sections and their order. Stop. If they ask for a change (a note from the Stack page: "The person asks for a change to the stack plan…"), write `stack.md` again and stop again.
+Then brief the human in one line: the plan is on the Stack page for approval, with how many sections and their order. Stop. (The Stack page calls sections "parts"; the files and the dashboard's messages to you say "section". They are the same thing.) If they ask for a change (a note from the Stack page: "The person asks for a change to the stack plan…"), write `stack.md` again and stop again.
 
 ## What you never do
 
