@@ -12,7 +12,7 @@ Read `options.json` at the start, and again before every dispatch and every brie
 - Raising the level after implementation started stops and asks which stages to add. Lowering it never removes an approval still owed: what will be built stays approved by version.
 - Log each change in `workflow-status.md` (Option changes table) and mention it in the next brief in one line.
 
-No `options.json` and nothing said: no level (you propose one in your first brief; SKILL.md, Start) with `skip: []`, `provided: {}`, `wireframes: "auto"`, `clarify: "auto"`, `reviewers: "auto"`, `review_rounds: 1`, `manual_test: false`, `fable_checks: []`, and each agent's own model.
+No `options.json` and nothing said: no level (you propose one in your first brief; SKILL.md, Start) with `skip: []`, `provided: {}`, `wireframes: "auto"`, `clarify: "auto"`, `evidence: "auto"`, `reviewers: "auto"`, `review_rounds: 1`, `manual_test: false`, `fable_checks: []`, and each agent's own model.
 
 Old and new dashboards both work: schema 1 files have `flow` and no `level` or `models` (read `quick` as L1, `small` as L2, `large` as L3, `auto` as no level); schema 2 adds `level` and `models` and keeps every schema 1 field.
 
@@ -34,6 +34,7 @@ Example (an L1 job):
 | `provided` | documents the human already has (`spec`, `findings`, `plan`, `test_plan`), absolute paths |
 | `wireframes` | `"auto"` (default): the wireframe stage runs at L2 and L3 when the spec names a screen, page, dialog, sheet or email, and the spec brief proposes skipping it when it names none. `"always"`: it runs at L1, L2 and L3 whatever the spec names. `"off"`: it never runs. Never at L0 |
 | `clarify` | `"auto"` (default): before the spec of an L2 or L3 job, ask only when the request leaves a product decision open (zero questions is fine). `"always"`: ask at L1 too, and always brief at least what you assumed. `"off"`: never ask; go straight to the spec. Never at L0 |
+| `evidence` | screenshots and a short video of each acceptance line at the test stage (`evidence.md`). `"auto"` (default): on at L2 and L3, off at L1. `"always"`: on at L1 too. `"off"`: never. Never at L0, whatever it says. When it is on, the tester writes one Playwright spec per acceptance line a person can see and the dashboard records them; you never run them |
 | `reviewers` | `"auto"`: the lens table in SKILL.md decides, at any level. A list: exactly those lens agents run. This chooses lens agents only; GitHub reviewer requests still need their own yes |
 | `review_rounds` | fix-and-re-review rounds after the first review: 1, 2 or 3 |
 | `manual_test` | the human tries the change by hand before review (below) |
@@ -71,7 +72,7 @@ Check the request, and the files touched once you know them. When the job's leve
 ## How level and skip combine
 
 - **L0:** only the one build runs (above), then the PR stages; a manual test if `manual_test` is on.
-- **L1 (the quick route):** the stages are quick plan → implement → checks → manual test (if asked) → review → PR stages. Spec, refine, investigate and spec-update never run, whatever `skip` says, unless the human asks in words. Clarify runs before the quick plan only with `clarify: "always"`; wireframes run after the quick plan only with `wireframes: "always"` or a `heavier plan` line. The plan stage is always the quick plan, written by you, never the planner. The test stage is you running the quick plan's checks (dispatch the tester only when the quick plan lists checks beyond `npm run check` and `npm run build`).
+- **L1 (the quick route):** the stages are quick plan → implement → checks → manual test (if asked) → review → PR stages. Spec, refine, investigate and spec-update never run, whatever `skip` says, unless the human asks in words. Clarify runs before the quick plan only with `clarify: "always"`; wireframes run after the quick plan only with `wireframes: "always"` or a `heavier plan` line. The plan stage is always the quick plan, written by you, never the planner. The test stage is you running the quick plan's checks (dispatch the tester only when the quick plan lists checks beyond `npm run check` and `npm run build`, or when `evidence` is `"always"`: then the tester also writes the evidence specs, `evidence.md`).
 - **L2 and L3 (the small and large routes):** the routes in workflow-gates.md; `skip` is the final list of stages not to run. `wireframe` is a normal skippable stage here: `skip: ["wireframe"]`, `wireframes: "off"`, the gate card's "Skip next" chip, or your own proposal in the spec brief when the spec names no screen. `clarify` is skipped by `clarify: "off"` or `skip: ["clarify"]`; with `"auto"` you may also ask nothing and go straight to the spec.
 
 ## Option lines from the gate card
