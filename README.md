@@ -2,7 +2,7 @@
 
 Skills and worker agents for [Claude Code](https://claude.com/claude-code) that take a feature or bug from a one-line request to reviewed pull requests, with a human sign-off at every stage.
 
-You talk to one **Foreman** (the `/feature` skill). It hands each stage to a worker agent, checks the result against the files on disk, and gives you a short brief to approve before anything moves on. The [Feature Workshop](https://github.com/vigneshrs-moxie/feature-workshop) dashboard shows these jobs in a browser; it needs this workflow installed.
+You talk to one **Foreman** (the `/feature` skill). It hands each stage to a worker agent, checks the result against the files on disk, and gives you a short brief to approve before anything moves on. The [Starbase](https://github.com/vigneshrs-moxie/feature-workshop) shows these jobs in a browser; it needs this workflow installed.
 
 ## Install
 
@@ -39,7 +39,7 @@ Then in Claude Code, inside the repository you work on:
 | `feature-investigate` | Read-only look at how the repository behaves today, written up as private findings. |
 | `feature-plan` | The implementation plan and test plan, from the spec and findings. |
 | `wireframe` | Draws the screens for a feature or product idea and publishes them as a private review page before anything is built. Four fidelities: text in the reply, hand-drawn sketch, greyscale lo-fi, and hi-fi in the app's own design (read from the repository and cached, or a bundled preset when there is no design system). One panel per screen in flow order, states as tabs, Before/Now for changed screens, numbered notes, clickable exits between screens, and two side-by-side options wherever there is a real design choice. Reviewers mark, pick and annotate on the page; it also writes a build brief and keeps a gallery of every page. Works in any repository or with none. `example/` holds a lo-fi and a hi-fi demo on a made-up billing app. |
-| `feature-wireframe` | The Screens stage of a `/feature` job: runs `wireframe` in job mode (no questions, files to the job folder, nothing published) for the Foreman and the Feature Workshop. |
+| `feature-wireframe` | The Screens stage of a `/feature` job: runs `wireframe` in job mode (no questions, files to the job folder, nothing published) for the Foreman and Starbase. |
 | `ship` | Moves a finished branch through the three PR stages from the terminal: fork branch → same-named org branch (PR #1, you self-review and merge), org branch → staging (PR #2, Raj reviews), staging → main (PR #3, the release summary), and the sync route when PR #2 conflicts with staging. `preflight.py` is read-only: remotes, PR state on GitHub, the only-my-commits check, a merge simulation, migration numbers against main and staging, risk flags, CI. PR bodies follow `pr-body.md`. It opens a PR only when you say so and never merges, approves or pushes to staging or main. |
 | `review-walkthrough` | Builds a one-page cue sheet for an in-person review of a branch or PR. Changes are sorted into four zoom levels (System, Module, Function, Line); Quick shows only the highest level with changes, with Explain jumps to a short before/now explanation, and a view picker shows all levels or any one. A wrap-up collects follow-ups. |
 
@@ -63,7 +63,7 @@ Run `/wireframe <idea>` (or pass a spec path) inside the repository the feature 
 - **Questions to settle** lists open decisions and the assumptions it made.
 - **A build brief** (`<slug>.brief.md`) lists the screens, states, exits, components, wording and decisions, for whoever builds it. Every page is listed in the gallery at `~/.claude/wireframes/index.html`.
 
-Inside a `/feature` job the `feature-wireframe` wrapper runs the same skill as the **Screens** stage: the `feature-wireframer` worker draws the screens from the agreed spec and writes `wireframes.html` (opens straight from disk; the Feature Workshop shows it in its Screens tab, where verdicts and notes save in the browser), `wireframes.json` (screens, exits, choices, questions, version) and `wireframes.brief.md` to the job's folder. Nothing is published; your picks and notes come back as lines in your reply to the gate card. It only reads the repository (no servers, builds or tests) and invents all example data.
+Inside a `/feature` job the `feature-wireframe` wrapper runs the same skill as the **Screens** stage: the `feature-wireframer` worker draws the screens from the agreed spec and writes `wireframes.html` (opens straight from disk; Starbase shows it in its Screens tab, where verdicts and notes save in the browser), `wireframes.json` (screens, exits, choices, questions, version) and `wireframes.brief.md` to the job's folder. Nothing is published; your picks and notes come back as lines in your reply to the gate card. It only reads the repository (no servers, builds or tests) and invents all example data.
 
 ## How a job runs
 
@@ -76,7 +76,7 @@ Inside a `/feature` job the `feature-wireframe` wrapper runs the same skill as t
 7. **Test and review.** The test plan runs; review lenses report; fixes get one round by default.
 8. **PRs.** Pushed to your fork only. Pull requests to the organisation repository are opened only when you say so.
 
-Every job keeps its own private folder under `~/.claude/feature-work/<slug>/` with the spec, findings, plan, briefs and a `status.json` the dashboard reads. Nothing from that folder is committed to the repository you are working on.
+Every job keeps its own private folder under `~/.claude/feature-work/<slug>/` with the spec, findings, plan, briefs and a `status.json` Starbase reads. Nothing from that folder is committed to the repository you are working on.
 
 ## Adapting it
 

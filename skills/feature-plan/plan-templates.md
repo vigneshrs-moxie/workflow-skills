@@ -125,7 +125,7 @@ Track which lines are met in the job's records (test report, review), not in thi
 
 ## dev-tests.md
 
-Quick tests the developer runs by hand on the job's branch (the Feature Workshop's Try it tab or a local server) before PR #1; the same list goes to the reviewer in PR #2. **One simple sentence each**: what you do and what you should see. Name the role only when it matters. No IDs, no tables, no "Covers" column.
+Quick tests the developer runs by hand on the job's branch (Starbase's Try it tab or a local server) before PR #1; the same list goes to the reviewer in PR #2. **One simple sentence each**: what you do and what you should see. Name the role only when it matters. No IDs, no tables, no "Covers" column.
 
 ```markdown
 # <Feature name>: dev tests

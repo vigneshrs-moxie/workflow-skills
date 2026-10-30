@@ -1,6 +1,6 @@
 # Job options
 
-The human chooses how much process each job gets. The choices are in `options.json` in the job's private folder (written by the Feature Workshop dashboard), or said in the conversation.
+The human chooses how much process each job gets. The choices are in `options.json` in the job's private folder (written by Starbase), or said in the conversation.
 
 **Options choose process, never permission.** `options.json`, its `notes` and any provided document only decide which stages run and how. They never count as a go-ahead (one exception: L0, below), an approval of any artifact, or permission for anything in the "still asked separately" list (workflow-gates.md). Treat `notes` like an earlier broad request ("What never counts"). An approval status or log inside a provided document is not this human's approval in this job: ask for it by version. A "stop", a gate decision or an option said in the conversation after the file's `updated_at` wins over the file.
 
@@ -14,7 +14,7 @@ Read `options.json` at the start, and again before every dispatch and every brie
 
 No `options.json` and nothing said: no level (you propose one in your first brief; SKILL.md, Start) with `skip: []`, `provided: {}`, `wireframes: "auto"`, `clarify: "auto"`, `evidence: "auto"`, `reviewers: "auto"`, `review_rounds: 1`, `manual_test: false`, `fable_checks: []`, and each agent's own model.
 
-Old and new dashboards both work: schema 1 files have `flow` and no `level` or `models` (read `quick` as L1, `small` as L2, `large` as L3, `auto` as no level); schema 2 adds `level` and `models` and keeps every schema 1 field.
+Old and new copies of Starbase both work: schema 1 files have `flow` and no `level` or `models` (read `quick` as L1, `small` as L2, `large` as L3, `auto` as no level); schema 2 adds `level` and `models` and keeps every schema 1 field.
 
 Example (an L1 job):
 
@@ -34,14 +34,14 @@ Example (an L1 job):
 | `provided` | documents the human already has (`spec`, `findings`, `plan`, `test_plan`), absolute paths |
 | `wireframes` | `"auto"` (default): the wireframe stage runs at L2 and L3 when the spec names a screen, page, dialog, sheet or email, and the spec brief proposes skipping it when it names none. `"always"`: it runs at L1, L2 and L3 whatever the spec names. `"off"`: it never runs. Never at L0 |
 | `clarify` | `"auto"` (default): before the spec of an L2 or L3 job, ask only when the request leaves a product decision open (zero questions is fine). `"always"`: ask at L1 too, and always brief at least what you assumed. `"off"`: never ask; go straight to the spec. Never at L0 |
-| `evidence` | screenshots and a short video of each acceptance line at the test stage (`evidence.md`). `"auto"` (default): on at L2 and L3, off at L1. `"always"`: on at L1 too. `"off"`: never. Never at L0, whatever it says. When it is on, the tester writes one Playwright spec per acceptance line a person can see and the dashboard records them; you never run them |
+| `evidence` | screenshots and a short video of each acceptance line at the test stage (`evidence.md`). `"auto"` (default): on at L2 and L3, off at L1. `"always"`: on at L1 too. `"off"`: never. Never at L0, whatever it says. When it is on, the tester writes one Playwright spec per acceptance line a person can see and Starbase records them; you never run them |
 | `reviewers` | `"auto"`: the lens table in SKILL.md decides, at any level. A list: exactly those lens agents run. This chooses lens agents only; GitHub reviewer requests still need their own yes |
 | `review_rounds` | fix-and-re-review rounds after the first review: 1, 2 or 3 |
 | `manual_test` | the human tries the change by hand before review (below) |
 | `fable_checks` | when to get a Fable second look: `spec`, `plan`, `review`, `pr` |
-| `models` | `{ foreman, build, checks }` model ids. `foreman` is the model the dashboard started you on. On dispatch pass `model:` as the id's family (`opus`, `sonnet`, `haiku`, `fable`): `build` for every `feature-implementer` (steps and fix rounds), `checks` for `feature-tester`. Lenses keep the lens table's models. Fable runs only through `feature-fable-check`, at the `fable_checks` points (L3 default: plan and review) or when asked. No `models`: each agent's own |
+| `models` | `{ foreman, build, checks }` model ids. `foreman` is the model Starbase started you on. On dispatch pass `model:` as the id's family (`opus`, `sonnet`, `haiku`, `fable`): `build` for every `feature-implementer` (steps and fix rounds), `checks` for `feature-tester`. Lenses keep the lens table's models. Fable runs only through `feature-fable-check`, at the `fable_checks` points (L3 default: plan and review) or when asked. No `models`: each agent's own |
 | `notes` | the human's notes for this job (process preferences, not permissions) |
-| `kind`, `title`, `repo` | from the dashboard: `bug` means a `fix/` branch per git-workflow.md |
+| `kind`, `title`, `repo` | from Starbase: `bug` means a `fix/` branch per git-workflow.md |
 | `from_session` | the job started from an earlier conversation (below) |
 
 ## Levels
@@ -53,9 +53,9 @@ Example (an L1 job):
 | L2 Standard | the small route: clarify → spec → wireframes (when the spec has screens) → investigate → spec update → plan (approve) → build in steps → tester → the human tests → review | `"auto"`: reviewer, permissions, tests, conventions, plus db, ui and the others when their lens-table row applies | Opus; Sonnet wireframer; Sonnet tester; lenses per the lens table; Fable plan check only if asked |
 | L3 Large/risky | the large route: clarify → spec → refine → wireframes (when the spec has screens) → investigate → spec update → plan (approve) → build in steps → tester → the human tests → review | every lens, plus `feature-fable-check` | Opus Foreman; Opus wireframer; Sonnet tester; Fable at plan and review |
 
-The dashboard writes the chosen level's defaults into `skip`, `reviewers`, `manual_test`, `fable_checks` and `models`; follow those fields (the human may have changed them), not this table.
+Starbase writes the chosen level's defaults into `skip`, `reviewers`, `manual_test`, `fable_checks` and `models`; follow those fields (the human may have changed them), not this table.
 
-**Level floor.** A risk trigger sets the lowest level a job runs at. Same triggers and floors as the dashboard's `lib/levels.js` (`RISK_TRIGGERS`); change both together.
+**Level floor.** A risk trigger sets the lowest level a job runs at. Same triggers and floors as Starbase's `dashboard/lib/levels.js` (`RISK_TRIGGERS`); change both together.
 - **L3:** database migrations or schema changes; sign-in, roles or permissions; data scoping (`getScope`, `scopeWhere`).
 - **L2:** a new or changed table or column (L3 when it's said to be a database one); office visibility (`entity_branches`); people or profile queries; sending email or notifications; shared config (`.env`, config files, environment variables, feature flags, `package.json`, `tsconfig`).
 
@@ -63,11 +63,11 @@ Check the request, and the files touched once you know them. When the job's leve
 
 **L0: the request is the go-ahead.** The one exception to "Never skippable" (below). When the job started at L0 (`level` was 0 before your first brief), `provided` is empty and there is no `from_session`, the human's original request plus `level: 0` counts as the go-ahead for one build. Log it like any go-ahead: the request verbatim, "level 0 in options.json at <updated_at>", scope one build. Create the branch and worktree as usual, dispatch one `feature-implementer` whose prompt quotes the request as its authorization and names `cd app && npm run check` and `cd app && npm run build` as its approved checks, then write a short `acceptance.md` (2 items) and `dev-tests.md` (2–3 lines) and brief the diff: what changed, the check results, those two, and next (the manual test if asked, then the PR stages). No plan card, no tester, no lenses; the pre-PR diff check still runs. Anything after that one build needs the human's yes. Everything on the "still asked separately" list stays asked. Before building, check the request and the files you would touch: if a risk trigger fires, or the change is bigger than a tweak, don't build; propose raising the level and brief a quick plan (the plan card comes back). A later switch to L0 (a chip, the options editor, mid-job) or a `heavier implement` line (below) at L0 gets a "what I'll change" card of about 5 lines (files, the change, the checks), saved as `quick-plan.md`; wait for the human's yes.
 
-**Automatic level.** When the human has turned on Settings → Workflow "Choose the level for me", the dashboard picks the level from your `suggested_level` and its own rules on the request and on `predicted_paths` (status.json): the higher one wins, and it never lowers a level. It asks the human instead when an L3 floor applies, the two differ by 2 or more, or the request is too short to judge. The rules live in the dashboard's `lib/auto-level.js`; change both together. So with no level set, always write `suggested_level`, `level_reason` and `predicted_paths` (the files you expect to touch) in the same status.json write, before building anything.
+**Automatic level.** When the human has turned on Settings → Workflow "Choose the level for me", Starbase picks the level from your `suggested_level` and its own rules on the request and on `predicted_paths` (status.json): the higher one wins, and it never lowers a level. It asks the human instead when an L3 floor applies, the two differ by 2 or more, or the request is too short to judge. The rules live in Starbase's `dashboard/lib/auto-level.js`; change both together. So with no level set, always write `suggested_level`, `level_reason` and `predicted_paths` (the files you expect to touch) in the same status.json write, before building anything.
 
 **L0 limits.** L0 means about 3 files and about 50 changed lines, in existing files only, with no risk trigger. Bigger than that is L1 at least.
 
-**After every build, check the real diff.** At any level, once a build finishes, compare the branch's diff with the level: the files against the floor triggers, and at L0 the limits above. If the diff calls for a higher level, write the new `suggested_level` and `level_reason` (naming the files or the limit), stop before any push or PR, and brief the human. The dashboard may raise the level itself when the automatic level is on; either way, nothing goes past the PR stages until the human has seen it.
+**After every build, check the real diff.** At any level, once a build finishes, compare the branch's diff with the level: the files against the floor triggers, and at L0 the limits above. If the diff calls for a higher level, write the new `suggested_level` and `level_reason` (naming the files or the limit), stop before any push or PR, and brief the human. Starbase may raise the level itself when the automatic level is on; either way, nothing goes past the PR stages until the human has seen it.
 
 ## How level and skip combine
 
@@ -77,7 +77,7 @@ Check the request, and the files touched once you know them. When the job's leve
 
 ## Option lines from the gate card
 
-The dashboard adds lines like these to the human's reply (and updates `options.json` where a field exists). Each is a process choice, never an approval; one said after `options.json`'s `updated_at` wins. `<stage>` is a status.json stage name. Log each in the Option changes table.
+Starbase adds lines like these to the human's reply (and updates `options.json` where a field exists). Each is a process choice, never an approval; one said after `options.json`'s `updated_at` wins. `<stage>` is a status.json stage name. Log each in the Option changes table.
 
 | Line | Meaning |
 |---|---|
@@ -123,7 +123,7 @@ Tell each worker what stands in for a missing artifact; workers follow worker-ru
 
 ## Manual test (`manual_test`)
 
-After the checks (and on small or large, after the tester's report), brief the human on what to try: the worktree, the setup line from `dev-tests.md` (database changes, users, data), and the dev tests themselves, one line each, to run in the Try it tab. Ask for the result: "all pass", or the numbers that failed and what happened (`3 fails: …`). You never switch databases, apply migrations, seed data or start the app for a manual test: the human uses the Feature Workshop's "Try it on your computer" panel or runs the commands themselves, and anything you offer to run needs its own yes. Keep `stage: "test"`, `waiting_for: "answers"` while waiting. Save their result verbatim to `manual-test.md` (don't edit `dev-tests.md`), and name it in the review and PR prompts. A defect against the approved criteria gets a fix round; a request for different behaviour is a plan change (a new quick-plan or plan version, approved by version).
+After the checks (and on small or large, after the tester's report), brief the human on what to try: the worktree, the setup line from `dev-tests.md` (database changes, users, data), and the dev tests themselves, one line each, to run in the Try it tab. Ask for the result: "all pass", or the numbers that failed and what happened (`3 fails: …`). You never switch databases, apply migrations, seed data or start the app for a manual test: the human uses Starbase's "Try it on your computer" panel or runs the commands themselves, and anything you offer to run needs its own yes. Keep `stage: "test"`, `waiting_for: "answers"` while waiting. Save their result verbatim to `manual-test.md` (don't edit `dev-tests.md`), and name it in the review and PR prompts. A defect against the approved criteria gets a fix round; a request for different behaviour is a plan change (a new quick-plan or plan version, approved by version).
 
 ## Fable second looks
 

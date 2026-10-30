@@ -127,7 +127,8 @@ def risk_flags(files):
 
 
 def job_for(branch):
-    roots = [os.environ.get("WORKSHOP_FEATURES_DIR"), os.path.join(os.path.expanduser("~"), ".claude", "feature-work")]
+    # STARBASE_FEATURES_DIR, else its name before Starbase (WORKSHOP_FEATURES_DIR), else the default.
+    roots = [os.environ.get("STARBASE_FEATURES_DIR"), os.environ.get("WORKSHOP_FEATURES_DIR"), os.path.join(os.path.expanduser("~"), ".claude", "feature-work")]
     for root in [r for r in roots if r]:
         for sp in glob.glob(os.path.join(root, "*", "status.json")):
             try:
