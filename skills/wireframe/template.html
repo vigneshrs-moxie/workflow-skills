@@ -345,7 +345,7 @@ table.coverage td.no { color: var(--rv-line); text-align: center; }
   const LS = "{{NOTES_KEY}}";
   const VERSION = "{{VERSION}}"; // the job's wireframes.json version; empty outside a job
   // Published as an artifact, verdicts live in its database and LS is only a cache. Opened from disk
-  // or inside the Feature Workshop (no window.claude), they live in localStorage, one key per version.
+  // or inside Starbase (no window.claude), they live in localStorage, one key per version.
   const HOSTED = !!(window.claude && window.claude.use);
   const KEY = HOSTED || !VERSION ? LS : LS + ":v" + VERSION;
   // A published artifact also sits in an iframe (claude.ai's), so the host messages below are for the from-disk page only.
@@ -718,7 +718,7 @@ table.coverage td.no { color: var(--rv-line); text-align: center; }
   }
   intentBox.addEventListener("change", (e) => { if (e.target.name === "intent") { metaState.intent = e.target.value; saveMeta(); } });
 
-  // Inside the Feature Workshop (an iframe): tell the host what the page holds and where the reader is.
+  // Inside Starbase (an iframe): tell the host what the page holds and where the reader is.
   // Sent on load, when the current section changes, and after a verdict or pick.
   const kindOf = (s) => (s.dataset.key === "overview" ? "overview" : "screen" in s.dataset ? "screen" : options(s).length ? "choice" : s.dataset.key === "questions" ? "questions" : "screen");
   function post() {
@@ -759,7 +759,7 @@ table.coverage td.no { color: var(--rv-line); text-align: center; }
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && e.target.tagName === "TEXTAREA") { e.target.blur(); return; }
-    // Esc anywhere else, inside the Feature Workshop: hand the keyboard back to the host (another
+    // Esc anywhere else, inside Starbase: hand the keyboard back to the host (another
     // origin, so it can't hear this key itself). Never from the notes box: there Esc only blurs it.
     if (e.key === "Escape" && FRAMED) { try { window.parent.postMessage({ type: "wireframes-escape" }, "*"); } catch {} return; }
     if (e.metaKey || e.ctrlKey || e.altKey || /^(TEXTAREA|INPUT|SELECT)$/.test(e.target.tagName)) return;
@@ -833,11 +833,11 @@ table.coverage td.no { color: var(--rv-line); text-align: center; }
     else fallback();
   });
 
-  // Messages from the Feature Workshop: jump to a section, or hand over the feedback text. (Posts to
+  // Messages from Starbase: jump to a section, or hand over the feedback text. (Posts to
   // the parent go to "*": the host is another origin, chosen by whoever framed the page, and nothing
   // posted holds a secret.)
   if (FRAMED) {
-    // No origin check on purpose: only the Feature Workshop may frame this page (its frame-ancestors
+    // No origin check on purpose: only Starbase may frame this page (its frame-ancestors
     // policy), so whoever posts here is that host; nothing read from a message is trusted beyond a key.
     window.addEventListener("message", (e) => {
       const m = e.data;

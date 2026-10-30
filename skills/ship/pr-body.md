@@ -105,7 +105,7 @@ Approval from someone other than the author is required before a human merges.
 
 ## Follow-up PR #1 (fork → org branch, the fixes for a review round on PR #2)
 
-Title: `Follow-up for <reviewer>’s review on PR #2`. The dashboard writes this body itself when it opens the PR on Send back; from the terminal, write the same.
+Title: `Follow-up for <reviewer>’s review on PR #2`. Starbase writes this body itself when it opens the PR on Send back; from the terminal, write the same.
 
 ```markdown
 Follow-up for <reviewer>’s review on PR #2 (<PR #2 link>), round <n>.

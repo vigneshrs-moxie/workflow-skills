@@ -19,7 +19,7 @@ hand-drawn style; "hi" needs --theme (the app's own CSS, see reference/design-ca
 the browser and load Lucide icons, so .frame.hifi screens can use the app's own classes.
 
 With --job <slug> (inside a /feature job) it also writes to the job's private folder
-($WORKSHOP_FEATURES_DIR or ~/.claude/feature-work, then <slug>/):
+($STARBASE_FEATURES_DIR, else the older $WORKSHOP_FEATURES_DIR, else ~/.claude/feature-work, then <slug>/):
   wireframes.html      the page as a complete document, viewable straight from disk
   wireframes.json      screens, choices, questions, exits, tier, revision ("version"), URL
   wireframes.brief.md  the build brief
@@ -145,7 +145,7 @@ def check(sections):
 
 
 def summary(sections):
-    """What the page holds, for the brief, the Foreman and the dashboard."""
+    """What the page holds, for the brief, the Foreman and Starbase."""
     out = {"screens": [], "choices": [], "questions": []}
     for key, attrs, b in blocks(sections):
         h2 = re.search(r"<h2[^>]*>(.*?)</h2>", b, re.S)
@@ -337,7 +337,7 @@ def main():
     slug = a.slug or re.sub(r"[^a-z0-9]+", "-", a.title.lower()).strip("-")
     job_dir = None
     if a.job:
-        root = os.path.expanduser(os.environ.get("WORKSHOP_FEATURES_DIR") or os.path.join("~", ".claude", "feature-work"))
+        root = os.path.expanduser(os.environ.get("STARBASE_FEATURES_DIR") or os.environ.get("WORKSHOP_FEATURES_DIR") or os.path.join("~", ".claude", "feature-work"))
         job_dir = os.path.join(root, a.job)
         if not os.path.isdir(job_dir):
             sys.exit(f"no feature folder at {job_dir}")

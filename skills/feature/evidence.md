@@ -1,6 +1,6 @@
 # Evidence at the test stage
 
-Proof a person can look at for each acceptance line: screenshots and a short video of the app doing what the line says, on the job's own Try it server, signed in as the dev bypass user, against the local database copy. The tester writes one Playwright spec per line; the Feature Workshop dashboard runs them, keeps the pictures and the video in the job folder and shows them on the gate card. A person pastes the gate card's link on the ticket.
+Proof a person can look at for each acceptance line: screenshots and a short video of the app doing what the line says, on the job's own Try it server, signed in as the dev bypass user, against the local database copy. The tester writes one Playwright spec per line; Starbase runs them, keeps the pictures and the video in the job folder and shows them on the gate card. A person pastes the gate card's link on the ticket.
 
 ## When
 
@@ -47,17 +47,17 @@ test('AC-3: Managers see the Hours column', async ({ page }, testInfo) => {
 - **Never signs in with a password.** No password, token or cookie is typed or set. Try it turns on the dev sign-in skip (`DEV_BYPASS_AUTH`, from the repository's profile), so the app opens as the dev bypass user.
 - **Never reads `.env` files** or any other settings file, and never prints a setting.
 - **Never changes data outside the local database copy.** The app on the Try it port only uses the local copy. Prefer looking over changing; when a criterion is about saving something, save clearly invented values ("Evidence check 1"). Nothing that sends email, texts or calls another service.
-- **Never visits anything but this computer.** Start with `page.goto('/')` and use paths, never a full address: the dashboard sets the address to the job's Try it server on `127.0.0.1`, and stops any page that tries to go elsewhere.
+- **Never visits anything but this computer.** Start with `page.goto('/')` and use paths, never a full address: Starbase sets the address to the job's Try it server on `127.0.0.1`, and stops any page that tries to go elsewhere.
 
 ## Who runs them
 
-Not the tester, and not you. The dashboard runs them once `test-report.md` names the commit under test: it starts the job's Try it server on its own port, checks the local database copy is up, runs the specs in Chromium, keeps the pictures and the video, and stops the server again. So recording needs no extra yes for a server, and the tester never starts the app for evidence. When the dashboard can't record (the database copy isn't running, Chromium isn't installed) it says so on the gate card, and the person presses Record again; don't work around it.
+Not the tester, and not you. Starbase runs them once `test-report.md` names the commit under test: it starts the job's Try it server on its own port, checks the local database copy is up, runs the specs in Chromium, keeps the pictures and the video, and stops the server again. So recording needs no extra yes for a server, and the tester never starts the app for evidence. When Starbase can't record (the database copy isn't running, Chromium isn't installed) it says so on the gate card, and the person presses Record again; don't work around it.
 
-The results are the dashboard's: `evidence/evidence.json` and the folder `evidence/<commit>/AC-<n>/`. Read `evidence.json` if it is there when you brief; a criterion whose evidence failed is a reason to look, like a FAIL in the report, but the report's own checks stay the result.
+The results are Starbase's: `evidence/evidence.json` and the folder `evidence/<commit>/AC-<n>/`. Read `evidence.json` if it is there when you brief; a criterion whose evidence failed is a reason to look, like a FAIL in the report, but the report's own checks stay the result.
 
 ## The report's Evidence section
 
-Write the specs first and `test-report.md` last: the dashboard starts recording when the report names its commit. The report ends with one line per acceptance criterion, in this form (the dashboard reads it for the titles and the reasons):
+Write the specs first and `test-report.md` last: Starbase starts recording when the report names its commit. The report ends with one line per acceptance criterion, in this form (Starbase reads it for the titles and the reasons):
 
 ```
 ## Evidence

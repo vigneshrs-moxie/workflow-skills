@@ -111,7 +111,7 @@ Engineering artifacts live outside the application repository and outside anythi
 - the private destination the human supplies, or
 - `~/.claude/feature-work/<feature-slug>/`
 
-Contents: `workflow-status.md`, `options.json` (the human's job options, written by the dashboard; workers only read it), `findings.md`, `implementation-plan.md`, `test-plan.md`, `acceptance.md`, `dev-tests.md` (or `quick-plan.md` / `requirements.md` stand-ins), and later `implementation-log.md`, `test-report.md`, `manual-test.md`, `review/`, `review.md`, `fable/`. The conductor also keeps `status.json` and `briefs/` for the dashboard (format: `~/.claude/skills/feature/status-json.md`). The product spec stays wherever `/feature-spec` saved it and stays product-level.
+Contents: `workflow-status.md`, `options.json` (the human's job options, written by Starbase; workers only read it), `findings.md`, `implementation-plan.md`, `test-plan.md`, `acceptance.md`, `dev-tests.md` (or `quick-plan.md` / `requirements.md` stand-ins), and later `implementation-log.md`, `test-report.md`, `manual-test.md`, `review/`, `review.md`, `fable/`. The conductor also keeps `status.json` and `briefs/` for Starbase (format: `~/.claude/skills/feature/status-json.md`). The product spec stays wherever `/feature-spec` saved it and stays product-level.
 
 ## `workflow-status.md`
 

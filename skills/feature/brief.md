@@ -70,5 +70,5 @@ The headline names the spec version drawn from and the wireframes version. "What
 **Decisions for you**
 1. Where does the export start? — Recommended: A, button in the page header. B puts it in the actions menu, one click further.
 
-**Next:** review the screens in the Workshop (Screens tab) or open wireframes.html. Reply "go" to keep them as drawn, with picks like "Pick A for c-entry", lines like "s-dialog: needs change: show the row count", or paste the page's Copy feedback. Agreed screens go into the spec, then investigation.
+**Next:** review the screens in Starbase (Screens tab) or open wireframes.html. Reply "go" to keep them as drawn, with picks like "Pick A for c-entry", lines like "s-dialog: needs change: show the row count", or paste the page's Copy feedback. Agreed screens go into the spec, then investigation.
 ```

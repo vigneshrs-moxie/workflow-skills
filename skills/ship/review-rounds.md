@@ -1,6 +1,6 @@
 # Review rounds: the steps, the reply style, examples
 
-A **round** is everything one reviewer asked for in one go: a "Request changes" review and its comments (or two comments or more within ten minutes of each other), plus the checks that failed on the same commit. The dashboard keeps each round in the job folder as `review/rounds/round-<n>.md` (and `.json`, its own record); each item there has an id (`c901` a line comment, `r55` a review's own text, `i77` a conversation comment, `k:lint@a1b2c3d` a failed check, `sync:staging` bringing in the base). Use those ids in `status.json`.
+A **round** is everything one reviewer asked for in one go: a "Request changes" review and its comments (or two comments or more within ten minutes of each other), plus the checks that failed on the same commit. Starbase keeps each round in the job folder as `review/rounds/round-<n>.md` (and `.json`, its own record); each item there has an id (`c901` a line comment, `r55` a review's own text, `i77` a conversation comment, `k:lint@a1b2c3d` a failed check, `sync:staging` bringing in the base). Use those ids in `status.json`.
 
 ## The steps
 
@@ -11,7 +11,7 @@ A **round** is everything one reviewer asked for in one go: a "Request changes" 
 3. **Fix**, on the fork branch in the job's worktree: one commit per item or per small group, each message naming the comment (`fix(api): name the id feedbackId (review comment on api.ts:40)`). Never on another branch, never a rebase once the branch is on the fork.
 4. **Check**: the profile's checks (Orbit: `cd app && npm run check`) and the tests the change touches. One line on what ran, in the round's `checks`: "npm run check and 41 tests passed on your branch."
 5. **Draft the replies**, one per comment (below), and set the round to `ready`.
-6. **Stop.** Don't push, don't reply on GitHub, don't resolve, don't ask for a review, don't merge. The dashboard's Send back does those on the human's go; from the terminal, each needs its own yes.
+6. **Stop.** Don't push, don't reply on GitHub, don't resolve, don't ask for a review, don't merge. Starbase's Send back does those on the human's go; from the terminal, each needs its own yes.
 
 ## status.json `prs[<n>].rounds`
 
