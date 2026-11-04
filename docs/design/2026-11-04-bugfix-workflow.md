@@ -40,7 +40,7 @@ One conductor, `/bugfix`, in the shape of `/feature`: it dispatches workers, che
 
 | Level | Stages | Lenses | Models |
 |---|---|---|---|
-| **L0 Tweak** | one build (regression test first when there is a seam, then the fix) → `npm run check`, `npm run build` → the human looks at the diff. The request is the go-ahead. | none; the diff brief | Opus Foreman; Sonnet build |
+| **L0 Tweak (hotfix)** | one build (regression test first when there is a seam, then the fix) → `npm run check`, `npm run build` → the human looks at the diff. The request is the go-ahead. | none; the diff brief | Opus Foreman; Sonnet build |
 | **L1 Small** | triage (usually no questions) → the Foreman's own **diagnosis card** (cause by reading, ≤ 3 files or a narrow investigator question) → *approve* → fix (test red → fix → green, logged) → checks → the human tries it → review | `bug-review-fix` | Opus |
 | **L2 Standard** | triage → *go* → **reproduce** (worker: failing test committed on the fix branch; briefed but no stop when it succeeds, since the triage yes covers both) → **diagnose** (worker: hypotheses, cause, blast radius, similar occurrences, fix, regression seam, risks, acceptance) → *approve* → fix → **verify** (tester: red→green proof, related suites, check, build, evidence specs) → the human tries it → review | `bug-review-fix`, conventions, plus permissions / db / errors / ui / performance when the diff touches their area | Opus; Sonnet tester |
 | **L3 Risky** | L2, plus a Fable second look at the diagnosis and at the review | every lens plus `feature-fable-check` | Opus; Fable at diagnose and review |
@@ -51,7 +51,7 @@ The level floor is the feature workflow's (migrations, auth, scoping → L3; new
 
 **Three exits before the fix.** Triage or reproduction can end the job honestly: *not a bug* (a change request; the brief proposes `/feature` with the same ticket), *already fixed* on main (say which commit and whether it is deployed), *cannot reproduce* (what was tried; the human adds information, accepts a fix by inspection at L1, or closes it).
 
-**Why not just ask Claude Code to fix it.** That is L0, and it is right for a typo. For anything else the one-prompt fix skips the three things that make a bug fix safe: proof it was reproduced, a test that keeps it fixed, and a reviewer who checks the fix against the cause rather than the symptom. The L1 route adds those in two briefs.
+**Why not just ask Claude Code to fix it.** That is L0, labelled "Tweak (hotfix)" on a bug job because it is the quickest route, and it is right for a typo. For anything else the one-prompt fix skips the three things that make a bug fix safe: proof it was reproduced, a test that keeps it fixed, and a reviewer who checks the fix against the cause rather than the symptom. The L1 route adds those in two briefs.
 
 ## 4. Artifacts (private folder, as for features)
 
@@ -86,7 +86,7 @@ Shared agents keep their `feature-` names: renaming them would break every dispa
 ## 6. Starbase
 
 - A new job of kind **Bug fix** starts `/bugfix <description>` when the installed skills include `bugfix`; otherwise `/feature … (This is a bug fix.)` as before. Resuming a bug job also uses `/bugfix`.
-- Level defaults for a bug job: the skip list names bug stages and the reviewers default to `bug-review-fix` (L1) or the bug lens set (L2+), chosen by `kind` in `normalize`.
+- Level defaults for a bug job: L0 is labelled "L0 Tweak (hotfix)" (the level picker, chip, card and options editor read the job's kind); the skip list names bug stages and the reviewers default to `bug-review-fix` (L1) or the bug lens set (L2+), chosen by `kind` in `normalize`.
 - `status.json` accepts the three bug stages; the stops map them (triage → Spec, reproduce → Investigate, diagnose → Plan). The crew shows `bug-reproducer` as the tester's member, `bug-diagnoser` as the investigator's and `bug-review-fix` as the reviewer's; the reviewer picker labels the bug lens **Examiner**.
 - Messages and docs that named `~/.claude/skills/feature/status-json.md` (and the other shared files) now name `~/.claude/skills/workflow-common/…`.
 

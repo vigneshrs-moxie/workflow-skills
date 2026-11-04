@@ -92,7 +92,7 @@ A bug is a different job from a feature: what to build is known, what is unknown
 
 | Level | What runs |
 |---|---|
-| L0 Tweak | one build (test first, then the fix), checks, you look at the diff |
+| L0 Tweak (hotfix) | one build (test first, then the fix), checks, you look at the diff |
 | L1 Small | triage → diagnosis card → fix → checks → you try it → `bug-review-fix` |
 | L2 Standard | triage → reproduce → diagnose → fix → verify with evidence → you try it → the bug lens plus what the diff touches |
 | L3 Risky | L2, every lens, and a Fable second look at the diagnosis and the review |
