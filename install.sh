@@ -25,8 +25,15 @@ link() {
 
 # The links, one per line: what in this repo -> which folder under ~/.claude. install.ps1 reads
 # these same lines, so the two scripts always make the same links. A pattern ending in / is folders.
-# link: skills/*/ -> skills
-# link: agents/*.md -> agents
+# common/ is shared by both workflows, feature/ and bugfix/ are one workflow each, tools/ are
+# standalone skills (wireframe, ship, review-walkthrough, uat-guide).
+# link: common/skills/*/ -> skills
+# link: common/agents/*.md -> agents
+# link: feature/skills/*/ -> skills
+# link: feature/agents/*.md -> agents
+# link: bugfix/skills/*/ -> skills
+# link: bugfix/agents/*.md -> agents
+# link: tools/skills/*/ -> skills
 while read -r _ _ pattern _ folder; do
   mkdir -p "$CLAUDE_DIR/$folder"
   for src in "$HERE"/$pattern; do
@@ -45,4 +52,4 @@ else
   git clone -q "$GIT_DOCS_REPO" "$GIT_DOCS_DIR" && echo "cloned   $GIT_DOCS_DIR"
 fi
 
-echo "Done. Open Claude Code in your project and type /feature to start."
+echo "Done. Open Claude Code in your project and type /feature (a feature) or /bugfix (a bug) to start."

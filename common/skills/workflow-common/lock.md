@@ -1,0 +1,11 @@
+# The job lock
+
+Shared by the `/feature` and `/bugfix` conductors.
+
+One job, one driver: this terminal session or Starbase, never both. The lock is `lock.json` in the job's private folder: `{"owner":"terminal","pid":<n>,"branch":"<branch>","acquiredAt":"<UTC time>"}`, the same file Starbase writes (`"owner":"runner"`). The pid is your Claude Code process, which lives as long as this session: `$PPID` in your shell; on Windows, the nearest parent process named `claude` or `node`. This is the one file you write with the shell, not the Write tool, because only the shell can refuse to overwrite it.
+
+- **At start** (resume, or a new job once its private folder exists; not for the empty-input list), create it:
+  - POSIX: `set -o noclobber && printf '{"owner":"terminal","pid":%s,"branch":"%s","acquiredAt":"%s"}\n' "$PPID" "$(git -C <repo> rev-parse --abbrev-ref HEAD)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > <private folder>/lock.json`
+  - PowerShell: `$p = $PID; do { $p = (Get-CimInstance Win32_Process -Filter "ProcessId=$p").ParentProcessId; $n = (Get-Process -Id $p -ErrorAction SilentlyContinue).ProcessName } until (-not $n -or $n -match '^(claude|node)$')`, then `New-Item -ItemType File -Path <private folder>\lock.json -ErrorAction Stop` and `Set-Content` it with the same JSON (`pid` = `$p`).
+- **It already exists:** read it. If its pid is the parent of your Claude Code process (`ps -o ppid= -p $PPID`) and the owner is `runner`, Starbase is running you: carry on and leave the file alone. If its pid is your own, carry on. Otherwise check the pid (`kill -0 <pid>`; "Operation not permitted" still means it is running; on Windows `tasklist /FI "PID eq <pid>"`). Running: tell the human "This job is open in a terminal (pid N, since T)" (or "in Starbase" for `runner`), say only one place can work on a job at a time, and **stop**; don't touch the file. Not running: it is stale; delete it and create yours once more (if that fails, someone just took it: say so and stop).
+- **At the end** (the final handoff, the job marked done or dropped, or the human hands the job to Starbase): delete `lock.json` if its pid is yours. A session that simply exits leaves it behind; its dead pid frees it.
