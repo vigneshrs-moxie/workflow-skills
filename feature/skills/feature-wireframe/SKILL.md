@@ -12,7 +12,7 @@ Input: $ARGUMENTS
 
 ## Job mode
 
-- The input is a feature slug with a folder at `~/.claude/feature-work/<slug>/` (or `$STARBASE_FEATURES_DIR/<slug>/`, which an older copy of Starbase calls `$WORKSHOP_FEATURES_DIR`), a spec path inside one, or the Foreman says which job it's for.
+- The input is a feature slug with a folder at `~/.claude/feature-work/<slug>/` (or `$STARBASE_FEATURES_DIR/<slug>/`), a spec path inside one, or the Foreman says which job it's for.
 - Read `spec.md` (or the spec path in `workflow-status.md`) and `options.json` if present. Don't edit the spec, `status.json`, `workflow-status.md` or briefs; the Foreman owns them. `<scratchpad>` is your own scratch folder (the worker's, or `<job folder>/scratch/` if you have none).
 - **Don't ask the user questions.** Assume, and list every assumption and open decision under "Questions to settle"; the Foreman briefs them.
 - Fidelity: hi-fi when the repository has a design system (the `wireframe` skill's step 3 captures it once and caches it), lo-fi when `options.json` says `"wireframes": "low"` or the user said low-fi.
@@ -23,6 +23,7 @@ Input: $ARGUMENTS
   cd <checkout> && python3 ~/.claude/skills/wireframe/build.py --title "<job title>" --sections <scratchpad>/sections.html \
     --sources <scratchpad>/sources.txt [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "…" | --preset …] --job <slug>
   ```
+  A hi-fi job adds `--prototype`, and the `wireframe` skill's `reference/prototype.md` sets the page's shape: a short Info, the prototype, and Requirements taken from the spec's acceptance lines. Screens are laptop only unless the spec is about phones. Add `--pack` when the Foreman asks for the stakeholder PDF (`wireframes.pack.pdf`).
   Use `--draft` while you check the page (nothing bumps); the build without it is the version. It writes to the job folder:
   - `wireframes.html`: the page as a complete document, viewable from disk;
   - `wireframes.json`: screens (with states and exits), choices, questions, tier, `version` and the artifact URL if one was ever published;
@@ -41,5 +42,7 @@ Starbase shows `wireframes.html` in an iframe (its Screens tab and the wireframe
   `{ type: "wireframes", version, current: <key>, screens: [{ key, name, kind, status, choice }] }`, where `kind` is `screen`, `choice`, `questions` or `overview`, `status` is `good`, `ask`, `fix` or `""`, and `choice` is `A`, `B` or `""`;
 - listens for `{ type: "wireframes-goto", key }` (scroll to that section) and `{ type: "wireframes-feedback" }` (replies to the sender with `{ type: "wireframes-feedback", version, text }`, the Copy feedback text);
 - posts `{ type: "wireframes-escape" }` when `Esc` is pressed outside a notes box (Starbase puts the keyboard back on its own bar; in a notes box `Esc` only leaves the box, and nothing is posted).
+
+A prototype page (`--prototype`) sends the same messages: its screens are the `data-pack` ones, its choices are the decisions, and its feedback text uses the same lines, with the device and any pin after the key, such as `s-needs (phone, at "Theo Brandt"): needs change: …`. `wireframes-goto` opens that screen in the prototype.
 
 A published artifact behaves as before: the database holds the notes and the page posts nothing.

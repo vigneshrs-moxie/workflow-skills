@@ -1,0 +1,806 @@
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+{{HEAD_EXTRA}}
+<style>
+/* Prototype page: an Info tab to read, and a Prototype tab that is one device you click through in place.
+   The page's own chrome uses pt- classes; the app's screens live inside .canvas and use the app's own CSS. */
+:root {
+  --pt-bg: #f4f6f9; --pt-surface: #fff; --pt-fg: #17202c; --pt-muted: #566273; --pt-line: #dfe4eb; --pt-accent: #1f5fbf; --pt-accent-soft: #e6eefb;
+  --pt-good: #1d7a4a; --pt-fix: #b3261e;
+  --pt-font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --pt-bg: #10151c; --pt-surface: #18202a; --pt-fg: #e6ebf1; --pt-muted: #9ca8b8; --pt-line: #2b3543; --pt-accent: #86aeee; --pt-accent-soft: #1d2b41;
+    --pt-good: #62c690; --pt-fix: #f08a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --pt-bg: #10151c; --pt-surface: #18202a; --pt-fg: #e6ebf1; --pt-muted: #9ca8b8; --pt-line: #2b3543; --pt-accent: #86aeee; --pt-accent-soft: #1d2b41;
+  --pt-good: #62c690; --pt-fix: #f08a80; color-scheme: dark;
+}
+html, body { margin: 0; height: 100%; }
+body { background: var(--pt-bg); color: var(--pt-fg); font: 15px/1.55 var(--pt-font); }
+.pt-app { min-height: 100vh; display: flex; flex-direction: column; }
+.pt-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; background: var(--pt-surface); border-bottom: 1px solid var(--pt-line); }
+.pt-id { font-weight: 600; font-size: 15px; min-width: 0; flex: 1 1 200px; }
+.pt-id small { display: block; font-weight: 400; font-size: 12px; color: var(--pt-muted); }
+.pt-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 9px; background: var(--pt-bg); border: 1px solid var(--pt-line); }
+.pt-seg button { all: unset; cursor: pointer; padding: 5px 14px; border-radius: 7px; font-size: 14px; font-weight: 500; color: var(--pt-muted); display: inline-flex; gap: 6px; align-items: center; }
+.pt-seg button[aria-pressed="true"] { background: var(--pt-surface); color: var(--pt-fg); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.pt-seg button:focus-visible, .pt-btn:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 1px; }
+.pt-tools { display: flex; gap: 8px; align-items: center; flex: 1 1 200px; justify-content: flex-end; font-size: 12px; color: var(--pt-muted); }
+.pt-btn { all: unset; cursor: pointer; box-sizing: border-box; padding: 5px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); white-space: nowrap; }
+.pt-btn[aria-pressed="true"] { background: var(--pt-accent-soft); border-color: var(--pt-accent); color: var(--pt-accent); }
+details.menu { position: relative; }
+details.menu > summary { list-style: none; }
+details.menu > summary::-webkit-details-marker { display: none; }
+details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); white-space: nowrap; }
+.menu-panel { position: absolute; right: 0; top: calc(100% + 6px); width: min(480px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 8px; box-shadow: 0 8px 24px rgb(0 0 0 / .14); padding: 8px 12px; z-index: 30; font-size: 13px; }
+.menu-panel p { margin: 0 0 6px; color: var(--pt-muted); }
+.menu-panel code { display: block; font: 12.5px ui-monospace, Menlo, monospace; padding: 2px 0; overflow-wrap: anywhere; }
+
+/* Info */
+#pt-info { width: 100%; max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; box-sizing: border-box; }
+#pt-info[hidden], #pt-proto[hidden] { display: none; }
+#pt-info h1 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; letter-spacing: -.01em; }
+#pt-info h2 { font-size: 17px; margin: 32px 0 8px; font-weight: 650; }
+#pt-info h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+#pt-info p { margin: 0 0 10px; }
+#pt-info .lede { font-size: 17px; color: var(--pt-fg); }
+#pt-info .muted { color: var(--pt-muted); }
+#pt-info ul { margin: 0 0 10px; padding-left: 20px; list-style: disc; }
+#pt-info ol { margin: 0 0 10px; padding-left: 20px; list-style: decimal; }
+#pt-info li { margin: 4px 0; }
+#pt-info a { color: var(--pt-accent); }
+#pt-info table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 6px 0 12px; }
+#pt-info th { text-align: left; font-size: 12.5px; font-weight: 600; color: var(--pt-muted); border-bottom: 1px solid var(--pt-line); padding: 6px 12px 6px 0; }
+#pt-info td { vertical-align: top; border-bottom: 1px solid var(--pt-line); padding: 8px 12px 8px 0; }
+@media (max-width: 560px) {
+  #pt-info table, #pt-info thead, #pt-info tbody, #pt-info tr, #pt-info td { display: block; width: 100%; }
+  #pt-info thead { display: none; }
+  #pt-info td { border: 0; padding: 2px 0; }
+  #pt-info tr { border-bottom: 1px solid var(--pt-line); padding: 8px 0; }
+}
+.pt-link { all: unset; cursor: pointer; color: var(--pt-accent); font-weight: 500; }
+.pt-link:hover { text-decoration: underline; }
+.pt-open { all: unset; cursor: pointer; display: inline-block; margin: 6px 0 2px; padding: 9px 16px; border-radius: 8px; background: #1f5fbf; color: #fff; font-weight: 600; font-size: 14px; }
+.pt-screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin: 8px 0 4px; }
+.pt-screens button { all: unset; cursor: pointer; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--pt-line); border-radius: 9px; background: var(--pt-surface); font-size: 14px; }
+.pt-screens button:hover { border-color: var(--pt-accent); }
+.pt-screens b { display: block; font-weight: 600; color: var(--pt-fg); }
+.pt-screens span { font-size: 13px; color: var(--pt-muted); }
+.decision { background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+.decision .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin-top: 10px; }
+.decision .opt { box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; padding: 11px 13px; border: 1px solid var(--pt-line); border-radius: 10px; font-size: 14px; }
+.decision .opt.is-picked { border-color: var(--pt-accent); background: var(--pt-accent-soft); }
+.decision .opt b { font-weight: 600; font-size: 15px; }
+.decision .opt > span { color: var(--pt-muted); font-size: 13.5px; }
+.decision .opt > .pt-rec { font-size: 12px; font-weight: 600; color: var(--pt-good); }
+.pt-opt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.pt-try { all: unset; cursor: pointer; color: var(--pt-accent); font-size: 13.5px; font-weight: 600; }
+.pt-try:hover { text-decoration: underline; }
+.pt-pick { all: unset; cursor: pointer; padding: 3px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); }
+.pt-pick[aria-pressed="true"] { background: #1f5fbf; border-color: #1f5fbf; color: #fff; }
+#pt-reqs { width: 100%; max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; box-sizing: border-box; }
+#pt-reqs[hidden] { display: none; }
+#pt-reqs h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
+#pt-reqs h2 { font-size: 16px; margin: 24px 0 6px; font-weight: 650; }
+#pt-reqs p { margin: 0 0 10px; color: var(--pt-muted); }
+#pt-reqs ol, #pt-reqs ul { list-style: none; margin: 0; padding: 0; }
+.req { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--pt-line); font-size: 15px; }
+.req .req-id { flex: none; width: 34px; font: 12.5px ui-monospace, Menlo, monospace; color: var(--pt-muted); }
+.req .req-text { flex: 1; min-width: 0; }
+.req .pt-try { flex: none; }
+.q { padding: 7px 0; border-bottom: 1px solid var(--pt-line); font-size: 14.5px; }
+
+/* Prototype */
+#pt-proto { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.pt-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 16px; border-bottom: 1px solid var(--pt-line); background: var(--pt-surface); font-size: 13px; }
+#pt-route { flex: 1 1 140px; min-width: 0; font: 12.5px ui-monospace, Menlo, monospace; color: var(--pt-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pt-stage { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 14px 12px 18px; overflow: hidden; position: relative; }
+.pt-device { position: relative; flex: none; background: #0e141b; box-shadow: 0 10px 34px rgb(10 20 35 / .28); }
+.pt-device[data-dev="phone"] { padding: 10px; border-radius: 46px; }
+.pt-device[data-dev="phone"] .canvas { width: 390px; height: 844px; border-radius: 36px; }
+.pt-device[data-dev="phone"] .pt-chrome { display: none; }
+.pt-device[data-dev="laptop"] { padding: 0; border-radius: 10px; overflow: hidden; }
+.pt-device[data-dev="laptop"] .canvas { width: 1366px; height: 768px; }
+.pt-chrome { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; background: #e9edf2; }
+.pt-chrome i { width: 10px; height: 10px; border-radius: 50%; background: #c7ced8; }
+.pt-chrome span { margin-left: 10px; flex: 0 1 520px; background: #fff; border-radius: 6px; padding: 2px 10px; font: 12px ui-monospace, Menlo, monospace; color: #55606e; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.canvas { position: relative; overflow: hidden; color-scheme: light; font-size: 14px; line-height: 1.5; color: #111; background: #fff; }
+.canvas .screen { position: absolute; inset: 0; display: none; }
+.canvas [data-scroll] { position: relative; }
+.canvas .screen.is-on { display: flex; flex-direction: column; }
+.canvas .overlay { position: absolute; inset: 0; z-index: 40; display: none; }
+.canvas .overlay.is-on { display: block; }
+.canvas [data-to], .canvas [data-back], .canvas [data-close], .canvas [data-tab], .canvas [data-toggle], .canvas [data-root], .canvas [data-toast] { cursor: pointer; }
+.canvas .is-on.pt-push > [data-scroll] { animation: pt-push .18s ease-out; }
+.canvas .is-on.pt-pop > [data-scroll] { animation: pt-pop .18s ease-out; }
+.canvas .overlay.is-on [data-sheet] { animation: pt-sheet .2s ease-out; }
+@keyframes pt-push { from { transform: translateX(26px); opacity: .55; } }
+@keyframes pt-pop { from { transform: translateX(-26px); opacity: .55; } }
+@keyframes pt-sheet { from { transform: translateY(40px); opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { .canvas .is-on.pt-push > [data-scroll], .canvas .is-on.pt-pop > [data-scroll], .canvas .overlay.is-on [data-sheet] { animation: none; } }
+.canvas.pt-hot .is-on [data-to], .canvas.pt-hot .is-on [data-back], .canvas.pt-hot .is-on [data-close]:not([data-scrim]), .canvas.pt-hot .is-on [data-tab], .canvas.pt-hot .is-on [data-toggle], .canvas.pt-hot .is-on [data-root], .canvas.pt-hot .is-on [data-toast] { outline: 2px solid rgb(12 119 216 / .6); outline-offset: -2px; background-color: rgb(12 119 216 / .07); }
+.pt-toast { position: absolute; left: 50%; bottom: 92px; transform: translateX(-50%); z-index: 90; max-width: 86%; padding: 9px 14px; border-radius: 10px; background: #17202c; color: #fff; font-size: 13.5px; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.pt-toast.on { opacity: 1; }
+.pt-work { flex: 1; display: flex; min-height: 0; }
+.pt-work .pt-stage { flex: 1; min-width: 0; }
+.pt-side { flex: none; width: 400px; display: flex; flex-direction: column; min-height: 0; background: var(--pt-surface); border-left: 1px solid var(--pt-line); }
+.pt-side[hidden] { display: none; }
+.pt-side-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px 10px; }
+.pt-side-head b { font-size: 16px; font-weight: 650; flex: 1; }
+.pt-side .pt-seg button { padding: 3px 11px; font-size: 13px; }
+.pt-x { all: unset; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; color: var(--pt-muted); font-size: 18px; line-height: 1; }
+.pt-x:hover { background: var(--pt-bg); }
+.pt-compose { padding: 0 16px 14px; border-bottom: 1px solid var(--pt-line); }
+.pt-where { display: flex; align-items: baseline; gap: 6px; font-size: 13px; color: var(--pt-muted); margin-bottom: 8px; min-width: 0; }
+.pt-where b { color: var(--pt-fg); font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-where span { flex: none; }
+.pt-kinds { display: flex; gap: 6px; margin-bottom: 8px; }
+.pt-kind { all: unset; cursor: pointer; padding: 4px 11px; border: 1px solid var(--pt-line); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--pt-muted); }
+.pt-kind[aria-pressed="true"][data-kind="change"], .pt-tag[data-kind="change"] { color: var(--pt-accent); background: var(--pt-accent-soft); border-color: transparent; }
+.pt-kind[aria-pressed="true"][data-kind="question"], .pt-tag[data-kind="question"] { color: #8a5a00; background: #fbf0d9; border-color: transparent; }
+.pt-kind[aria-pressed="true"][data-kind="idea"], .pt-tag[data-kind="idea"] { color: #1d7a4a; background: #e3f3ea; border-color: transparent; }
+.pt-kind:focus-visible, .pt-add:focus-visible, .pt-x:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 1px; }
+#pt-note-text { display: block; width: 100%; box-sizing: border-box; min-height: 150px; padding: 11px 13px; border: 1px solid var(--pt-line); border-radius: 10px; background: var(--pt-bg); color: var(--pt-fg); font: 15px/1.5 var(--pt-font); resize: vertical; }
+#pt-note-text:focus { outline: 2px solid var(--pt-accent); outline-offset: -1px; background: var(--pt-surface); }
+.pt-compose-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12px; color: var(--pt-muted); }
+.pt-add { all: unset; cursor: pointer; padding: 8px 18px; border-radius: 8px; background: #1f5fbf; color: #fff; font-size: 14px; font-weight: 600; }
+.pt-add[aria-disabled="true"] { opacity: .45; cursor: default; }
+.pt-list { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.pt-empty { margin: 18px 8px; text-align: center; font-size: 14px; color: var(--pt-muted); }
+.pt-card { border: 1px solid var(--pt-line); border-radius: 10px; padding: 11px 13px; background: var(--pt-surface); font-size: 14.5px; line-height: 1.5; }
+.pt-card[data-jump] { cursor: pointer; }
+.pt-card[data-jump]:hover { border-color: var(--pt-accent); }
+.pt-card-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-muted); margin-bottom: 5px; }
+.pt-face { width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--pt-accent-soft); color: var(--pt-accent); font-size: 12px; font-weight: 650; }
+.pt-who { color: var(--pt-fg); font-weight: 600; font-size: 13.5px; }
+.pt-tag { margin-left: auto; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 550; }
+.pt-card p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pt-card-foot { display: flex; gap: 8px; align-items: center; margin-top: 6px; font-size: 12px; color: var(--pt-muted); }
+.pt-remove { all: unset; cursor: pointer; margin-left: auto; font-size: 12px; color: var(--pt-muted); }
+.pt-remove:hover { color: var(--pt-fix); }
+.pt-group { font-size: 12.5px; font-weight: 600; color: var(--pt-muted); margin: 6px 2px -4px; }
+@media (max-width: 1000px) {
+  .pt-side { position: fixed; inset: auto 0 0 0; width: auto; height: 72vh; z-index: 25; border-left: 0; border-top: 1px solid var(--pt-line); border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
+  #pt-note-text { min-height: 96px; }
+}
+.pt-bar2 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 6px 16px; border-bottom: 1px solid var(--pt-line); background: var(--pt-surface); font-size: 13px; color: var(--pt-muted); }
+.pt-bar2[hidden] { display: none; }
+.pt-bar2 label { display: inline-flex; align-items: center; gap: 6px; }
+.pt-bar2 select { font: 500 13px var(--pt-font); color: var(--pt-fg); background: var(--pt-bg); border: 1px solid var(--pt-line); border-radius: 7px; padding: 3px 6px; }
+.pt-bar2 .flash { animation: pt-flash 1.2s ease-out; }
+@keyframes pt-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--pt-accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.pt-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-accent); font-weight: 600; }
+.pt-chip[hidden] { display: none; }
+.pt-chip .pt-seg button { padding: 2px 9px; font-size: 12.5px; }
+.pt-newbtn { position: relative; }
+.pt-newbtn[data-unseen]::after { content: ""; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: #e0312f; }
+.pt-pop { position: absolute; right: 16px; top: 54px; z-index: 40; width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; padding: 12px 14px; background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / .18); font-size: 14px; }
+.pt-pop[hidden] { display: none; }
+.pt-pop h3 { margin: 0 0 2px; font-size: 15px; font-weight: 650; }
+.pt-pop p { margin: 0 0 8px; color: var(--pt-muted); }
+.pt-pop button { all: unset; cursor: pointer; display: block; padding: 5px 0; color: var(--pt-accent); font-weight: 500; }
+.pt-pop small { color: var(--pt-muted); font-weight: 400; margin-left: 6px; }
+.canvas .pt-before { z-index: 30; pointer-events: none; }
+.pt-ribbon { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 60; padding: 4px 12px; border-radius: 999px; background: #17202c; color: #fff; font-size: 12.5px; font-weight: 600; pointer-events: none; }
+.pt-ribbon[hidden] { display: none; }
+.canvas.pt-pinning, .canvas.pt-pinning * { cursor: crosshair !important; }
+.pt-pin { all: unset; position: absolute; z-index: 35; width: 26px; height: 26px; margin: -26px 0 0 -2px; display: grid; place-items: center; box-sizing: border-box; border-radius: 50% 50% 50% 2px; background: #e0312f; color: #fff; font: 700 12.5px var(--pt-font); box-shadow: 0 2px 6px rgb(0 0 0 / .35); cursor: pointer; }
+.pt-pin.pending { background: #1f5fbf; }
+.pt-pin.hot { outline: 3px solid rgb(224 49 47 / .35); }
+.canvas.pt-nopins .pt-pin { display: none; }
+.pt-pinbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 11px; border: 1px dashed var(--pt-line); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--pt-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-pinbtn[aria-pressed="true"] { border-style: solid; border-color: var(--pt-accent); color: var(--pt-accent); background: var(--pt-accent-soft); }
+.pt-card.hot { border-color: #e0312f; }
+.pt-card .pt-num { flex: none; width: 20px; height: 20px; border-radius: 50%; background: #e0312f; color: #fff; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; }
+.pt-on { font-size: 12.5px; color: var(--pt-muted); margin-bottom: 3px; }
+#pt-src { display: none; }
+.pt-pack { display: none; }
+body.pt-packing { background: #fff; color: #17202c; }
+body.pt-packing .pt-app { display: none; }
+body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pt-page { box-sizing: border-box; width: 960px; margin: 0 auto; padding: 8px 0 0; break-after: page; }
+.pt-page h1 { font-size: 26px; margin: 0 0 6px; font-weight: 650; }
+.pt-page h2 { font-size: 16px; margin: 16px 0 6px; font-weight: 650; }
+.pt-page p { margin: 0 0 6px; }
+.pt-page ul { list-style: disc; margin: 0 0 6px; padding-left: 18px; }
+.pt-page .pk-meta { color: #566273; }
+.pt-page .pk-req { display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px solid #dfe4eb; }
+.pt-page .pk-req b { width: 30px; flex: none; font-weight: 600; color: #566273; }
+.pk-row { display: flex; gap: 22px; justify-content: center; }
+.pk-shot { break-inside: avoid; }
+.pk-shot .cap { font-weight: 600; font-size: 13px; margin: 0 0 4px; }
+.pk-shot .canvas { position: relative; overflow: hidden; border: 1px solid #dfe4eb; border-radius: 8px; }
+@page { size: letter landscape; margin: 0.4in; }
+@media print { body { background: #fff; } }
+</style>
+<div class="pt-app">
+  <header class="pt-top">
+    <div class="pt-id">{{TITLE}}<small>Draft · revision {{VERSION}}</small></div>
+    <div class="pt-seg" role="group" aria-label="Page">
+      <button type="button" data-page="info">Info</button>
+      <button type="button" data-page="proto">Prototype</button>
+      <button type="button" data-page="reqs" hidden>Requirements</button>
+    </div>
+    <div class="pt-tools"><span id="pt-saved"></span><button type="button" class="pt-btn pt-newbtn" id="pt-new" hidden>What's new</button>{{SOURCES}}<button type="button" class="pt-btn" id="pt-pack-btn">Stakeholder PDF</button><button type="button" class="pt-btn" id="pt-copy">Copy feedback</button></div>
+  </header>
+  <div class="pt-pop" id="pt-new-pop" hidden></div>
+  <main id="pt-info"></main>
+  <main id="pt-reqs" hidden></main>
+  <main id="pt-proto" hidden>
+    <div class="pt-bar">
+      <div class="pt-seg" id="pt-devs" role="group" aria-label="Device">
+        <button type="button" data-dev="phone">Phone</button>
+        <button type="button" data-dev="laptop">Laptop</button>
+      </div>
+      <span id="pt-route"></span>
+      <span class="pt-chip" id="pt-chip" hidden><span id="pt-chip-text"></span><span class="pt-seg" id="pt-compare" hidden><button type="button" data-cmp="before">Before</button><button type="button" data-cmp="now">Now</button></span></span>
+      <button type="button" class="pt-btn" id="pt-hot" aria-pressed="false" title="Highlight everything you can click">Show clickable</button>
+      <button type="button" class="pt-btn" id="pt-restart">Start over</button>
+      <button type="button" class="pt-btn" id="pt-note-btn" aria-pressed="false">Notes</button>
+    </div>
+    <div class="pt-bar2" id="pt-bar2" hidden></div>
+    <div class="pt-work">
+      <div class="pt-stage" id="pt-stage">
+        <div class="pt-device" id="pt-device" data-dev="phone">
+          <div class="pt-chrome"><i></i><i></i><i></i><span id="pt-url"></span></div>
+          <div class="canvas" id="pt-canvas"><div class="pt-ribbon" id="pt-ribbon" hidden></div><div class="pt-toast" id="pt-toast" role="status"></div></div>
+        </div>
+      </div>
+      <aside class="pt-side" id="pt-side" aria-label="Notes" hidden>
+        <div class="pt-side-head"><b>Notes</b>
+          <div class="pt-seg" role="group" aria-label="Which notes"><button type="button" data-scope="here">This screen</button><button type="button" data-scope="all">All</button></div>
+          <button type="button" class="pt-x" id="pt-side-close" aria-label="Close notes">×</button></div>
+        <div class="pt-compose">
+          <div class="pt-where"><b id="pt-where-name"></b><span id="pt-where-dev"></span></div>
+          <div class="pt-kinds" role="group" aria-label="Kind of note">
+            <button type="button" class="pt-kind" data-kind="change">Change</button><button type="button" class="pt-kind" data-kind="question">Question</button><button type="button" class="pt-kind" data-kind="idea">Idea</button>
+          </div>
+          <textarea id="pt-note-text" placeholder="What would you change here? Keep clicking around while you type."></textarea>
+          <div class="pt-compose-foot"><button type="button" class="pt-pinbtn" id="pt-pin-btn" aria-pressed="false">Pin to a spot</button><span class="pt-add" id="pt-add" role="button" tabindex="0" aria-disabled="true">Add note</span></div>
+        </div>
+        <div class="pt-list" id="pt-list"></div>
+      </aside>
+    </div>
+  </main>
+</div>
+<div class="pt-pack" id="pt-pack"></div>
+<div id="pt-src">{{SECTIONS}}<div id="pt-prev">{{PREV}}</div></div>
+<script type="application/json" id="pt-changes">{{CHANGES}}</script>
+{{FOOT_EXTRA}}
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const VERSION = "{{VERSION}}", PACK_URL = "{{PACK_URL}}", START_DEVICE = "{{START_DEVICE}}";
+  const HOSTED = !!(window.claude && window.claude.use);
+  const FRAMED = !HOSTED && window.parent !== window; // inside Starbase
+  // Inside Starbase each version keeps its own notes; a published page keeps them across versions.
+  const LS = "{{NOTES_KEY}}" + (FRAMED ? ":v" + VERSION : "");
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const canvas = $("#pt-canvas"), device = $("#pt-device"), stage = $("#pt-stage");
+  const PACKING = location.hash === "#pack";
+
+  // The authored blocks move into place.
+  const src = $("#pt-src"), info = $("#pt-info"), reqs = $("#pt-reqs");
+  const take = (from, to) => { while (from && from.firstChild) to.appendChild(from.firstChild); };
+  take($("#info", src), info); take($("#requirements", src), reqs);
+  const rolesEl = $("#roles", src);
+  const ROLES = rolesEl ? $$("[data-role]", rolesEl).map((r) => ({ id: r.dataset.role, label: r.dataset.label, start: r.dataset.start })) : [];
+  $$(":scope > .screen, :scope > .overlay", src).forEach((n) => canvas.insertBefore(n, $("#pt-ribbon")));
+  const all = $$(".screen, .overlay", canvas);
+  const prevNodes = $$("#pt-prev > .screen", src);
+  prevNodes.forEach((n) => { n.classList.add("pt-before"); canvas.insertBefore(n, $("#pt-ribbon")); });
+  const DEVICES = [...new Set(all.map((n) => n.dataset.device))];
+  const find = (id, dev) => all.find((n) => n.dataset.id === id && n.dataset.device === dev);
+  const FIRST = (all.find((n) => "start" in n.dataset) || all[0]).dataset.id;
+  const other = (d) => (d === "phone" ? "laptop" : "phone");
+  const DECISIONS = $$(".decision", info);
+  const VARIANTS = DECISIONS.filter((d) => "variant" in d.dataset);
+
+  const firstDev = DEVICES.includes(START_DEVICE) ? START_DEVICE : DEVICES[0];
+  const savedDev = lsGet(LS + ":dev", firstDev);
+  const view = { dev: DEVICES.includes(savedDev) ? savedDev : firstDev, stack: [], tabs: {} };
+  VARIANTS.forEach((d) => { view.tabs[d.dataset.key] = d.dataset.default || "A"; });
+  if (ROLES.length) view.tabs.role = rolesEl.dataset.default || ROLES[0].id;
+  $$("[data-tabs]", canvas).forEach((t) => { if ("default" in t.dataset && !t.closest(".pt-before")) view.tabs[t.dataset.tabs] = t.dataset.tab; });
+  const roleStart = () => (ROLES.find((r) => r.id === view.tabs.role) || {}).start || FIRST;
+  view.stack = [{ id: roleStart() }];
+
+  // A place is an id: a screen, or an overlay on a parent screen. A place one device or role lacks falls back
+  // through data-alt, so switching keeps you as close as that view allows.
+  const allowed = (el) => !el.dataset.roles || el.dataset.roles.split("|").includes(view.tabs.role);
+  function place(id, dev, n = 0) {
+    const el = find(id, dev);
+    if (el && allowed(el)) return el.classList.contains("overlay") ? { overlay: el, over: el.dataset.over || null } : { screen: el };
+    const twin = el || find(id, other(dev));
+    return twin && twin.dataset.alt && n < 4 ? place(twin.dataset.alt, dev, n + 1) : null;
+  }
+  const scroller = (s) => (s && $("[data-scroll]", s)) || s;
+  function current() {
+    let screen = null, overlay = null;
+    for (let i = view.stack.length - 1; i >= 0 && !screen; i--) {
+      const p = place(view.stack[i].id, view.dev);
+      if (!p) continue;
+      if (p.overlay) {
+        if (!overlay && i === view.stack.length - 1) overlay = p.overlay;
+        if (p.over) { const q = place(p.over, view.dev); if (q && q.screen) screen = q.screen; }
+      } else screen = p.screen;
+    }
+    return { screen: screen || find(roleStart(), view.dev) || find(FIRST, view.dev), overlay };
+  }
+  function render(motion) {
+    while (view.stack.length > 1 && !place(view.stack[view.stack.length - 1].id, view.dev)) view.stack.pop();
+    cancelPin(); setBefore(false);
+    const { screen, overlay } = current();
+    all.forEach((n) => n.classList.remove("is-on", "pt-push", "pt-pop"));
+    screen.classList.add("is-on");
+    if (motion) screen.classList.add(motion === "back" ? "pt-pop" : "pt-push");
+    if (overlay) overlay.classList.add("is-on");
+    const top = view.stack[view.stack.length - 1], sc = scroller(screen);
+    if (sc) sc.scrollTop = top.scroll || 0;
+    const route = (overlay || screen).dataset.route || screen.dataset.route || "";
+    $("#pt-route").textContent = route; $("#pt-url").textContent = route;
+    applyTabs(); paintSide(); paintChip(); post();
+  }
+  function remember() { const s = scroller(current().screen), t = view.stack[view.stack.length - 1]; if (s && t) t.scroll = s.scrollTop; }
+  function go(id, replace) { remember(); if (replace) view.stack.pop(); view.stack.push({ id }); render(place(id, view.dev)?.overlay ? null : "push"); }
+  function back() { if (view.stack.length > 1) { view.stack.pop(); render("back"); } }
+  function root(id) { view.stack = [{ id }]; render(null); }
+  function close() {
+    const top = view.stack[view.stack.length - 1];
+    if (view.stack.length > 1 && place(top.id, view.dev)?.overlay) { view.stack.pop(); render(null); return true; }
+    return false;
+  }
+
+  // Tabs, roles and option variants are one thing: a group with one selected value. data-panel shows what
+  // belongs to a value ("group:a|b"), data-bind shows its label, data-tab selects it.
+  function applyTabs() {
+    $$("[data-tabs]", canvas).forEach((t) => {
+      const on = view.tabs[t.dataset.tabs] === t.dataset.tab;
+      (t.dataset.on || "").split(/\s+/).filter(Boolean).forEach((c) => t.classList.toggle(c, on));
+      (t.dataset.off || "").split(/\s+/).filter(Boolean).forEach((c) => t.classList.toggle(c, !on));
+      t.setAttribute("aria-pressed", String(on));
+    });
+    $$("[data-panel]", canvas).forEach((p) => { const [g, k] = p.dataset.panel.split(":"); p.hidden = !k.split("|").includes(view.tabs[g]); });
+    $$("[data-bind]", canvas).forEach((b) => {
+      const g = b.dataset.bind, t = $(`[data-tabs="${g}"][data-tab="${view.tabs[g]}"]`, canvas);
+      if (t) b.textContent = t.dataset.label || t.textContent.trim();
+    });
+    $$("#pt-bar2 select").forEach((s) => { s.value = view.tabs[s.dataset.group]; });
+  }
+
+  let toastTimer;
+  function toast(text) { const t = $("#pt-toast"); t.textContent = text; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 2200); }
+  let hotTimer;
+  function flash() {
+    if ($("#pt-hot").getAttribute("aria-pressed") === "true") return;
+    canvas.classList.add("pt-hot"); clearTimeout(hotTimer); hotTimer = setTimeout(() => canvas.classList.remove("pt-hot"), 650);
+  }
+  canvas.addEventListener("click", (e) => {
+    if (pinning) { e.preventDefault(); e.stopPropagation(); dropPin(e); }
+  }, true);
+  canvas.addEventListener("click", (e) => {
+    if (e.target.closest(".pt-pin")) return;
+    const el = e.target.closest("[data-to],[data-back],[data-close],[data-tab],[data-toggle],[data-toast],[data-root]");
+    if (!el) { flash(); return; }
+    const d = el.dataset;
+    if (d.tab) { view.tabs[d.tabs] = d.tab; applyTabs(); }
+    if (d.toggle) {
+      const open = el.getAttribute("aria-expanded") !== "true";
+      $$(`[data-toggle="${d.toggle}"]`, canvas).forEach((x) => x.setAttribute("aria-expanded", String(open)));
+      $$(`[data-toggled="${d.toggle}"]`, canvas).forEach((x) => { x.hidden = !open; });
+      $$(`[data-toggled-off="${d.toggle}"]`, canvas).forEach((x) => { x.hidden = open; });
+    }
+    if (d.toast) toast(d.toast);
+    if ("close" in d) close();
+    if ("back" in d) back();
+    if (d.to) go(d.to, "replace" in d);
+    if (d.root) root(d.root);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || pageNow !== "proto") return;
+    if (pinning) { cancelPin(); return; }
+    if (e.target.matches("textarea, select")) { e.target.blur(); return; }
+    if (!close() && FRAMED) { try { window.parent.postMessage({ type: "wireframes-escape" }, "*"); } catch {} }
+  });
+
+  // Fit the whole device on screen.
+  function fit() {
+    if (pageNow !== "proto") return;
+    const phone = view.dev === "phone", small = window.innerWidth <= 520;
+    const w = phone ? (small ? 390 : 410) : 1366, h = phone ? (small ? 844 : 864) : 802;
+    const room = stage.getBoundingClientRect();
+    const availW = Math.max(240, room.width - (small ? 0 : 24)), availH = Math.max(320, window.innerHeight - room.top - (small ? 0 : 30));
+    device.style.zoom = String(Math.min(1, availW / w, phone && small ? 9 : availH / h));
+  }
+  window.addEventListener("resize", fit);
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+
+  function setDev(d) {
+    if (!DEVICES.includes(d)) return;
+    remember(); view.dev = d; device.dataset.dev = d; lsSet(LS + ":dev", d);
+    $$("#pt-devs [data-dev]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.dev === d)));
+    view.stack.forEach((s) => { s.scroll = 0; });
+    render(null); fit();
+  }
+  $$("#pt-devs [data-dev]").forEach((b) => b.addEventListener("click", () => setDev(b.dataset.dev)));
+  if (DEVICES.length < 2) $("#pt-devs").hidden = true; // one device: no toggle at all
+  $("#pt-restart").addEventListener("click", () => root(roleStart()));
+  $("#pt-hot").addEventListener("click", (e) => {
+    const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
+    e.currentTarget.setAttribute("aria-pressed", String(on)); canvas.classList.toggle("pt-hot", on);
+  });
+
+  let pageNow = "info";
+  const PAGES = { info: $("#pt-info"), proto: $("#pt-proto"), reqs };
+  function setPage(p) {
+    pageNow = p; lsSet(LS + ":page", p);
+    Object.entries(PAGES).forEach(([k, el]) => { el.hidden = k !== p; });
+    $$(".pt-top [data-page]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
+    if (p === "proto") fit();
+    window.scrollTo(0, 0); post();
+  }
+  $$(".pt-top [data-page]").forEach((b) => b.addEventListener("click", () => setPage(b.dataset.page)));
+  if (reqs.children.length) $(".pt-top [data-page=reqs]").hidden = false;
+  function openPath(path, dev) {
+    if (dev) setDev(dev);
+    const full = path.length === 1 && path[0] !== roleStart() ? [roleStart(), path[0]] : path; // so Back always has somewhere to go
+    view.stack = full.map((id) => ({ id })); setPage("proto"); render(null);
+  }
+  document.addEventListener("click", (e) => {
+    const l = e.target.closest("[data-open]");
+    if (!l || canvas.contains(l)) return;
+    openPath(l.dataset.open.split(/\s+/).filter(Boolean), l.dataset.device);
+  });
+
+  // Decisions: "Try this in the prototype" switches the live prototype to that option. Choosing is separate.
+  const notes = lsGet(LS, {});
+  let db = null;
+  const setSaved = (t) => { $("#pt-saved").textContent = t; };
+  async function saveNote(key) {
+    lsSet(LS, notes);
+    post();
+    if (!db) { setSaved("Saved on this device"); return; }
+    try {
+      await db.doc("notes/" + key).set({ section: key, choice: "", ...notes[key], updatedAt: new Date().toISOString() });
+      setSaved("Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    } catch (e) { setSaved("Kept on this device only" + (e && e.code ? " (" + e.code + ")" : "")); }
+  }
+  DECISIONS.forEach((d) => {
+    const key = d.dataset.key;
+    $$(".opt", d).forEach((o) => {
+      if ("rec" in o.dataset) { const r = document.createElement("span"); r.className = "pt-rec"; r.textContent = "Recommended"; o.insertBefore(r, o.firstChild); }
+      const foot = document.createElement("div"); foot.className = "pt-opt-foot";
+      if ("variant" in d.dataset) {
+        const t = document.createElement("button"); t.type = "button"; t.className = "pt-try"; t.textContent = "Try this in the prototype ›";
+        t.title = "Switches the prototype to this option";
+        t.addEventListener("click", () => {
+          view.tabs[key] = o.dataset.choice;
+          openPath((d.dataset.path || roleStart()).split(/\s+/).filter(Boolean), d.dataset.device);
+          const s = $(`#pt-bar2 select[data-group="${key}"]`);
+          if (s) { s.classList.remove("flash"); void s.offsetWidth; s.classList.add("flash"); }
+        });
+        foot.append(t);
+      }
+      const p = document.createElement("button"); p.type = "button"; p.className = "pt-pick"; p.dataset.choice = o.dataset.choice; p.textContent = "Choose";
+      p.addEventListener("click", () => { notes[key] = { ...(notes[key] || {}), choice: notes[key]?.choice === o.dataset.choice ? "" : o.dataset.choice }; paintChoices(); saveNote(key); });
+      foot.append(p); o.append(foot);
+    });
+  });
+  function paintChoices() {
+    DECISIONS.forEach((d) => $$(".opt", d).forEach((o) => {
+      const on = notes[d.dataset.key]?.choice === o.dataset.choice;
+      o.classList.toggle("is-picked", on);
+      const p = $(".pt-pick", o); p.setAttribute("aria-pressed", String(on)); p.textContent = on ? "Chosen" : "Choose";
+    }));
+  }
+  const nameOf = (key) => { const d = $(`.decision[data-key="${key}"] h3`); return d ? d.textContent : key; };
+
+  // View as and option switches, above the device.
+  function selectFor(group, label, options) {
+    const l = document.createElement("label"); l.append(label + " ");
+    const s = document.createElement("select"); s.dataset.group = group;
+    options.forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; s.append(o); });
+    s.value = view.tabs[group]; l.append(s); $("#pt-bar2").append(l);
+    return s;
+  }
+  if (ROLES.length) selectFor("role", "View as", ROLES.map((r) => [r.id, r.label])).addEventListener("change", (e) => { view.tabs.role = e.target.value; root(roleStart()); });
+  VARIANTS.forEach((d) => {
+    selectFor(d.dataset.key, d.dataset.short || "Option", $$(".opt", d).map((o) => [o.dataset.choice, o.dataset.label || o.dataset.choice]))
+      .addEventListener("change", (e) => { view.tabs[d.dataset.key] = e.target.value; applyTabs(); if (d.dataset.device && d.dataset.device !== view.dev) setDev(d.dataset.device); });
+  });
+  if (ROLES.length || VARIANTS.length) $("#pt-bar2").hidden = false;
+
+  // Requirements: each one opens the screen that covers it.
+  $$(".req", reqs).forEach((r) => {
+    const id = document.createElement("span"); id.className = "req-id"; id.textContent = r.dataset.id;
+    const t = document.createElement("span"); t.className = "req-text"; while (r.firstChild) t.appendChild(r.firstChild);
+    r.append(id, t);
+    if (r.dataset.open) { const b = document.createElement("button"); b.type = "button"; b.className = "pt-try"; b.textContent = "See it ›"; b.dataset.open = r.dataset.open; if (r.dataset.device) b.dataset.device = r.dataset.device; r.append(b); }
+  });
+
+  // What's new: the build compares each screen with the last revision and keeps the old copy of what changed.
+  const CH = JSON.parse($("#pt-changes").textContent || "{}");
+  const history = CH.history || [];
+  const seen = lsGet(LS + ":seen", 0);
+  const latest = history[history.length - 1];
+  const changedHere = (id) => latest && [...(latest.changed || []), ...(latest.added || [])].find((c) => c.id === id && c.device === view.dev);
+  function paintChip() {
+    const h = here(), c = changedHere(h.id), chip = $("#pt-chip");
+    chip.hidden = !c;
+    if (!c) return;
+    const isNew = (latest.added || []).some((x) => x.id === h.id && x.device === view.dev);
+    $("#pt-chip-text").textContent = (isNew ? "New in revision " : "Updated in revision ") + latest.rev;
+    $("#pt-compare").hidden = !prevNode(h.id);
+    $$("#pt-compare [data-cmp]").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.cmp === "before") === beforeOn)));
+  }
+  const prevNode = (id) => prevNodes.find((n) => n.dataset.id === id && n.dataset.device === view.dev);
+  let beforeOn = false;
+  function setBefore(on) {
+    beforeOn = on;
+    prevNodes.forEach((n) => n.classList.remove("is-on"));
+    const r = $("#pt-ribbon"); r.hidden = !on;
+    if (on) { const n = prevNode(here().id); if (n) n.classList.add("is-on"); r.textContent = "Revision " + (latest.rev - 1); }
+  }
+  $$("#pt-compare [data-cmp]").forEach((b) => b.addEventListener("click", () => { setBefore(b.dataset.cmp === "before"); paintChip(); }));
+  if (latest) {
+    const btn = $("#pt-new"); btn.hidden = false;
+    if (seen < latest.rev) btn.dataset.unseen = "";
+    btn.addEventListener("click", () => {
+      const pop = $("#pt-new-pop"); pop.hidden = !pop.hidden;
+      lsSet(LS + ":seen", latest.rev); delete btn.dataset.unseen;
+      if (pop.hidden) return;
+      pop.textContent = "";
+      const shown = history.filter((r) => r.rev > (seen || latest.rev - 1));
+      const h = document.createElement("h3"); h.textContent = seen && seen < latest.rev - 1 ? "Since you last looked" : "New in revision " + latest.rev; pop.append(h);
+      shown.forEach((r) => {
+        if (r.note) { const p = document.createElement("p"); p.textContent = r.note; pop.append(p); }
+        [...(r.added || []).map((x) => [x, "new"]), ...(r.changed || []).map((x) => [x, "updated"])].forEach(([x, w]) => {
+          const b = document.createElement("button"); b.type = "button"; b.textContent = x.name;
+          const s = document.createElement("small"); s.textContent = (x.device === "laptop" ? "Laptop" : "Phone") + ", " + w; b.append(s);
+          b.addEventListener("click", () => { pop.hidden = true; openPath((x.path || [x.id]), x.device); });
+          pop.append(b);
+        });
+      });
+    });
+  }
+
+  // Notes: one entry each, so reviewers never overwrite each other. An entry keeps its exact place (path, device,
+  // and a pin when one was dropped). Only ids are stored: names are looked up when drawn.
+  const FB = LS + ":feedback";
+  let local = lsGet(FB, []), remote = [], entries = [], me = null, userApi = null, names = {}, scope = "here", kind = "change";
+  let pinning = false, pending = null, hotPin = null;
+  const here = () => { const { screen, overlay } = current(); const el = overlay || screen; return { id: el.dataset.id, name: el.dataset.name || el.dataset.id, el }; };
+  const whoName = (n) => (!n.author || n.author === me ? "You" : names[n.author] || "Someone");
+  const when = (s) => { const d = new Date(s); return isNaN(d) ? "" : d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); };
+  const kindName = { change: "Change", question: "Question", idea: "Idea" };
+  const pinKey = (n) => n.id || n.at;
+
+  function merge() { entries = [...remote, ...local].sort((a, b) => String(b.at).localeCompare(String(a.at))); paintSide(); post(); }
+  const pinsHere = () => { const h = here(); return entries.filter((n) => n.pin && n.screen === h.id && n.device === view.dev).slice().reverse(); };
+  function card(n, jump, num) {
+    const c = document.createElement("div"); c.className = "pt-card"; c.dataset.pinkey = pinKey(n);
+    const top = document.createElement("div"); top.className = "pt-card-top";
+    if (num) { const b = document.createElement("span"); b.className = "pt-num"; b.textContent = num; top.append(b); }
+    const who = whoName(n), face = document.createElement("span"); face.className = "pt-face"; face.textContent = who[0];
+    const nm = document.createElement("span"); nm.className = "pt-who"; nm.textContent = who;
+    const tm = document.createElement("span"); tm.textContent = when(n.at);
+    const tag = document.createElement("span"); tag.className = "pt-tag"; tag.dataset.kind = n.kind; tag.textContent = kindName[n.kind] || "Note";
+    top.append(face, nm, tm, tag); c.append(top);
+    if (n.pin && n.pin.label) { const on = document.createElement("div"); on.className = "pt-on"; on.textContent = "On: " + n.pin.label; c.append(on); }
+    const p = document.createElement("p"); p.textContent = n.text; c.append(p);
+    const foot = document.createElement("div"); foot.className = "pt-card-foot";
+    const dev = document.createElement("span");
+    const role = n.role && ROLES.find((r) => r.id === n.role);
+    dev.textContent = [n.device === "laptop" ? "Laptop" : "Phone", role && role.label, n.localOnly && "on this device only"].filter(Boolean).join(" · "); foot.append(dev);
+    if (!n.author || n.author === me) {
+      const rm = document.createElement("button"); rm.type = "button"; rm.className = "pt-remove"; rm.textContent = "Remove";
+      rm.addEventListener("click", (e) => { e.stopPropagation(); removeNote(n); }); foot.append(rm);
+    }
+    c.append(foot);
+    if (jump) { c.dataset.jump = ""; c.addEventListener("click", () => goToNote(n)); }
+    else if (num) { c.addEventListener("mouseenter", () => hotOn(pinKey(n))); c.addEventListener("mouseleave", () => hotOn(null)); }
+    return c;
+  }
+  function hotOn(k) { hotPin = k; $$(".pt-pin", canvas).forEach((p) => p.classList.toggle("hot", p.dataset.pinkey === k)); }
+  function pinBase(h, inScroll) { return inScroll ? ($("[data-scroll]", h.el) || h.el) : h.el; }
+  function drawPin(h, pin, label, key, pendingPin) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "pt-pin" + (pendingPin ? " pending" : ""); b.textContent = label;
+    b.style.left = pin.x + "px"; b.style.top = pin.y + "px"; if (key) b.dataset.pinkey = key;
+    b.addEventListener("click", (e) => {
+      e.stopPropagation(); if (!key) return;
+      setSide(true); scope = "here"; paintSide();
+      const c = $(`#pt-list [data-pinkey="${key}"]`); if (c) { c.classList.add("hot"); c.scrollIntoView({ block: "nearest" }); setTimeout(() => c.classList.remove("hot"), 1500); }
+    });
+    pinBase(h, pin.s).appendChild(b);
+  }
+  function paintPins() {
+    $$(".pt-pin", canvas).forEach((p) => p.remove());
+    const h = here();
+    pinsHere().forEach((n, i) => drawPin(h, n.pin, i + 1, pinKey(n)));
+    if (pending) drawPin(h, pending, "+", null, true);
+  }
+  function dropPin(e) {
+    const h = here(), sc = e.target.closest("[data-scroll]");
+    const inScroll = !!(sc && h.el.contains(sc)), base = inScroll ? sc : h.el;
+    const r = base.getBoundingClientRect(), k = r.width / (base.clientWidth || r.width) || 1;
+    const row = e.target.closest("[data-to],[data-tab],[data-toast],[data-root]");
+    const t = e.target.closest("p,h1,h2,h3,td,th") || (row && ($("p", row) || $("span", row))) || e.target.closest("span") || e.target;
+    pending = { s: inScroll ? 1 : 0, x: Math.round((e.clientX - r.left) / k + base.scrollLeft), y: Math.round((e.clientY - r.top) / k + base.scrollTop), label: (t.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60) };
+    pinning = false; canvas.classList.remove("pt-pinning"); paintPinBtn(); paintPins(); $("#pt-note-text").focus();
+  }
+  function cancelPin() { pinning = false; pending = null; canvas.classList.remove("pt-pinning"); paintPinBtn(); }
+  function paintPinBtn() {
+    const b = $("#pt-pin-btn");
+    b.textContent = pinning ? "Click the spot on the screen…" : pending ? "Pinned" + (pending.label ? ": " + pending.label : "") + " ×" : "Pin to a spot";
+    b.setAttribute("aria-pressed", String(pinning || !!pending));
+  }
+  $("#pt-pin-btn").addEventListener("click", () => {
+    if (pinning || pending) { cancelPin(); paintPins(); return; }
+    setBefore(false); pinning = true; canvas.classList.add("pt-pinning"); paintPinBtn();
+  });
+
+  function paintSide() {
+    const h = here();
+    $("#pt-where-name").textContent = h.name; $("#pt-where-dev").textContent = "· " + (view.dev === "phone" ? "Phone" : "Laptop");
+    $$(".pt-side [data-scope]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scope === scope)));
+    $$(".pt-kind").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.kind === kind)));
+    const mine = entries.filter((n) => n.screen === h.id);
+    $(".pt-side [data-scope=here]").textContent = "This screen" + (mine.length ? " (" + mine.length + ")" : "");
+    $(".pt-side [data-scope=all]").textContent = "All" + (entries.length ? " (" + entries.length + ")" : "");
+    $("#pt-note-btn").textContent = "Notes" + (entries.length ? " (" + entries.length + ")" : "");
+    const list = $("#pt-list"); list.textContent = "";
+    const numbers = new Map(pinsHere().map((n, i) => [n, i + 1]));
+    const shown = scope === "here" ? mine : entries;
+    if (!shown.length) { const e = document.createElement("p"); e.className = "pt-empty"; e.textContent = scope === "here" ? "No notes on this screen yet." : "No notes yet."; list.appendChild(e); }
+    else if (scope === "here") shown.forEach((n) => list.appendChild(card(n, false, numbers.get(n))));
+    else {
+      const groups = new Map(); shown.forEach((n) => { if (!groups.has(n.name)) groups.set(n.name, []); groups.get(n.name).push(n); });
+      groups.forEach((ns, name) => { const g = document.createElement("p"); g.className = "pt-group"; g.textContent = name; list.appendChild(g); ns.forEach((n) => list.appendChild(card(n, true))); });
+    }
+    paintPins();
+  }
+  function goToNote(n) {
+    if (n.role && ROLES.length) view.tabs.role = n.role;
+    Object.assign(view.tabs, n.options || {});
+    if (n.device && n.device !== view.dev) setDev(n.device);
+    const path = (n.path || []).filter((id) => place(id, view.dev));
+    view.stack = (path.length ? path : [{ id: roleStart() }].map((x) => x.id)).map((id) => ({ id })); scope = "here"; render(null);
+  }
+  async function addNote() {
+    const ta = $("#pt-note-text"), text = ta.value.trim();
+    if (!text) return;
+    const h = here(), options = {};
+    VARIANTS.forEach((d) => { options[d.dataset.key] = view.tabs[d.dataset.key]; });
+    const n = { screen: h.id, name: h.name, kind, text, device: view.dev, path: view.stack.map((s) => s.id), role: view.tabs.role || null, options, rev: Number(VERSION), pin: pending || null, at: new Date().toISOString() };
+    ta.value = ""; pending = null; paintPinBtn(); paintAdd();
+    if (db) {
+      try { await db.collection("feedback").add({ ...n, author: me }); setSaved("Saved"); return; }
+      catch { setSaved("You can't add to the shared notes, so this stays on this device"); n.localOnly = true; }
+    } else setSaved("Saved on this device");
+    n.id = "l" + Date.now(); local.push(n); lsSet(FB, local); merge();
+  }
+  async function removeNote(n) {
+    if (String(n.id).startsWith("l")) { local = local.filter((x) => x.id !== n.id); lsSet(FB, local); merge(); return; }
+    try { await db.doc("feedback/" + n.id).delete(); } catch { setSaved("Couldn't remove that note"); }
+  }
+  const paintAdd = () => $("#pt-add").setAttribute("aria-disabled", String(!$("#pt-note-text").value.trim()));
+  function setSide(open) {
+    $("#pt-side").hidden = !open; $("#pt-note-btn").setAttribute("aria-pressed", String(open)); canvas.classList.toggle("pt-nopins", !open); lsSet(LS + ":side", open); fit();
+    if (open) paintSide();
+  }
+  $("#pt-note-btn").addEventListener("click", () => { setSide($("#pt-side").hidden); if (!$("#pt-side").hidden) $("#pt-note-text").focus(); });
+  $("#pt-side-close").addEventListener("click", () => setSide(false));
+  $$(".pt-side [data-scope]").forEach((b) => b.addEventListener("click", () => { scope = b.dataset.scope; paintSide(); }));
+  $$(".pt-kind").forEach((b) => b.addEventListener("click", () => { kind = b.dataset.kind; paintSide(); }));
+  $("#pt-note-text").addEventListener("input", paintAdd);
+  $("#pt-note-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addNote(); } });
+  $("#pt-add").addEventListener("click", addNote);
+  $("#pt-add").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addNote(); } });
+
+  // One feedback text for Copy feedback and Starbase, in the lines the Foreman reads.
+  function feedbackText() {
+    const lines = [];
+    DECISIONS.forEach((d) => { const c = notes[d.dataset.key]?.choice; if (c) lines.push(`Pick ${c} for ${d.dataset.key}`); });
+    const word = { change: "needs change", question: "question", idea: "idea" };
+    entries.slice().reverse().forEach((n) => {
+      const where = [n.device, n.pin && n.pin.label && `at "${n.pin.label}"`, n.role].filter(Boolean).join(", ");
+      lines.push(`s-${n.screen} (${where}): ${word[n.kind] || "note"}: ${n.text}`);
+    });
+    return lines.join("\n");
+  }
+  $("#pt-copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(`Feedback on {{TITLE}}, revision ${VERSION}\n` + feedbackText()); setSaved("Copied"); } catch { setSaved("Couldn't copy here"); }
+  });
+
+  // Inside Starbase: report what the page holds and where the reader is, and answer its two questions.
+  function post() {
+    if (!FRAMED) return;
+    const packed = all.filter((n) => "pack" in n.dataset);
+    const seenIds = new Set(), screens = [{ key: "overview", name: "Info", kind: "overview", status: "", choice: "" }];
+    DECISIONS.forEach((d) => screens.push({ key: d.dataset.key, name: nameOf(d.dataset.key), kind: "choice", status: notes[d.dataset.key]?.choice ? "good" : "", choice: notes[d.dataset.key]?.choice || "" }));
+    packed.forEach((n) => {
+      if (seenIds.has(n.dataset.id)) return; seenIds.add(n.dataset.id);
+      const has = entries.filter((e) => e.screen === n.dataset.id);
+      screens.push({ key: "s-" + n.dataset.id, name: n.dataset.name || n.dataset.id, kind: "screen", status: has.some((e) => e.kind === "change") ? "fix" : has.length ? "ask" : "", choice: "" });
+    });
+    try { window.parent.postMessage({ type: "wireframes", version: VERSION, current: pageNow === "proto" ? "s-" + here().id : "overview", screens }, "*"); } catch {}
+  }
+  if (FRAMED) window.addEventListener("message", (e) => {
+    const m = e.data || {};
+    if (m.type === "wireframes-goto" && typeof m.key === "string") {
+      if (m.key === "overview") setPage("info");
+      else if (m.key.startsWith("s-")) openPath([m.key.slice(2)]);
+      else { setPage("info"); const d = $(`.decision[data-key="${m.key}"]`); if (d) d.scrollIntoView({ block: "start" }); }
+    }
+    if (m.type === "wireframes-feedback" && e.source) e.source.postMessage({ type: "wireframes-feedback", version: VERSION, text: feedbackText() }, e.origin === "null" ? "*" : e.origin);
+  });
+
+  // The stakeholder PDF: the build prints this view with headless Chrome. Without a built PDF, the button prints it here.
+  function buildPack() {
+    const pack = $("#pt-pack"); pack.textContent = "";
+    const page = (fill) => { const p = document.createElement("section"); p.className = "pt-page"; fill(p); pack.append(p); return p; };
+    page((p) => {
+      p.append(Object.assign(document.createElement("h1"), { textContent: $("h1", info)?.textContent || "{{TITLE}}" }));
+      p.append(Object.assign(document.createElement("p"), { className: "pk-meta", textContent: `Draft, revision ${VERSION}. All names and numbers are invented.` }));
+      const lede = $(".lede", info); if (lede) p.append(Object.assign(document.createElement("p"), { textContent: lede.textContent }));
+      p.append(Object.assign(document.createElement("h2"), { textContent: "Decisions" }));
+      DECISIONS.forEach((d) => {
+        p.append(Object.assign(document.createElement("p"), { innerHTML: "" , textContent: $("h3", d).textContent }));
+        const ul = document.createElement("ul");
+        $$(".opt", d).forEach((o) => ul.append(Object.assign(document.createElement("li"), { textContent: `${o.dataset.label}${"rec" in o.dataset ? " (recommended)" : ""}` })));
+        p.append(ul);
+      });
+    });
+    if ($(".req", reqs)) page((p) => {
+      p.append(Object.assign(document.createElement("h1"), { textContent: "Requirements" }));
+      $$(".req", reqs).forEach((r) => { const row = document.createElement("div"); row.className = "pk-req"; const b = document.createElement("b"); b.textContent = r.dataset.id; const t = document.createElement("span"); t.textContent = $(".req-text", r).textContent; row.append(b, t); p.append(row); });
+    });
+    const shots = all.filter((n) => "pack" in n.dataset && n.classList.contains("screen") && allowed(n));
+    const shot = (n, width, height, zoom) => {
+      const w = document.createElement("div"); w.className = "pk-shot";
+      w.append(Object.assign(document.createElement("p"), { className: "cap", textContent: `${n.dataset.name} (${n.dataset.device === "phone" ? "Phone" : "Laptop"})` }));
+      const c = document.createElement("div"); c.className = "canvas"; c.style.cssText = `width:${width}px;height:${height}px;zoom:${zoom}`;
+      const clone = n.cloneNode(true); clone.classList.add("is-on"); clone.classList.remove("pt-push", "pt-pop"); $$(".pt-pin", clone).forEach((x) => x.remove()); c.append(clone); w.append(c); return w;
+    };
+    shots.filter((n) => n.dataset.device === "laptop").forEach((n) => page((p) => p.append(shot(n, 1366, 768, 0.7))));
+    const phones = shots.filter((n) => n.dataset.device === "phone");
+    for (let i = 0; i < phones.length; i += 3) page((p) => { const row = document.createElement("div"); row.className = "pk-row"; phones.slice(i, i + 3).forEach((n) => row.append(shot(n, 390, 844, 0.76))); p.append(row); });
+    document.body.classList.add("pt-packing");
+  }
+  $("#pt-pack-btn").addEventListener("click", () => {
+    if (PACK_URL) { const a = document.createElement("a"); a.href = PACK_URL; a.target = "_blank"; a.rel = "noopener"; document.body.append(a); a.click(); a.remove(); return; }
+    buildPack(); setTimeout(() => { window.print(); document.body.classList.remove("pt-packing"); }, 300);
+  });
+
+  if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  setDev(view.dev);
+  setPage(lsGet(LS + ":page", "info"));
+  merge(); paintChoices(); paintPinBtn();
+  setSide(lsGet(LS + ":side", window.innerWidth > 1000));
+  if (PACKING) buildPack();
+  if (HOSTED) {
+    window.claude.use("db").then(async (d) => {
+      if (!d) return;
+      db = d;
+      try {
+        const snap = await d.collection("notes").get();
+        snap.docs.forEach((x) => { notes[x.id] = { ...(notes[x.id] || {}), ...x.data() }; });
+        paintChoices();
+      } catch {}
+      try { userApi = await window.claude.use("user"); if (userApi) me = await userApi.id(); } catch {}
+      d.collection("feedback").onSnapshot(async (snap) => {
+        remote = snap.docs.map((x) => ({ ...x.data(), id: x.id }));
+        const ids = [...new Set(remote.map((n) => n.author).filter((a) => a && a !== me))];
+        if (userApi && ids.length) { try { const ps = await userApi.profiles(ids); ids.forEach((i) => { names[i] = (ps[i] && ps[i].name) || names[i]; }); } catch {} }
+        merge();
+      }, () => {});
+    }).catch(() => {});
+  }
+})();
+</script>

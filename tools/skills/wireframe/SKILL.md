@@ -1,6 +1,6 @@
 ---
 name: wireframe
-description: Draw the screens for a feature or product idea and publish them as a private review page before anything is built. Four fidelities. Text, in the reply, for a fast first shape. Sketch, hand-drawn. Lo-fi, greyscale. Hi-fi in the app's own design, read from the repository, or in a bundled preset when there is no design system. One panel per screen in flow order, states as tabs, Before/Now pairs, numbered callouts, clickable exits between screens, and two side-by-side options wherever there is a real design choice. Reviewers mark verdicts, pick options and leave notes on the page; feedback is read back and the page revised in place. Also writes a build brief any implementer can work from. Works in any repository or with none, and inside a /feature job through the feature-wireframe wrapper. Use when the user asks for wireframes, mockups, screens, designs, a prototype, "what would this look like", or wants to see a feature before building it.
+description: Draw the screens for a feature or product idea and publish them as a private review page before anything is built. Four fidelities. Text, in the reply, for a fast first shape. Sketch, hand-drawn. Lo-fi, greyscale. Hi-fi in the app's own design, read from the repository, or in a bundled preset when there is no design system. One panel per screen in flow order, states as tabs, Before/Now pairs, numbered callouts, clickable exits between screens, and two side-by-side options wherever there is a real design choice. Reviewers mark verdicts, pick options and leave notes on the page; feedback is read back and the page revised in place. Hi-fi pages on their own are a prototype: an Info tab, then one phone or laptop you click through in place, like the real site. Also writes a build brief any implementer can work from. Works in any repository or with none, and inside a /feature job through the feature-wireframe wrapper. Use when the user asks for wireframes, mockups, screens, designs, a prototype, "what would this look like", or wants to see a feature before building it.
 argument-hint: "<idea in a sentence | spec path> [text|sketch|lo-fi|hi-fi] [preset:admin|consumer|mono]"
 ---
 
@@ -27,9 +27,14 @@ Verdicts, picks, notes and the next-round intent save to the artifact's database
 
 **On its own** (the user runs `/wireframe` or asks for screens): ask up to three questions when you truly can't draw without the answers, build, publish, reply with the link.
 
-**Inside a `/feature` job** (through the `feature-wireframe` skill, or the Foreman says which job it's for): read `spec.md` and `options.json` in the job folder (`~/.claude/feature-work/<slug>/` or `$STARBASE_FEATURES_DIR/<slug>/`, which an older copy of Starbase calls `$WORKSHOP_FEATURES_DIR`); don't edit the spec, `status.json`, `workflow-status.md` or briefs; **ask no questions** (assume, and list every assumption and open decision under "Questions to settle"); pass `--job <slug>` so `wireframes.html`, `wireframes.json` and `wireframes.brief.md` land in the job folder; as the `feature-wireframer` worker, don't publish (Starbase shows `wireframes.html` from disk) and end with the step 6 report. Feedback then arrives as lines in the Foreman's prompt, not from the page.
+**Inside a `/feature` job** (through the `feature-wireframe` skill, or the Foreman says which job it's for): read `spec.md` and `options.json` in the job folder (`~/.claude/feature-work/<slug>/` or `$STARBASE_FEATURES_DIR/<slug>/`); don't edit the spec, `status.json`, `workflow-status.md` or briefs; **ask no questions** (assume, and list every assumption and open decision under "Questions to settle"); pass `--job <slug>` so `wireframes.html`, `wireframes.json` and `wireframes.brief.md` land in the job folder; as the `feature-wireframer` worker, don't publish (Starbase shows `wireframes.html` from disk) and end with the step 6 report. Feedback then arrives as lines in the Foreman's prompt, not from the page.
 
 Both ways produce the same page; only the questions and the extra job files differ.
+
+## Which page
+
+- **Hi-fi: a prototype page,** on its own or inside a `/feature` job. A short Info tab, a Prototype tab where every click happens in place, and Requirements. Read `reference/prototype.md` and use it in place of step 5 and the section shapes below. Steps 1 to 4 still apply, except that a real design choice becomes a decision you can try live rather than two frames. Screens are laptop only unless the feature is for phones.
+- **Sketch or lo-fi: the review page** described in the rest of this file. Use it for hi-fi too if the user asks for side-by-side options or per-screen verdicts.
 
 ## 1. Understand the idea
 
@@ -196,7 +201,8 @@ A sketch build (`--fidelity sketch`) draws the same kit on graph paper in a hand
 # Python 3 (python3, or py -3 on Windows)
 cd <repository, or anywhere for an idea alone> && python3 <skill>/build.py \
   --title "Short feature name" --sections <scratchpad>/sections.html --sources <scratchpad>/sources.txt \
-  [--fidelity sketch] [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "Geist"] [--preset admin] [--job <slug>]
+  [--fidelity sketch] [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "Geist"] [--preset admin] [--job <slug>] \
+  [--prototype [--start-device phone] [--changes "One line."] [--pack] [--pack-url <url>]]
 ```
 
 It checks the sections and writes, under `~/.claude/wireframes/<repo>/`: `<slug>.html` (a complete document, to open from disk), `<slug>.artifact.html` (the same page body-only, for publishing), `<slug>.brief.md` and `<slug>.json` (the revision counter); it updates the gallery, and with `--job` writes the job files. Fix any error and build again; read each warning and either fix it or know why it's fine. The same title on every build keeps the same slug, revision counter and notes; a new title is a new page.
