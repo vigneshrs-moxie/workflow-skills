@@ -1,0 +1,22 @@
+<title>{{TITLE}} moved</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* One message and one way onward, in the prototypes site's own colours. */
+:root { --bg: #f1f5f9; --surface: #ffffff; --fg: #1f2733; --muted: #566579; --line: #e3e9f0; --accent: #0b7be3; --on-accent: #ffffff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #07111c; --surface: #0e1a28; --fg: #f4f7fb; --muted: #9fb0c3; --line: #1f2e40; --accent: #3d94e6; --on-accent: #08131f; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #07111c; --surface: #0e1a28; --fg: #f4f7fb; --muted: #9fb0c3; --line: #1f2e40; --accent: #3d94e6; --on-accent: #08131f; color-scheme: dark; }
+html, body { height: 100%; }
+body { display: grid; place-items: center; box-sizing: border-box; padding-block: 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--bg); color: var(--fg); font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { display: grid; gap: 12px; width: 100%; max-width: 420px; box-sizing: border-box; padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+p { margin: 0; color: var(--muted); }
+.label { font-size: 13px; font-weight: 600; }
+h1 { margin: 0; font-size: 24px; line-height: 1.25; text-wrap: balance; }
+a { justify-self: start; margin-top: 8px; padding: 10px 16px; border-radius: 10px; background: var(--accent); color: var(--on-accent); font-weight: 600; text-decoration: none; }
+a:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+</style>
+<main>
+  <p class="label">This prototype moved</p>
+  <h1>{{TITLE}}</h1>
+  <p>It’s now on the prototypes site, with its notes and decisions. Sign in with your Moxie Google account to see it and leave notes.</p>
+  <a href="{{LINK}}">Open it on the prototypes site</a>
+</main>
