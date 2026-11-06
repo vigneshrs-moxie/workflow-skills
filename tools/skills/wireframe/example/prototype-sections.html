@@ -1,0 +1,99 @@
+<div id="info">
+  <h1>Download invoices as a CSV file</h1>
+  <p class="lede">Admins and billing staff can download the invoices they're looking at, with the same filters the page shows.</p>
+  <p class="muted">Example page for the wireframe skill. Every name and number is invented.</p>
+  <button type="button" class="pt-open" data-open="list">Open the prototype</button>
+  <h2>What's in it</h2>
+  <div class="pt-screens">
+    <button type="button" data-open="list"><b>Invoices</b><span>Where it starts</span></button>
+    <button type="button" data-open="list invoice"><b>One invoice</b><span>What a row opens</span></button>
+    <button type="button" data-open="list confirm"><b>Confirm</b><span>Before the file is made</span></button>
+  </div>
+  <h2>Decisions</h2>
+  <p class="muted">Try this in the prototype switches the prototype to that option so you can click through it. Then pick the one you want.</p>
+  <div class="decision" data-key="c-entry" data-variant data-default="A" data-short="Button" data-path="list"><h3>Where does Download CSV live?</h3><div class="opts">
+    <div class="opt" data-choice="A" data-label="Top of the page" data-rec><b>Top of the page</b><span>Always in view.</span></div>
+    <div class="opt" data-choice="B" data-label="Actions menu"><b>Actions menu</b><span>Less on the page, one more click.</span></div>
+  </div><!-- /decision --></div>
+  <div class="decision" data-key="c-confirm"><h3>Ask before making the file?</h3><div class="opts">
+    <div class="opt" data-choice="A" data-label="Ask first" data-rec><b>Ask first</b><span>Says how many rows it will hold.</span></div>
+    <div class="opt" data-choice="B" data-label="Go straight away"><b>Go straight away</b><span>One click fewer.</span></div>
+  </div><!-- /decision --></div>
+</div><!-- /info -->
+
+<div id="roles" data-default="admin">
+  <span data-role="admin" data-label="Admin" data-start="list"></span>
+  <span data-role="viewer" data-label="Viewer" data-start="list"></span>
+</div>
+
+<div id="requirements">
+  <h1>Requirements</h1>
+  <h2>Downloading</h2>
+  <ol>
+    <li class="req" data-id="FR-001" data-open="list">Admins and billing staff can download the invoices on screen.</li>
+    <li class="req" data-id="FR-002" data-open="list confirm">The file holds what the filters show, and says how many rows.</li>
+  </ol>
+  <h2>Still open</h2>
+  <ul><li class="q">Does a viewer ever need the file?</li></ul>
+</div><!-- /requirements -->
+
+<div class="screen" data-id="list" data-device="laptop" data-name="Invoices" data-route="/invoices" data-start data-pack>
+  <div class="flex-1 min-h-0 overflow-y-auto p-6" data-scroll>
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold">Invoices</h1>
+      <div class="flex gap-2" data-panel="role:admin">
+        <span class="border rounded-md px-3 py-1 text-sm" data-panel="c-entry:B" hidden data-to="actions">Actions</span>
+        <span class="[background:var(--brand)] [color:var(--brand-ink)] rounded-md px-3 py-1 text-sm" data-panel="c-entry:A" data-to="confirm">Download CSV</span>
+      </div>
+    </div>
+    <div class="[background:var(--surface)] border rounded-xl">
+      <div class="flex justify-between p-3 border-b" data-to="invoice" data-id="row-1042"><span>INV-1042 · Desert Palms HOA</span><span>Overdue</span></div>
+      <div class="flex justify-between p-3 border-b" data-to="invoice"><span>INV-1037 · Palms Dental Group</span><span>Overdue</span></div>
+      <div class="flex justify-between p-3" data-toast="Only the first two rows open in this test"><span>INV-1029 · Twin Palms Storage</span><span>Paid</span></div>
+    </div>
+    <div style="height: 900px"></div>
+    <p class="text-sm [color:var(--ink-soft)]">End of the list.</p>
+  </div>
+</div>
+<div class="screen" data-id="list" data-device="phone" data-name="Invoices" data-route="/invoices" data-pack>
+  <div class="[background:var(--surface)] border-b p-4 pt-12"><b class="text-lg">Invoices</b></div>
+  <div class="flex-1 min-h-0 overflow-y-auto p-4" data-scroll>
+    <div class="mb-3" data-panel="role:admin"><span class="[background:var(--brand)] [color:var(--brand-ink)] rounded-md px-3 py-2 text-sm" data-panel="c-entry:A" data-to="confirm">Download CSV</span><span class="border rounded-md px-3 py-2 text-sm" data-panel="c-entry:B" hidden data-to="actions">Actions</span></div>
+    <div class="[background:var(--surface)] border rounded-xl">
+      <div class="p-3 border-b" data-to="invoice"><b class="block">Desert Palms HOA</b><span class="text-sm [color:var(--ink-soft)]">INV-1042 · Overdue</span></div>
+      <div class="p-3" data-to="invoice"><b class="block">Palms Dental Group</b><span class="text-sm [color:var(--ink-soft)]">INV-1037 · Overdue</span></div>
+    </div>
+    <div style="height: 900px"></div>
+    <p class="text-sm [color:var(--ink-soft)]">End of the list.</p>
+  </div>
+  <div class="flex [background:var(--surface)] border-t p-3 pb-6 text-sm"><span class="flex-1 text-center font-semibold" data-root="list">Invoices</span><span class="flex-1 text-center" data-root="reports">Reports</span></div>
+</div>
+<div class="screen" data-id="invoice" data-device="phone" data-name="Invoice" data-route="/invoices/1042" data-pack>
+  <div class="[background:var(--surface)] border-b p-4 pt-12 flex gap-3"><span data-back>‹ Back</span><b>INV-1042</b></div>
+  <div class="flex-1 min-h-0 overflow-y-auto p-4" data-scroll><p>Desert Palms HOA owes $480.00, due Oct 12.</p></div>
+</div>
+<div class="overlay" data-id="invoice" data-device="laptop" data-over="list" data-name="Invoice" data-route="/invoices/1042">
+  <div class="absolute inset-0 bg-black/50" data-close data-scrim></div>
+  <div class="absolute left-1/2 top-24 -translate-x-1/2 w-96 [background:var(--surface)] border rounded-lg p-6"><b>INV-1042</b><p>Desert Palms HOA owes $480.00, due Oct 12.</p><span class="underline" data-close>Close</span></div>
+</div>
+<div class="screen" data-id="reports" data-device="phone" data-alt="list" data-name="Reports" data-route="/reports">
+  <div class="[background:var(--surface)] border-b p-4 pt-12"><b class="text-lg">Reports</b></div>
+  <div class="flex-1 min-h-0 overflow-y-auto p-4" data-scroll><p>Nothing here in this test.</p></div>
+  <div class="flex [background:var(--surface)] border-t p-3 pb-6 text-sm"><span class="flex-1 text-center" data-root="list">Invoices</span><span class="flex-1 text-center font-semibold" data-root="reports">Reports</span></div>
+</div>
+<div class="overlay" data-id="confirm" data-device="laptop" data-over="list" data-roles="admin" data-name="Confirm" data-route="/invoices">
+  <div class="absolute inset-0 bg-black/50" data-close data-scrim></div>
+  <div class="absolute left-1/2 top-24 -translate-x-1/2 w-96 [background:var(--surface)] border rounded-lg p-6"><b>Download 3 invoices?</b><p>The file holds what the filters show.</p><span class="underline" data-close data-toast="The file would download here">Download</span></div>
+</div>
+<div class="overlay" data-id="confirm" data-device="phone" data-roles="admin" data-name="Confirm" data-route="/invoices">
+  <div class="absolute inset-0 bg-black/50" data-close data-scrim></div>
+  <div class="absolute inset-x-0 bottom-0 [background:var(--surface)] rounded-t-xl p-6" data-sheet><b>Download 3 invoices?</b><p>The file holds what the filters show.</p><span class="underline" data-close data-toast="The file would download here">Download</span></div>
+</div>
+<div class="overlay" data-id="actions" data-device="laptop" data-over="list" data-roles="admin" data-name="Actions" data-route="/invoices">
+  <div class="absolute inset-0" data-close data-scrim></div>
+  <div class="absolute right-6 top-16 w-48 [background:var(--surface)] border rounded-md p-2"><span class="block p-2" data-to="confirm" data-replace>Download CSV</span></div>
+</div>
+<div class="overlay" data-id="actions" data-device="phone" data-roles="admin" data-name="Actions" data-route="/invoices">
+  <div class="absolute inset-0 bg-black/50" data-close data-scrim></div>
+  <div class="absolute inset-x-0 bottom-0 [background:var(--surface)] rounded-t-xl p-6" data-sheet><span class="block p-2" data-to="confirm" data-replace>Download CSV</span></div>
+</div>

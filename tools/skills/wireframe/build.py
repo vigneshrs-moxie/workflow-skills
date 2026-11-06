@@ -289,6 +289,27 @@ def check_prototype(sections):
     return errors, warnings
 
 
+def requirements_block(sections, spec):
+    """The spec's FR table as the Requirements tab. Ids stay the spec's (D29); a line the page already had keeps its link."""
+    rows = []
+    for line in spec.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        m = re.fullmatch(r"(?:~~)?(FR-\d+)(?:~~)?", cells[0]) if len(cells) >= 2 else None
+        if m and not cells[0].startswith("~~"): # struck through: removed from the spec
+            rows.append((m.group(1), cells[1]))
+    if not rows:
+        sys.exit("--requirements: no | FR-001 | … | rows in that file")
+    old = re.search(r'<div id="requirements">.*?<!-- /requirements -->\n?', sections, re.S)
+    links = dict(re.findall(r'<li class="req" data-id="([^"]+)"( data-open="[^"]*"(?: data-device="[^"]*")?)', old.group(0))) if old else {}
+    keep = re.findall(r'<h2>Still open</h2>.*?</ul>', old.group(0), re.S) if old else []
+    items = "\n".join(f'    <li class="req" data-id="{i}"{links.get(i, "")}>{html.escape(t, quote=False)}</li>' for i, t in rows)
+    block = f'<div id="requirements">\n  <h1>Requirements</h1>\n  <ol>\n{items}\n  </ol>\n  {"".join(keep)}\n</div><!-- /requirements -->\n'
+    if old:
+        return sections[:old.start()] + block + sections[old.end():]
+    at = re.search(r'<div class="(?:screen|overlay)[ "]', sections)
+    return sections[:at.start()] + block + sections[at.start():] if at else sections + block
+
+
 def brief_prototype(title, where, sources, sections):
     """The handoff for whoever builds it: screens, routes, where each click goes, decisions, questions."""
     nodes = proto_nodes(sections)
@@ -477,7 +498,9 @@ def main():
     ap.add_argument("--start-device", choices=["laptop", "phone"], default="laptop", help="Prototype: the device it opens on when it has both")
     ap.add_argument("--changes", default="", help="Prototype: one line on what changed in this revision, shown in What's new")
     ap.add_argument("--pack", action="store_true", help="Prototype: also print the stakeholder PDF, <slug>.pack.pdf, with headless Chrome")
-    ap.add_argument("--pack-url", default="", help="Prototype: where the published PDF lives, for the Stakeholder PDF button")
+    ap.add_argument("--pack-url", default="", help="Prototype: where the published PDF lives, for the Download PDF button")
+    ap.add_argument("--site-origin", default="https://prototypes.moxieorbit.com", help="Prototype: the only site the page takes notes and picks from over postMessage")
+    ap.add_argument("--requirements", help="Prototype: a spec (markdown); its FR-nnn table becomes the Requirements tab, ids showing")
     ap.add_argument("--fidelity", choices=["sketch", "lo", "hi"], help="Default: hi with --theme or --preset, otherwise lo")
     ap.add_argument("--theme", help="The app's CSS for hi-fi screens (see reference/design-capture.md)")
     ap.add_argument("--preset", choices=sorted(PRESET_FONTS), help="A bundled design instead of --theme, for ideas with no design system")
@@ -540,6 +563,10 @@ def main():
         sys.exit("pass --title and --sections")
 
     sections = open(os.path.expanduser(a.sections), encoding="utf-8").read()
+    if a.prototype and a.requirements:
+        sections = requirements_block(sections, open(os.path.expanduser(a.requirements), encoding="utf-8").read())
+    if a.prototype and not re.fullmatch(r"https?://[A-Za-z0-9.-]+(:\d+)?", a.site_origin):
+        sys.exit("--site-origin takes an origin, such as https://prototypes.moxieorbit.com")
     if a.prototype and not (a.theme or a.preset):
         sys.exit("--prototype needs --theme or --preset: it draws the app's real screens")
     errors, warnings = check_prototype(sections) if a.prototype else check(sections)
@@ -637,6 +664,7 @@ def main():
         "{{CHANGES}}": changes_json,
         "{{PACK_URL}}": html.escape(a.pack_url),
         "{{START_DEVICE}}": a.start_device,
+        "{{SITE_ORIGIN}}": a.site_origin,
         "{{NOTES_KEY}}": f"wf-{repo}-{slug}-notes",
         "{{VERSION}}": str(revision),
         "{{SECTIONS}}": sections,

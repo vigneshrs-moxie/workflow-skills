@@ -6,45 +6,60 @@
 /* Prototype page: an Info tab to read, and a Prototype tab that is one device you click through in place.
    The page's own chrome uses pt- classes; the app's screens live inside .canvas and use the app's own CSS. */
 :root {
-  --pt-bg: #f4f6f9; --pt-surface: #fff; --pt-fg: #17202c; --pt-muted: #566273; --pt-line: #dfe4eb; --pt-accent: #1f5fbf; --pt-accent-soft: #e6eefb;
-  --pt-good: #1d7a4a; --pt-fix: #b3261e;
+  --pt-bg: oklch(0.968 0.007 249); --pt-soft: #f5f9fc; --pt-surface: #fff; --pt-fg: oklch(0.290 0.008 250); --pt-muted: oklch(0.47 0.030 249); --pt-line: oklch(0.929 0.013 249);
+  --pt-accent: #0c77d8; --pt-accent-soft: #edf6fc; --pt-primary: oklch(0.565 0.195 249); --pt-on-primary: #fff;
+  --pt-good: #008d1a; --pt-good-soft: #e6f4e8; --pt-warn: #9a6207; --pt-warn-soft: #fff2de; --pt-fix: #d32f2f;
+  --pt-pin-change: #0c77d8; --pt-pin-change-fg: #fff; --pt-pin-question: #ffbd59; --pt-pin-question-fg: #123250; --pt-pin-idea: #008d1a; --pt-pin-idea-fg: #fff;
+  --pt-lift: 0 1px 3px rgb(18 50 80 / .08);
   --pt-font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --pt-bg: #10151c; --pt-surface: #18202a; --pt-fg: #e6ebf1; --pt-muted: #9ca8b8; --pt-line: #2b3543; --pt-accent: #86aeee; --pt-accent-soft: #1d2b41;
-    --pt-good: #62c690; --pt-fix: #f08a80; color-scheme: dark;
+    --pt-bg: oklch(0.160 0.020 249); --pt-soft: #182433; --pt-surface: oklch(0.210 0.025 249); --pt-fg: oklch(0.984 0.003 249); --pt-muted: oklch(0.704 0.030 249); --pt-line: oklch(1 0 0 / 12%);
+    --pt-accent: #3d94e6; --pt-accent-soft: #16283c; --pt-primary: oklch(0.650 0.200 249); --pt-on-primary: #08131f;
+    --pt-good: #3fbf5a; --pt-good-soft: #14301b; --pt-warn: #ffbd59; --pt-warn-soft: #3a2c12; --pt-fix: #ef6b6b;
+    --pt-pin-change: #3d94e6; --pt-pin-change-fg: #08131f; --pt-pin-question: #ffbd59; --pt-pin-question-fg: #08131f; --pt-pin-idea: #3fbf5a; --pt-pin-idea-fg: #08131f;
+    --pt-lift: 0 1px 3px rgb(0 0 0 / .4); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --pt-bg: #10151c; --pt-surface: #18202a; --pt-fg: #e6ebf1; --pt-muted: #9ca8b8; --pt-line: #2b3543; --pt-accent: #86aeee; --pt-accent-soft: #1d2b41;
-  --pt-good: #62c690; --pt-fix: #f08a80; color-scheme: dark;
+    --pt-bg: oklch(0.160 0.020 249); --pt-soft: #182433; --pt-surface: oklch(0.210 0.025 249); --pt-fg: oklch(0.984 0.003 249); --pt-muted: oklch(0.704 0.030 249); --pt-line: oklch(1 0 0 / 12%);
+    --pt-accent: #3d94e6; --pt-accent-soft: #16283c; --pt-primary: oklch(0.650 0.200 249); --pt-on-primary: #08131f;
+    --pt-good: #3fbf5a; --pt-good-soft: #14301b; --pt-warn: #ffbd59; --pt-warn-soft: #3a2c12; --pt-fix: #ef6b6b;
+    --pt-pin-change: #3d94e6; --pt-pin-change-fg: #08131f; --pt-pin-question: #ffbd59; --pt-pin-question-fg: #08131f; --pt-pin-idea: #3fbf5a; --pt-pin-idea-fg: #08131f;
+    --pt-lift: 0 1px 3px rgb(0 0 0 / .4); color-scheme: dark;
 }
 html, body { margin: 0; height: 100%; }
-body { background: var(--pt-bg); color: var(--pt-fg); font: 15px/1.55 var(--pt-font); }
+body { background: var(--pt-soft); color: var(--pt-fg); font: 15px/1.55 var(--pt-font); }
 .pt-app { min-height: 100vh; display: flex; flex-direction: column; }
-.pt-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; background: var(--pt-surface); border-bottom: 1px solid var(--pt-line); }
+.pt-top [hidden], .pt-bar [hidden], .pt-side [hidden] { display: none !important; }
+.pt-ic { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pt-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 44px; padding: 10px 20px; background: var(--pt-surface); box-shadow: 0 1px 0 var(--pt-line), 0 2px 10px rgb(18 50 80 / .05); }
 .pt-id { font-weight: 600; font-size: 15px; min-width: 0; flex: 1 1 200px; }
 .pt-id small { display: block; font-weight: 400; font-size: 12px; color: var(--pt-muted); }
-.pt-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 9px; background: var(--pt-bg); border: 1px solid var(--pt-line); }
-.pt-seg button { all: unset; cursor: pointer; padding: 5px 14px; border-radius: 7px; font-size: 14px; font-weight: 500; color: var(--pt-muted); display: inline-flex; gap: 6px; align-items: center; }
-.pt-seg button[aria-pressed="true"] { background: var(--pt-surface); color: var(--pt-fg); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.pt-seg { display: inline-flex; padding: 4px; gap: 2px; border-radius: 14px; background: var(--pt-soft); }
+.pt-seg button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 500; color: var(--pt-muted); display: inline-flex; gap: 6px; align-items: center; }
+.pt-seg button[aria-pressed="true"] { background: var(--pt-surface); color: var(--pt-fg); box-shadow: 0 1px 3px rgb(18 50 80 / .16); }
 .pt-seg button:focus-visible, .pt-btn:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 1px; }
-.pt-tools { display: flex; gap: 8px; align-items: center; flex: 1 1 200px; justify-content: flex-end; font-size: 12px; color: var(--pt-muted); }
-.pt-btn { all: unset; cursor: pointer; box-sizing: border-box; padding: 5px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); white-space: nowrap; }
-.pt-btn[aria-pressed="true"] { background: var(--pt-accent-soft); border-color: var(--pt-accent); color: var(--pt-accent); }
+.pt-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1 1 200px; justify-content: flex-end; font-size: 12px; color: var(--pt-muted); }
+.pt-btn { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; gap: 6px; align-items: center; height: 36px; padding: 0 12px; border-radius: 12px; font-size: 13.5px; font-weight: 500; color: var(--pt-fg); background: var(--pt-soft); white-space: nowrap; }
+.pt-btn:hover { background: var(--pt-accent-soft); }
+.pt-btn[aria-pressed="true"] { background: var(--pt-accent-soft); color: var(--pt-accent); box-shadow: inset 0 0 0 1.5px var(--pt-accent); }
+.pt-btn[aria-disabled="true"] { color: var(--pt-muted); cursor: default; }
 details.menu { position: relative; }
 details.menu > summary { list-style: none; }
 details.menu > summary::-webkit-details-marker { display: none; }
-details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); white-space: nowrap; }
-.menu-panel { position: absolute; right: 0; top: calc(100% + 6px); width: min(480px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 8px; box-shadow: 0 8px 24px rgb(0 0 0 / .14); padding: 8px 12px; z-index: 30; font-size: 13px; }
+details.menu .btn { cursor: pointer; display: inline-flex; gap: 6px; align-items: center; height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 12px; font-size: 13.5px; font-weight: 500; color: var(--pt-fg); background: var(--pt-soft); white-space: nowrap; }
+.menu-panel { position: absolute; right: 0; top: calc(100% + 6px); width: min(480px, calc(100vw - 32px)); max-height: 60vh; overflow: auto; background: var(--pt-surface); border-radius: 16px; box-shadow: 0 8px 24px rgb(0 0 0 / .14); padding: 10px 14px; z-index: 30; font-size: 13px; }
 .menu-panel p { margin: 0 0 6px; color: var(--pt-muted); }
 .menu-panel code { display: block; font: 12.5px ui-monospace, Menlo, monospace; padding: 2px 0; overflow-wrap: anywhere; }
 
 /* Info */
-#pt-info { width: 100%; max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; box-sizing: border-box; }
+#pt-info { width: 100%; max-width: 760px; margin: 0 auto; padding: 32px 20px 72px; box-sizing: border-box; }
+.pt-hero { padding: 28px; border-radius: 20px; background: var(--pt-surface); box-shadow: var(--pt-lift); }
+.pt-hero .muted:last-of-type { margin-bottom: 18px; }
 #pt-info[hidden], #pt-proto[hidden] { display: none; }
-#pt-info h1 { font-size: 26px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; letter-spacing: -.01em; }
+#pt-info h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; letter-spacing: -.012em; }
 #pt-info h2 { font-size: 17px; margin: 32px 0 8px; font-weight: 650; }
 #pt-info h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
 #pt-info p { margin: 0 0 10px; }
@@ -65,15 +80,15 @@ details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--
 }
 .pt-link { all: unset; cursor: pointer; color: var(--pt-accent); font-weight: 500; }
 .pt-link:hover { text-decoration: underline; }
-.pt-open { all: unset; cursor: pointer; display: inline-block; margin: 6px 0 2px; padding: 9px 16px; border-radius: 8px; background: #1f5fbf; color: #fff; font-weight: 600; font-size: 14px; }
-.pt-screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin: 8px 0 4px; }
-.pt-screens button { all: unset; cursor: pointer; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--pt-line); border-radius: 9px; background: var(--pt-surface); font-size: 14px; }
-.pt-screens button:hover { border-color: var(--pt-accent); }
+.pt-open { all: unset; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; margin: 6px 0 2px; padding: 10px 16px; border-radius: 12px; background: var(--pt-primary); color: var(--pt-on-primary); font-weight: 600; font-size: 14px; }
+.pt-screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 8px 0 4px; }
+.pt-screens button { all: unset; cursor: pointer; box-sizing: border-box; padding: 12px 14px; border-radius: 16px; background: var(--pt-surface); box-shadow: var(--pt-lift); font-size: 14px; }
+.pt-screens button:hover { box-shadow: inset 0 0 0 1.5px var(--pt-accent); }
 .pt-screens b { display: block; font-weight: 600; color: var(--pt-fg); }
 .pt-screens span { font-size: 13px; color: var(--pt-muted); }
-.decision { background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+.decision { background: var(--pt-surface); border-radius: 16px; box-shadow: var(--pt-lift); padding: 14px 16px; margin: 0 0 12px; }
 .decision .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; margin-top: 10px; }
-.decision .opt { box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; padding: 11px 13px; border: 1px solid var(--pt-line); border-radius: 10px; font-size: 14px; }
+.decision .opt { box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; padding: 11px 13px; border: 1px solid var(--pt-line); border-radius: 12px; font-size: 14px; }
 .decision .opt.is-picked { border-color: var(--pt-accent); background: var(--pt-accent-soft); }
 .decision .opt b { font-weight: 600; font-size: 15px; }
 .decision .opt > span { color: var(--pt-muted); font-size: 13.5px; }
@@ -81,8 +96,8 @@ details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--
 .pt-opt-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
 .pt-try { all: unset; cursor: pointer; color: var(--pt-accent); font-size: 13.5px; font-weight: 600; }
 .pt-try:hover { text-decoration: underline; }
-.pt-pick { all: unset; cursor: pointer; padding: 3px 11px; border: 1px solid var(--pt-line); border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-surface); }
-.pt-pick[aria-pressed="true"] { background: #1f5fbf; border-color: #1f5fbf; color: #fff; }
+.pt-pick { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; padding: 4px 12px; border-radius: 10px; font-size: 13px; font-weight: 500; color: var(--pt-fg); background: var(--pt-soft); }
+.pt-pick[aria-pressed="true"] { background: var(--pt-primary); color: var(--pt-on-primary); font-weight: 600; }
 #pt-reqs { width: 100%; max-width: 760px; margin: 0 auto; padding: 28px 16px 72px; box-sizing: border-box; }
 #pt-reqs[hidden] { display: none; }
 #pt-reqs h1 { font-size: 24px; margin: 0 0 6px; font-weight: 650; }
@@ -90,17 +105,22 @@ details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--
 #pt-reqs p { margin: 0 0 10px; color: var(--pt-muted); }
 #pt-reqs ol, #pt-reqs ul { list-style: none; margin: 0; padding: 0; }
 .req { display: flex; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--pt-line); font-size: 15px; }
-.req .req-id { flex: none; width: 34px; font: 12.5px ui-monospace, Menlo, monospace; color: var(--pt-muted); }
+.req .req-id { flex: none; width: 58px; font: 12.5px ui-monospace, Menlo, monospace; color: var(--pt-muted); }
 .req .req-text { flex: 1; min-width: 0; }
 .req .pt-try { flex: none; }
 .q { padding: 7px 0; border-bottom: 1px solid var(--pt-line); font-size: 14.5px; }
 
 /* Prototype */
 #pt-proto { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.pt-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 16px; border-bottom: 1px solid var(--pt-line); background: var(--pt-surface); font-size: 13px; }
+.pt-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 20px; background: var(--pt-soft); font-size: 13px; }
+.pt-bar .pt-btn { background: var(--pt-surface); }
+.pt-bar .pt-btn[aria-pressed="true"] { background: var(--pt-accent-soft); }
+.pt-bar .pt-seg { background: var(--pt-surface); }
+.pt-bar .pt-seg button[aria-pressed="true"] { background: var(--pt-soft); box-shadow: none; }
 #pt-route { flex: 1 1 140px; min-width: 0; font: 12.5px ui-monospace, Menlo, monospace; color: var(--pt-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pt-stage { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 14px 12px 18px; overflow: hidden; position: relative; }
 .pt-device { position: relative; flex: none; background: #0e141b; box-shadow: 0 10px 34px rgb(10 20 35 / .28); }
+:root[data-theme="dark"] .pt-device { box-shadow: 0 0 0 1px rgb(255 255 255 / .16), 0 10px 34px rgb(0 0 0 / .5); }
 .pt-device[data-dev="phone"] { padding: 10px; border-radius: 46px; }
 .pt-device[data-dev="phone"] .canvas { width: 390px; height: 844px; border-radius: 36px; }
 .pt-device[data-dev="phone"] .pt-chrome { display: none; }
@@ -109,7 +129,11 @@ details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--
 .pt-chrome { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; background: #e9edf2; }
 .pt-chrome i { width: 10px; height: 10px; border-radius: 50%; background: #c7ced8; }
 .pt-chrome span { margin-left: 10px; flex: 0 1 520px; background: #fff; border-radius: 6px; padding: 2px 10px; font: 12px ui-monospace, Menlo, monospace; color: #55606e; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.canvas { position: relative; overflow: hidden; color-scheme: light; font-size: 14px; line-height: 1.5; color: #111; background: #fff; }
+.canvas { position: relative; overflow: hidden; color-scheme: light; font-size: 14px; line-height: 1.5; }
+:where(.canvas) { color: #111; background: #fff; } /* no weight, so the theme's .canvas colours win and Dark reaches them */
+:root.dark .canvas { color-scheme: dark; }
+.canvas .screen, .canvas .overlay { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.canvas input, .canvas textarea { -webkit-user-select: text; user-select: text; }
 .canvas .screen { position: absolute; inset: 0; display: none; }
 .canvas [data-scroll] { position: relative; }
 .canvas .screen.is-on { display: flex; flex-direction: column; }
@@ -128,76 +152,119 @@ details.menu .btn { cursor: pointer; padding: 5px 11px; border: 1px solid var(--
 .pt-toast.on { opacity: 1; }
 .pt-work { flex: 1; display: flex; min-height: 0; }
 .pt-work .pt-stage { flex: 1; min-width: 0; }
-.pt-side { flex: none; width: 400px; display: flex; flex-direction: column; min-height: 0; background: var(--pt-surface); border-left: 1px solid var(--pt-line); }
+.pt-side { flex: none; box-sizing: border-box; width: 400px; display: flex; flex-direction: column; gap: 12px; min-height: 0; padding: 8px 12px 12px; background: var(--pt-soft); }
 .pt-side[hidden] { display: none; }
-.pt-side-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px 10px; }
+.pt-side-head { display: flex; align-items: center; gap: 8px; padding: 8px 4px 0; }
 .pt-side-head b { font-size: 16px; font-weight: 650; flex: 1; }
-.pt-side .pt-seg button { padding: 3px 11px; font-size: 13px; }
+.pt-side-head > span { font-size: 13px; color: var(--pt-muted); }
+.pt-side .pt-seg button { padding: 4px 11px; font-size: 13px; }
+.pt-side-head .pt-seg { background: var(--pt-surface); } .pt-side-head .pt-seg button[aria-pressed="true"] { background: var(--pt-soft); box-shadow: none; }
 .pt-x { all: unset; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; color: var(--pt-muted); font-size: 18px; line-height: 1; }
-.pt-x:hover { background: var(--pt-bg); }
-.pt-compose { padding: 0 16px 14px; border-bottom: 1px solid var(--pt-line); }
+.pt-x:hover { background: var(--pt-surface); }
+.pt-view { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.pt-view[hidden] { display: none; }
+.pt-compose { padding: 14px; border-radius: 16px; background: var(--pt-surface); box-shadow: var(--pt-lift); }
 .pt-where { display: flex; align-items: baseline; gap: 6px; font-size: 13px; color: var(--pt-muted); margin-bottom: 8px; min-width: 0; }
 .pt-where b { color: var(--pt-fg); font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-where span { flex: none; }
 .pt-kinds { display: flex; gap: 6px; margin-bottom: 8px; }
-.pt-kind { all: unset; cursor: pointer; padding: 4px 11px; border: 1px solid var(--pt-line); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--pt-muted); }
-.pt-kind[aria-pressed="true"][data-kind="change"], .pt-tag[data-kind="change"] { color: var(--pt-accent); background: var(--pt-accent-soft); border-color: transparent; }
-.pt-kind[aria-pressed="true"][data-kind="question"], .pt-tag[data-kind="question"] { color: #8a5a00; background: #fbf0d9; border-color: transparent; }
-.pt-kind[aria-pressed="true"][data-kind="idea"], .pt-tag[data-kind="idea"] { color: #1d7a4a; background: #e3f3ea; border-color: transparent; }
+.pt-kind { all: unset; cursor: pointer; display: inline-flex; gap: 5px; align-items: center; padding: 5px 11px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--pt-muted); background: var(--pt-soft); }
+.pt-kind .pt-ic, .pt-tag .pt-ic { width: 13px; height: 13px; }
+[data-kind="change"] { --k: var(--pt-pin-change); --kf: var(--pt-pin-change-fg); --ks: var(--pt-accent-soft); --kt: var(--pt-accent); }
+[data-kind="question"] { --k: var(--pt-pin-question); --kf: var(--pt-pin-question-fg); --ks: var(--pt-warn-soft); --kt: var(--pt-warn); }
+[data-kind="idea"] { --k: var(--pt-pin-idea); --kf: var(--pt-pin-idea-fg); --ks: var(--pt-good-soft); --kt: var(--pt-good); }
+.pt-kind[aria-pressed="true"], .pt-tag { color: var(--kt); background: var(--ks); font-weight: 600; }
 .pt-kind:focus-visible, .pt-add:focus-visible, .pt-x:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 1px; }
-#pt-note-text { display: block; width: 100%; box-sizing: border-box; min-height: 150px; padding: 11px 13px; border: 1px solid var(--pt-line); border-radius: 10px; background: var(--pt-bg); color: var(--pt-fg); font: 15px/1.5 var(--pt-font); resize: vertical; }
-#pt-note-text:focus { outline: 2px solid var(--pt-accent); outline-offset: -1px; background: var(--pt-surface); }
+#pt-note-text, .pt-edit-text { display: block; width: 100%; box-sizing: border-box; min-height: 92px; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--pt-soft); color: var(--pt-fg); font: 14.5px/1.5 var(--pt-font); resize: vertical; }
+#pt-note-text:focus, .pt-edit-text:focus { outline: 2px solid var(--pt-accent); outline-offset: -1px; background: var(--pt-surface); }
 .pt-compose-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: 12px; color: var(--pt-muted); }
-.pt-add { all: unset; cursor: pointer; padding: 8px 18px; border-radius: 8px; background: #1f5fbf; color: #fff; font-size: 14px; font-weight: 600; }
+.pt-add { all: unset; cursor: pointer; padding: 8px 16px; border-radius: 12px; background: var(--pt-primary); color: var(--pt-on-primary); font-size: 14px; font-weight: 600; }
+.pt-hint { margin: 6px 0 0; font-size: 12.5px; color: var(--pt-muted); }
 .pt-add[aria-disabled="true"] { opacity: .45; cursor: default; }
-.pt-list { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+.pt-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 1px 2px 8px; }
 .pt-empty { margin: 18px 8px; text-align: center; font-size: 14px; color: var(--pt-muted); }
-.pt-card { border: 1px solid var(--pt-line); border-radius: 10px; padding: 11px 13px; background: var(--pt-surface); font-size: 14.5px; line-height: 1.5; }
+.pt-card { box-sizing: border-box; border-radius: 16px; padding: 12px 14px; background: var(--pt-surface); box-shadow: var(--pt-lift); font-size: 14.5px; line-height: 1.5; }
 .pt-card[data-jump] { cursor: pointer; }
-.pt-card[data-jump]:hover { border-color: var(--pt-accent); }
-.pt-card-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-muted); margin-bottom: 5px; }
+.pt-card[data-jump]:hover, .pt-card.hot { box-shadow: inset 0 0 0 1.5px var(--k, var(--pt-accent)); }
+.pt-card-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-muted); margin-bottom: 4px; }
 .pt-face { width: 24px; height: 24px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--pt-accent-soft); color: var(--pt-accent); font-size: 12px; font-weight: 650; }
 .pt-who { color: var(--pt-fg); font-weight: 600; font-size: 13.5px; }
-.pt-tag { margin-left: auto; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 550; }
+.pt-tag { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
 .pt-card p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.pt-card-foot { display: flex; gap: 8px; align-items: center; margin-top: 6px; font-size: 12px; color: var(--pt-muted); }
-.pt-remove { all: unset; cursor: pointer; margin-left: auto; font-size: 12px; color: var(--pt-muted); }
-.pt-remove:hover { color: var(--pt-fix); }
-.pt-group { font-size: 12.5px; font-weight: 600; color: var(--pt-muted); margin: 6px 2px -4px; }
+.pt-card-foot { display: flex; gap: 12px; align-items: center; margin-top: 6px; font-size: 12.5px; color: var(--pt-muted); }
+.pt-card-foot > span:first-child { margin-right: auto; }
+.pt-remove, .pt-edit { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; font-size: 12.5px; font-weight: 500; color: var(--pt-muted); }
+.pt-remove .pt-ic, .pt-edit .pt-ic { width: 13px; height: 13px; }
+.pt-edit:hover { color: var(--pt-fg); } .pt-remove:hover { color: var(--pt-fix); }
+.pt-edit-kinds { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.pt-edit-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+.pt-group { display: flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 600; color: var(--pt-fg); margin: 6px 2px -4px; }
+.pt-group + .pt-hint { margin: 0 2px; }
+/* Decisions */
+.pt-dec { overflow-y: auto; padding: 1px 2px 8px; }
+.pt-dcard { flex: none; padding: 12px 14px; border-radius: 16px; background: var(--pt-surface); box-shadow: var(--pt-lift); }
+.pt-dcard.flash { animation: pt-flash 1.2s ease-out; }
+@keyframes pt-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--pt-accent); } 100% { box-shadow: var(--pt-lift); } }
+.pt-viewas { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; }
+.pt-viewas select { font: 500 14px var(--pt-font); color: var(--pt-fg); background: var(--pt-soft); border: 0; border-radius: 10px; padding: 6px 8px; }
+.pt-dq { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; }
+.pt-dq h3 { flex: 1; margin: 0; font-size: 15px; line-height: 1.35; font-weight: 600; }
+.pt-dstate { display: inline-flex; gap: 4px; align-items: center; font-size: 12.5px; font-weight: 600; color: var(--pt-muted); white-space: nowrap; }
+.pt-dstate[data-done] { color: var(--pt-good); }
+.pt-dstate .pt-ic, .pt-dmark .pt-ic { width: 14px; height: 14px; }
+.pt-dopt { margin-top: 8px; }
+.pt-dpick { all: unset; cursor: pointer; box-sizing: border-box; display: block; width: 100%; padding: 10px 12px; border: 1px solid var(--pt-line); border-radius: 12px; }
+.pt-dpick:hover { border-color: var(--pt-accent); }
+.pt-dpick:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 1px; }
+.pt-dpick[aria-pressed="true"] { border: 2px solid var(--pt-accent); padding: 9px 11px; background: var(--pt-accent-soft); }
+.pt-dpick b { display: block; font-size: 15px; font-weight: 600; }
+.pt-ddesc { display: block; font-size: 13.5px; color: var(--pt-muted); }
+.pt-dmarks { display: flex; gap: 8px; align-items: center; min-height: 18px; font-size: 12.5px; }
+.pt-dmark { display: inline-flex; gap: 4px; align-items: center; font-weight: 500; color: var(--pt-muted); }
+.pt-dpick[aria-pressed="true"] .pt-dmark { font-weight: 600; color: var(--pt-accent); }
+.pt-dmarks .pt-rec { font-size: 12px; font-weight: 600; color: var(--pt-good); }
+.pt-dfoot { display: flex; justify-content: flex-end; min-height: 24px; padding: 4px 2px 0; font-size: 13px; }
+.pt-dshowing { font-weight: 600; color: var(--pt-muted); }
+.pt-show { all: unset; cursor: pointer; color: var(--pt-accent); font-weight: 600; }
+.pt-show:hover { text-decoration: underline; } .pt-show:focus-visible { outline: 2px solid var(--pt-accent); outline-offset: 2px; }
+.pt-why { margin-top: 6px; font-size: 13px; color: var(--pt-muted); }
+.pt-why summary { cursor: pointer; overflow-wrap: anywhere; }
+.pt-why input { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; padding: 7px 10px; border: 0; border-radius: 10px; background: var(--pt-soft); color: var(--pt-fg); font: 13.5px var(--pt-font); }
+.pt-why input:focus { outline: 2px solid var(--pt-accent); outline-offset: -1px; }
+.pt-others { margin: 6px 0 0; font-size: 12.5px; color: var(--pt-muted); }
 @media (max-width: 1000px) {
-  .pt-side { position: fixed; inset: auto 0 0 0; width: auto; height: 72vh; z-index: 25; border-left: 0; border-top: 1px solid var(--pt-line); border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
-  #pt-note-text { min-height: 96px; }
+  .pt-top { position: static; } /* it wraps tall here, and would sit over the bar below it */
+  .pt-side { position: fixed; inset: auto 0 0 0; width: auto; height: 72vh; z-index: 25; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
 }
-.pt-bar2 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 6px 16px; border-bottom: 1px solid var(--pt-line); background: var(--pt-surface); font-size: 13px; color: var(--pt-muted); }
-.pt-bar2[hidden] { display: none; }
-.pt-bar2 label { display: inline-flex; align-items: center; gap: 6px; }
-.pt-bar2 select { font: 500 13px var(--pt-font); color: var(--pt-fg); background: var(--pt-bg); border: 1px solid var(--pt-line); border-radius: 7px; padding: 3px 6px; }
-.pt-bar2 .flash { animation: pt-flash 1.2s ease-out; }
-@keyframes pt-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--pt-accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
 .pt-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-accent); font-weight: 600; }
 .pt-chip[hidden] { display: none; }
 .pt-chip .pt-seg button { padding: 2px 9px; font-size: 12.5px; }
 .pt-newbtn { position: relative; }
 .pt-newbtn[data-unseen]::after { content: ""; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: #e0312f; }
-.pt-pop { position: absolute; right: 16px; top: 54px; z-index: 40; width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; padding: 12px 14px; background: var(--pt-surface); border: 1px solid var(--pt-line); border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / .18); font-size: 14px; }
-.pt-pop[hidden] { display: none; }
-.pt-pop h3 { margin: 0 0 2px; font-size: 15px; font-weight: 650; }
-.pt-pop p { margin: 0 0 8px; color: var(--pt-muted); }
-.pt-pop button { all: unset; cursor: pointer; display: block; padding: 5px 0; color: var(--pt-accent); font-weight: 500; }
-.pt-pop small { color: var(--pt-muted); font-weight: 400; margin-left: 6px; }
+.pt-newpop { position: absolute; right: 16px; top: 62px; z-index: 40; width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; padding: 12px 14px; background: var(--pt-surface); border-radius: 16px; box-shadow: 0 10px 30px rgb(0 0 0 / .18); font-size: 14px; }
+.pt-newpop[hidden] { display: none; }
+.pt-newpop h3 { margin: 0 0 2px; font-size: 15px; font-weight: 650; }
+.pt-newpop p { margin: 0 0 8px; color: var(--pt-muted); }
+.pt-newpop button { all: unset; cursor: pointer; display: block; padding: 5px 0; color: var(--pt-accent); font-weight: 500; }
+.pt-newpop small { color: var(--pt-muted); font-weight: 400; margin-left: 6px; }
 .canvas .pt-before { z-index: 30; pointer-events: none; }
 .pt-ribbon { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 60; padding: 4px 12px; border-radius: 999px; background: #17202c; color: #fff; font-size: 12.5px; font-weight: 600; pointer-events: none; }
 .pt-ribbon[hidden] { display: none; }
 .canvas.pt-pinning, .canvas.pt-pinning * { cursor: crosshair !important; }
-.pt-pin { all: unset; position: absolute; z-index: 35; width: 26px; height: 26px; margin: -26px 0 0 -2px; display: grid; place-items: center; box-sizing: border-box; border-radius: 50% 50% 50% 2px; background: #e0312f; color: #fff; font: 700 12.5px var(--pt-font); box-shadow: 0 2px 6px rgb(0 0 0 / .35); cursor: pointer; }
-.pt-pin.pending { background: #1f5fbf; }
-.pt-pin.hot { outline: 3px solid rgb(224 49 47 / .35); }
+.pt-pin { all: unset; position: absolute; z-index: 35; width: 26px; height: 26px; margin: -26px 0 0 -2px; display: grid; place-items: center; box-sizing: border-box; border-radius: 50% 50% 50% 2px; background: var(--k, var(--pt-pin-change)); color: var(--kf, #fff); font: 700 12.5px var(--pt-font); box-shadow: 0 2px 6px rgb(0 0 0 / .35); cursor: pointer; touch-action: none; }
+.pt-pin[data-own] { cursor: grab; } .pt-pin.dragging { cursor: grabbing; z-index: 36; }
+.pt-pin.pending { outline: 2px dashed var(--k); outline-offset: 2px; }
+.pt-pin.hot { outline: 3px solid var(--k); outline-offset: 2px; }
+.pt-pin:focus-visible { outline: 3px solid var(--pt-accent); outline-offset: 2px; }
+.pt-pin::after { content: attr(data-word); position: absolute; left: 30px; top: 1px; padding: 2px 8px; border-radius: 6px; background: #17202c; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; }
+.pt-pin:hover::after, .pt-pin:focus-visible::after, .pt-pin.hot::after { opacity: 1; }
+.pt-pin.flip::after { left: auto; right: 30px; }
 .canvas.pt-nopins .pt-pin { display: none; }
-.pt-pinbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 4px 11px; border: 1px dashed var(--pt-line); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--pt-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pt-pinbtn[aria-pressed="true"] { border-style: solid; border-color: var(--pt-accent); color: var(--pt-accent); background: var(--pt-accent-soft); }
-.pt-card.hot { border-color: #e0312f; }
-.pt-card .pt-num { flex: none; width: 20px; height: 20px; border-radius: 50%; background: #e0312f; color: #fff; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; }
-.pt-on { font-size: 12.5px; color: var(--pt-muted); margin-bottom: 3px; }
+.pt-pinbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 6px 12px; border-radius: 12px; background: var(--pt-soft); font-size: 13px; font-weight: 500; color: var(--pt-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-pinbtn .l { overflow: hidden; text-overflow: ellipsis; }
+.pt-pinbtn[aria-pressed="true"] { color: var(--pt-accent); background: var(--pt-accent-soft); box-shadow: inset 0 0 0 1.5px var(--pt-accent); }
+.pt-card .pt-num { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--k); color: var(--kf); display: grid; place-items: center; font-size: 11.5px; font-weight: 700; }
+.pt-on { font-size: 12.5px; color: var(--pt-muted); margin-bottom: 2px; }
 #pt-src { display: none; }
 .pt-pack { display: none; }
 body.pt-packing { background: #fff; color: #17202c; }
@@ -210,7 +277,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
 .pt-page ul { list-style: disc; margin: 0 0 6px; padding-left: 18px; }
 .pt-page .pk-meta { color: #566273; }
 .pt-page .pk-req { display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px solid #dfe4eb; }
-.pt-page .pk-req b { width: 30px; flex: none; font-weight: 600; color: #566273; }
+.pt-page .pk-req b { width: 58px; flex: none; font-weight: 600; color: #566273; }
 .pk-row { display: flex; gap: 22px; justify-content: center; }
 .pk-shot { break-inside: avoid; }
 .pk-shot .cap { font-weight: 600; font-size: 13px; margin: 0 0 4px; }
@@ -218,32 +285,35 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
 @page { size: letter landscape; margin: 0.4in; }
 @media print { body { background: #fff; } }
 </style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></symbol><symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol><symbol id="i-mouse-pointer-click" viewBox="0 0 24 24"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol><symbol id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol><symbol id="i-laptop" viewBox="0 0 24 24"><path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z"/><path d="M20.054 15.987H3.946"/></symbol><symbol id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol><symbol id="i-message-square" viewBox="0 0 24 24"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></symbol><symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol><symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-pointer" viewBox="0 0 24 24"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1"/><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol><symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol><symbol id="i-circle-question-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol><symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol></defs></svg>
 <div class="pt-app">
   <header class="pt-top">
     <div class="pt-id">{{TITLE}}<small>Draft · revision {{VERSION}}</small></div>
     <div class="pt-seg" role="group" aria-label="Page">
-      <button type="button" data-page="info">Info</button>
-      <button type="button" data-page="proto">Prototype</button>
-      <button type="button" data-page="reqs" hidden>Requirements</button>
+      <button type="button" data-page="info"><svg class="pt-ic" aria-hidden="true"><use href="#i-file-text"/></svg>Info</button>
+      <button type="button" data-page="proto"><svg class="pt-ic" aria-hidden="true"><use href="#i-mouse-pointer-click"/></svg>Prototype</button>
+      <button type="button" data-page="reqs" hidden><svg class="pt-ic" aria-hidden="true"><use href="#i-list-checks"/></svg>Requirements</button>
     </div>
-    <div class="pt-tools"><span id="pt-saved"></span><button type="button" class="pt-btn pt-newbtn" id="pt-new" hidden>What's new</button>{{SOURCES}}<button type="button" class="pt-btn" id="pt-pack-btn">Stakeholder PDF</button><button type="button" class="pt-btn" id="pt-copy">Copy feedback</button></div>
+    <div class="pt-tools"><span id="pt-saved"></span><button type="button" class="pt-btn pt-newbtn" id="pt-new" hidden><svg class="pt-ic" aria-hidden="true"><use href="#i-sparkles"/></svg>What's new</button>{{SOURCES}}
+      <div class="pt-seg" id="pt-theme" role="group" aria-label="Theme"><button type="button" data-theme-to="light"><svg class="pt-ic" aria-hidden="true"><use href="#i-sun"/></svg>Light</button><button type="button" data-theme-to="dark"><svg class="pt-ic" aria-hidden="true"><use href="#i-moon"/></svg>Dark</button></div>
+      <button type="button" class="pt-btn" id="pt-pack-btn"><svg class="pt-ic" aria-hidden="true"><use href="#i-download"/></svg>Download PDF</button><button type="button" class="pt-btn" id="pt-copy"><svg class="pt-ic" aria-hidden="true"><use href="#i-copy"/></svg>Copy feedback</button></div>
   </header>
-  <div class="pt-pop" id="pt-new-pop" hidden></div>
+  <div class="pt-newpop" id="pt-new-pop" hidden></div>
   <main id="pt-info"></main>
   <main id="pt-reqs" hidden></main>
   <main id="pt-proto" hidden>
     <div class="pt-bar">
       <div class="pt-seg" id="pt-devs" role="group" aria-label="Device">
-        <button type="button" data-dev="phone">Phone</button>
-        <button type="button" data-dev="laptop">Laptop</button>
+        <button type="button" data-dev="phone"><svg class="pt-ic" aria-hidden="true"><use href="#i-smartphone"/></svg>Phone</button>
+        <button type="button" data-dev="laptop"><svg class="pt-ic" aria-hidden="true"><use href="#i-laptop"/></svg>Laptop</button>
       </div>
       <span id="pt-route"></span>
       <span class="pt-chip" id="pt-chip" hidden><span id="pt-chip-text"></span><span class="pt-seg" id="pt-compare" hidden><button type="button" data-cmp="before">Before</button><button type="button" data-cmp="now">Now</button></span></span>
-      <button type="button" class="pt-btn" id="pt-hot" aria-pressed="false" title="Highlight everything you can click">Show clickable</button>
-      <button type="button" class="pt-btn" id="pt-restart">Start over</button>
-      <button type="button" class="pt-btn" id="pt-note-btn" aria-pressed="false">Notes</button>
+      <button type="button" class="pt-btn" id="pt-hot" aria-pressed="false" title="Highlight everything you can click"><svg class="pt-ic" aria-hidden="true"><use href="#i-pointer"/></svg>Show clickable</button>
+      <button type="button" class="pt-btn" id="pt-restart"><svg class="pt-ic" aria-hidden="true"><use href="#i-rotate-ccw"/></svg>Start over</button>
+      <button type="button" class="pt-btn" id="pt-dec-btn" aria-pressed="false"><svg class="pt-ic" aria-hidden="true"><use href="#i-list-checks"/></svg><span class="l">Decisions</span></button>
+      <button type="button" class="pt-btn" id="pt-note-btn" aria-pressed="false"><svg class="pt-ic" aria-hidden="true"><use href="#i-message-square"/></svg><span class="l">Notes</span></button>
     </div>
-    <div class="pt-bar2" id="pt-bar2" hidden></div>
     <div class="pt-work">
       <div class="pt-stage" id="pt-stage">
         <div class="pt-device" id="pt-device" data-dev="phone">
@@ -251,19 +321,24 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
           <div class="canvas" id="pt-canvas"><div class="pt-ribbon" id="pt-ribbon" hidden></div><div class="pt-toast" id="pt-toast" role="status"></div></div>
         </div>
       </div>
-      <aside class="pt-side" id="pt-side" aria-label="Notes" hidden>
-        <div class="pt-side-head"><b>Notes</b>
-          <div class="pt-seg" role="group" aria-label="Which notes"><button type="button" data-scope="here">This screen</button><button type="button" data-scope="all">All</button></div>
-          <button type="button" class="pt-x" id="pt-side-close" aria-label="Close notes">×</button></div>
-        <div class="pt-compose">
-          <div class="pt-where"><b id="pt-where-name"></b><span id="pt-where-dev"></span></div>
-          <div class="pt-kinds" role="group" aria-label="Kind of note">
-            <button type="button" class="pt-kind" data-kind="change">Change</button><button type="button" class="pt-kind" data-kind="question">Question</button><button type="button" class="pt-kind" data-kind="idea">Idea</button>
+      <aside class="pt-side" id="pt-side" aria-label="Notes and decisions" hidden>
+        <div class="pt-side-head"><b id="pt-side-title">Notes</b>
+          <div class="pt-seg" id="pt-scope" role="group" aria-label="Which notes"><button type="button" data-scope="here">This screen</button><button type="button" data-scope="all">All</button></div>
+          <span id="pt-dec-left" hidden></span>
+          <button type="button" class="pt-x" id="pt-side-close" aria-label="Close panel">×</button></div>
+        <div class="pt-view" id="pt-view-notes">
+          <div class="pt-compose">
+            <div class="pt-where"><b id="pt-where-name"></b><span id="pt-where-dev"></span></div>
+            <div class="pt-kinds" role="group" aria-label="Kind of note">
+              <button type="button" class="pt-kind" data-kind="change"><svg class="pt-ic" aria-hidden="true"><use href="#i-pencil"/></svg>Change</button><button type="button" class="pt-kind" data-kind="question"><svg class="pt-ic" aria-hidden="true"><use href="#i-circle-question-mark"/></svg>Question</button><button type="button" class="pt-kind" data-kind="idea"><svg class="pt-ic" aria-hidden="true"><use href="#i-lightbulb"/></svg>Idea</button>
+            </div>
+            <textarea id="pt-note-text" placeholder="What would you change here? Keep clicking around while you type."></textarea>
+            <div class="pt-compose-foot"><button type="button" class="pt-pinbtn" id="pt-pin-btn" aria-pressed="false"><svg class="pt-ic" aria-hidden="true"><use href="#i-map-pin"/></svg><span class="l">Pin to a spot</span></button><span class="pt-add" id="pt-add" role="button" tabindex="0" aria-disabled="true">Add note</span></div>
+            <p class="pt-hint">Or right-click the screen. On a phone, press and hold.</p>
           </div>
-          <textarea id="pt-note-text" placeholder="What would you change here? Keep clicking around while you type."></textarea>
-          <div class="pt-compose-foot"><button type="button" class="pt-pinbtn" id="pt-pin-btn" aria-pressed="false">Pin to a spot</button><span class="pt-add" id="pt-add" role="button" tabindex="0" aria-disabled="true">Add note</span></div>
+          <div class="pt-list" id="pt-list"></div>
         </div>
-        <div class="pt-list" id="pt-list"></div>
+        <div class="pt-view pt-dec" id="pt-view-dec" hidden></div>
       </aside>
     </div>
   </main>
@@ -275,13 +350,15 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
 <script>
 (() => {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const VERSION = "{{VERSION}}", PACK_URL = "{{PACK_URL}}", START_DEVICE = "{{START_DEVICE}}";
+  const VERSION = "{{VERSION}}", PACK_URL = "{{PACK_URL}}", START_DEVICE = "{{START_DEVICE}}", SITE_ORIGIN = "{{SITE_ORIGIN}}";
   const HOSTED = !!(window.claude && window.claude.use);
-  const FRAMED = !HOSTED && window.parent !== window; // inside Starbase
+  const FRAMED = !HOSTED && window.parent !== window; // inside Starbase, or the site's sandboxed frame
   // Inside Starbase each version keeps its own notes; a published page keeps them across versions.
   const LS = "{{NOTES_KEY}}" + (FRAMED ? ":v" + VERSION : "");
   const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const SVG = "http://www.w3.org/2000/svg";
+  const icon = (n) => { const s = document.createElementNS(SVG, "svg"), u = document.createElementNS(SVG, "use"); s.setAttribute("class", "pt-ic"); s.setAttribute("aria-hidden", "true"); u.setAttribute("href", "#i-" + n); s.append(u); return s; };
   const canvas = $("#pt-canvas"), device = $("#pt-device"), stage = $("#pt-stage");
   const PACKING = location.hash === "#pack";
 
@@ -289,6 +366,13 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   const src = $("#pt-src"), info = $("#pt-info"), reqs = $("#pt-reqs");
   const take = (from, to) => { while (from && from.firstChild) to.appendChild(from.firstChild); };
   take($("#info", src), info); take($("#requirements", src), reqs);
+  { // What comes before the first heading is the page's header.
+    const hero = document.createElement("div"); hero.className = "pt-hero";
+    const firstH2 = $(":scope > h2", info), head = [];
+    for (let n = info.firstChild; n && n !== firstH2; n = n.nextSibling) head.push(n);
+    if (head.length) { info.insertBefore(hero, head[0]); hero.append(...head); }
+    const open = $(".pt-open", info); if (open) open.prepend(icon("mouse-pointer-click"));
+  }
   const rolesEl = $("#roles", src);
   const ROLES = rolesEl ? $$("[data-role]", rolesEl).map((r) => ({ id: r.dataset.role, label: r.dataset.label, start: r.dataset.start })) : [];
   $$(":scope > .screen, :scope > .overlay", src).forEach((n) => canvas.insertBefore(n, $("#pt-ribbon")));
@@ -303,6 +387,15 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   const VARIANTS = DECISIONS.filter((d) => "variant" in d.dataset);
 
   const firstDev = DEVICES.includes(START_DEVICE) ? START_DEVICE : DEVICES[0];
+  const bridge = { origin: null, pdf: null, admin: false, name: "", others: [], prefs: {} };
+  // Answers go only to the frame's own parent, on its origin once that is known.
+  const toParent = (m) => { try { window.parent.postMessage(m, bridge.origin && bridge.origin !== "null" ? bridge.origin : "*"); } catch {} };
+  let prefTimer;
+  function savePref(k, v, key) {
+    lsSet(key || LS + ":" + k, v);
+    if (store.kind !== "site") return;
+    bridge.prefs[k] = v; clearTimeout(prefTimer); prefTimer = setTimeout(() => toParent({ type: "wireframes-view", view: bridge.prefs }), 150);
+  }
   const savedDev = lsGet(LS + ":dev", firstDev);
   const view = { dev: DEVICES.includes(savedDev) ? savedDev : firstDev, stack: [], tabs: {} };
   VARIANTS.forEach((d) => { view.tabs[d.dataset.key] = d.dataset.default || "A"; });
@@ -341,15 +434,24 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     screen.classList.add("is-on");
     if (motion) screen.classList.add(motion === "back" ? "pt-pop" : "pt-push");
     if (overlay) overlay.classList.add("is-on");
-    const top = view.stack[view.stack.length - 1], sc = scroller(screen);
-    if (sc) sc.scrollTop = top.scroll || 0;
+    // A popup sits on its screen, so the screen keeps the scroll of its own step, not the popup's.
+    let i = view.stack.length - 1;
+    while (overlay && i > 0 && place(view.stack[i].id, view.dev)?.overlay) i--;
+    const sc = scroller(screen), own = place(view.stack[i].id, view.dev)?.screen === screen;
+    if (sc) sc.scrollTop = own ? view.stack[i].scroll || 0 : 0;
     const route = (overlay || screen).dataset.route || screen.dataset.route || "";
     $("#pt-route").textContent = route; $("#pt-url").textContent = route;
     applyTabs(); paintSide(); paintChip(); post();
   }
   function remember() { const s = scroller(current().screen), t = view.stack[view.stack.length - 1]; if (s && t) t.scroll = s.scrollTop; }
-  function go(id, replace) { remember(); if (replace) view.stack.pop(); view.stack.push({ id }); render(place(id, view.dev)?.overlay ? null : "push"); }
-  function back() { if (view.stack.length > 1) { view.stack.pop(); render("back"); } }
+  function go(id, replace) { if (!place(id, view.dev)) return; remember(); if (replace) view.stack.pop(); view.stack.push({ id }); render(place(id, view.dev)?.overlay ? null : "push"); }
+  function back() {
+    if (view.stack.length < 2) return;
+    // A place this device lacks can stand in for the step below it, so go back until something changes.
+    const was = current();
+    do view.stack.pop(); while (view.stack.length > 1 && current().screen === was.screen && current().overlay === was.overlay);
+    render("back");
+  }
   function root(id) { view.stack = [{ id }]; render(null); }
   function close() {
     const top = view.stack[view.stack.length - 1];
@@ -371,7 +473,8 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       const g = b.dataset.bind, t = $(`[data-tabs="${g}"][data-tab="${view.tabs[g]}"]`, canvas);
       if (t) b.textContent = t.dataset.label || t.textContent.trim();
     });
-    $$("#pt-bar2 select").forEach((s) => { s.value = view.tabs[s.dataset.group]; });
+    const roleSel = $("#pt-role"); if (roleSel) roleSel.value = view.tabs.role;
+    paintShowing();
   }
 
   let toastTimer;
@@ -382,6 +485,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     canvas.classList.add("pt-hot"); clearTimeout(hotTimer); hotTimer = setTimeout(() => canvas.classList.remove("pt-hot"), 650);
   }
   canvas.addEventListener("click", (e) => {
+    if (holdFired) { holdFired = false; e.preventDefault(); e.stopPropagation(); return; } // the lift after press-and-hold is not a tap
     if (pinning) { e.preventDefault(); e.stopPropagation(); dropPin(e); }
   }, true);
   canvas.addEventListener("click", (e) => {
@@ -406,7 +510,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     if (e.key !== "Escape" || pageNow !== "proto") return;
     if (pinning) { cancelPin(); return; }
     if (e.target.matches("textarea, select")) { e.target.blur(); return; }
-    if (!close() && FRAMED) { try { window.parent.postMessage({ type: "wireframes-escape" }, "*"); } catch {} }
+    if (!close() && FRAMED) toParent({ type: "wireframes-escape" });
   });
 
   // Fit the whole device on screen.
@@ -423,14 +527,25 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
 
   function setDev(d) {
     if (!DEVICES.includes(d)) return;
-    remember(); view.dev = d; device.dataset.dev = d; lsSet(LS + ":dev", d);
+    remember(); view.dev = d; device.dataset.dev = d; savePref("dev", d);
     $$("#pt-devs [data-dev]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.dev === d)));
     view.stack.forEach((s) => { s.scroll = 0; });
     render(null); fit();
   }
   $$("#pt-devs [data-dev]").forEach((b) => b.addEventListener("click", () => setDev(b.dataset.dev)));
   if (DEVICES.length < 2) $("#pt-devs").hidden = true; // one device: no toggle at all
-  $("#pt-restart").addEventListener("click", () => root(roleStart()));
+  // Start over means the screens as they first opened: tabs and Show more go back too. View as and the options stay,
+  // because those are the reviewer's own settings.
+  const firstTabs = { ...view.tabs };
+  function startOver() {
+    const keep = (k) => k === "role" || VARIANTS.some((d) => d.dataset.key === k);
+    Object.keys(view.tabs).forEach((k) => { if (!keep(k)) { if (k in firstTabs) view.tabs[k] = firstTabs[k]; else delete view.tabs[k]; } });
+    $$("[data-toggle]", canvas).forEach((x) => x.setAttribute("aria-expanded", "false"));
+    $$("[data-toggled]", canvas).forEach((x) => { x.hidden = true; });
+    $$("[data-toggled-off]", canvas).forEach((x) => { x.hidden = false; });
+    root(roleStart());
+  }
+  $("#pt-restart").addEventListener("click", startOver);
   $("#pt-hot").addEventListener("click", (e) => {
     const on = e.currentTarget.getAttribute("aria-pressed") !== "true";
     e.currentTarget.setAttribute("aria-pressed", String(on)); canvas.classList.toggle("pt-hot", on);
@@ -439,7 +554,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   let pageNow = "info";
   const PAGES = { info: $("#pt-info"), proto: $("#pt-proto"), reqs };
   function setPage(p) {
-    pageNow = p; lsSet(LS + ":page", p);
+    pageNow = p; savePref("page", p);
     Object.entries(PAGES).forEach(([k, el]) => { el.hidden = k !== p; });
     $$(".pt-top [data-page]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
     if (p === "proto") fit();
@@ -447,8 +562,11 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   }
   $$(".pt-top [data-page]").forEach((b) => b.addEventListener("click", () => setPage(b.dataset.page)));
   if (reqs.children.length) $(".pt-top [data-page=reqs]").hidden = false;
+  const mainRole = () => (rolesEl ? rolesEl.dataset.default || ROLES[0].id : null);
   function openPath(path, dev) {
     if (dev) setDev(dev);
+    // A link can name a path this role can't walk. Use the main role, rather than land part way down it.
+    if (ROLES.length && path.some((id) => !place(id, view.dev))) view.tabs.role = mainRole();
     const full = path.length === 1 && path[0] !== roleStart() ? [roleStart(), path[0]] : path; // so Back always has somewhere to go
     view.stack = full.map((id) => ({ id })); setPage("proto"); render(null);
   }
@@ -458,19 +576,57 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     openPath(l.dataset.open.split(/\s+/).filter(Boolean), l.dataset.device);
   });
 
-  // Decisions: "Try this in the prototype" switches the live prototype to that option. Choosing is separate.
-  const notes = lsGet(LS, {});
+  // Where notes, picks and settings live. One set of calls, three homes: the artifact's database when hosted,
+  // this browser's storage when opened from disk or inside Starbase, and the site over postMessage. The site's
+  // frame has no storage of its own, so it switches to "site" when the first wireframes-state arrives.
+  const picks = lsGet(LS, {});
   let db = null;
   const setSaved = (t) => { $("#pt-saved").textContent = t; };
-  async function saveNote(key) {
-    lsSet(LS, notes);
-    post();
-    if (!db) { setSaved("Saved on this device"); return; }
-    try {
-      await db.doc("notes/" + key).set({ section: key, choice: "", ...notes[key], updatedAt: new Date().toISOString() });
-      setSaved("Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
-    } catch (e) { setSaved("Kept on this device only" + (e && e.code ? " (" + e.code + ")" : "")); }
+  const toWire = (n, deleted) => ({ id: n.id, screen: "s-" + n.screen, device: n.device, kind: n.kind, text: n.text, pin: n.pin || null, path: n.path, role: n.role, options: n.options, revision: n.rev, at: n.at, by: { id: me, name: bridge.name }, ...(deleted ? { deleted: true } : {}) });
+  const fromWire = (w) => ({ ...w, screen: String(w.screen || "").replace(/^s-/, ""), rev: Number(w.revision ?? w.rev) || 0, author: w.by?.id ?? w.author ?? null, byName: w.by?.name || "", kind: kindName[w.kind] ? w.kind : "change" });
+  const sendNote = (op, n, deleted) => toParent({ type: "wireframes-note", op, note: toWire(n, deleted) });
+  const store = {
+    kind: HOSTED ? "artifact" : "local",
+    async add(n) {
+      if (store.kind === "site") { n.id = n.id || "n" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); n.author = me; remote.push(n); merge(); sendNote("add", n); setSaved("Saved"); return; }
+      if (db) {
+        try { await db.collection("feedback").add({ ...n, author: me }); setSaved("Saved"); return; }
+        catch { setSaved("You can't add to the shared notes, so this stays on this device"); n.localOnly = true; }
+      } else setSaved("Saved on this device");
+      n.id = "l" + Date.now(); local.push(n); lsSet(FB, local); merge();
+    },
+    async update(n, patch, op) {
+      Object.assign(n, patch); merge();
+      if (store.kind === "site") { sendNote(op, n); return; }
+      if (String(n.id).startsWith("l")) { lsSet(FB, local); return; }
+      try { const { id, ...doc } = n; await db.doc("feedback/" + id).set(doc); } catch { setSaved("Couldn't save that change"); }
+    },
+    async remove(n) {
+      if (store.kind === "site") { remote = remote.filter((x) => x !== n); merge(); sendNote("remove", n, true); return; }
+      if (String(n.id).startsWith("l")) { local = local.filter((x) => x.id !== n.id); lsSet(FB, local); merge(); return; }
+      try { await db.doc("feedback/" + n.id).delete(); } catch { setSaved("Couldn't remove that note"); }
+    },
+    async pick(key) {
+      lsSet(LS, picks); post();
+      if (store.kind === "site") { toParent({ type: "wireframes-choice", key, choice: picks[key]?.choice || "", why: picks[key]?.why || "" }); setSaved("Saved"); return; }
+      if (!db) { setSaved("Saved on this device"); return; }
+      try {
+        await db.doc("notes/" + key).set({ section: key, choice: "", ...picks[key], updatedAt: new Date().toISOString() });
+        setSaved("Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+      } catch (e) { setSaved("Kept on this device only" + (e && e.code ? " (" + e.code + ")" : "")); }
+    },
+  };
+  function togglePick(key, choice) { picks[key] = { ...(picks[key] || {}), choice: picks[key]?.choice === choice ? "" : choice }; paintChoices(); store.pick(key); }
+  // Show one option in the prototype. Picking is separate.
+  function showOption(d, choice) {
+    view.tabs[d.dataset.key] = choice;
+    const path = (d.dataset.path || roleStart()).split(/\s+/).filter(Boolean);
+    openPath(path, d.dataset.device);
+    // Some roles can't see an option at all. Go to the role that can, rather than land on nothing.
+    const showing = () => { const { screen, overlay } = current(); return $$(`[data-panel^="${d.dataset.key}:"]`, overlay || screen).some(visible); };
+    if (ROLES.length && view.tabs.role !== mainRole() && !showing()) { view.tabs.role = mainRole(); openPath(path, d.dataset.device); }
   }
+  // On Info: Try this and Pick, on each option.
   DECISIONS.forEach((d) => {
     const key = d.dataset.key;
     $$(".opt", d).forEach((o) => {
@@ -480,41 +636,101 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
         const t = document.createElement("button"); t.type = "button"; t.className = "pt-try"; t.textContent = "Try this in the prototype ›";
         t.title = "Switches the prototype to this option";
         t.addEventListener("click", () => {
-          view.tabs[key] = o.dataset.choice;
-          openPath((d.dataset.path || roleStart()).split(/\s+/).filter(Boolean), d.dataset.device);
-          const s = $(`#pt-bar2 select[data-group="${key}"]`);
-          if (s) { s.classList.remove("flash"); void s.offsetWidth; s.classList.add("flash"); }
+          showOption(d, o.dataset.choice);
+          if (window.innerWidth > 1000) setSide(true, "decisions");
+          const c = $(`.pt-dcard[data-group="${key}"]`);
+          if (c) { c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); c.scrollIntoView({ block: "nearest" }); }
         });
         foot.append(t);
       }
-      const p = document.createElement("button"); p.type = "button"; p.className = "pt-pick"; p.dataset.choice = o.dataset.choice; p.textContent = "Choose";
-      p.addEventListener("click", () => { notes[key] = { ...(notes[key] || {}), choice: notes[key]?.choice === o.dataset.choice ? "" : o.dataset.choice }; paintChoices(); saveNote(key); });
+      const p = document.createElement("button"); p.type = "button"; p.className = "pt-pick"; p.dataset.choice = o.dataset.choice;
+      p.addEventListener("click", () => togglePick(key, o.dataset.choice));
       foot.append(p); o.append(foot);
     });
   });
+  const optLabel = (o) => o.dataset.label || o.dataset.choice;
+
+  // The Decisions panel: View as, then one card per decision. Built once; the paint functions only change what
+  // shows, so a repaint never takes the cursor out of a reason box.
+  const decView = $("#pt-view-dec");
+  if (ROLES.length) {
+    const c = document.createElement("section"); c.className = "pt-dcard pt-viewas";
+    const l = document.createElement("label"); l.htmlFor = "pt-role"; l.textContent = "View as";
+    const s = document.createElement("select"); s.id = "pt-role"; s.dataset.group = "role";
+    ROLES.forEach((r) => { const o = document.createElement("option"); o.value = r.id; o.textContent = r.label; s.append(o); });
+    s.value = view.tabs.role; s.addEventListener("change", (e) => { view.tabs.role = e.target.value; root(roleStart()); });
+    c.append(l, s); decView.append(c);
+  }
+  DECISIONS.forEach((d, i) => {
+    const key = d.dataset.key, c = document.createElement("section"); c.className = "pt-dcard"; c.dataset.group = key;
+    const q = document.createElement("div"); q.className = "pt-dq";
+    const h = document.createElement("h3"); h.textContent = (i + 1) + " · " + $("h3", d).textContent;
+    const st = document.createElement("span"); st.className = "pt-dstate"; q.append(h, st); c.append(q);
+    $$(".opt", d).forEach((o) => {
+      const w = document.createElement("div"); w.className = "pt-dopt"; w.dataset.choice = o.dataset.choice;
+      const b = document.createElement("button"); b.type = "button"; b.className = "pt-dpick"; b.addEventListener("click", () => togglePick(key, o.dataset.choice));
+      const marks = document.createElement("span"); marks.className = "pt-dmarks";
+      const mark = document.createElement("span"); mark.className = "pt-dmark"; marks.append(mark);
+      if ("rec" in o.dataset) { const r = document.createElement("span"); r.className = "pt-rec"; r.textContent = "Recommended"; marks.append(r); }
+      const name = document.createElement("b"); name.textContent = o.dataset.choice + " · " + optLabel(o);
+      const desc = document.createElement("span"); desc.className = "pt-ddesc"; desc.textContent = $(":scope > span:not(.pt-rec)", o)?.textContent || "";
+      b.append(marks, name, desc); w.append(b);
+      if ("variant" in d.dataset) {
+        const f = document.createElement("div"); f.className = "pt-dfoot";
+        const on = document.createElement("span"); on.className = "pt-dshowing"; on.textContent = "Showing in the prototype";
+        const s = document.createElement("button"); s.type = "button"; s.className = "pt-show"; s.textContent = "Show me ›"; s.dataset.show = key + ":" + o.dataset.choice;
+        s.addEventListener("click", () => { showOption(d, o.dataset.choice); if (window.innerWidth <= 1000) setSide(false); });
+        f.append(on, s); w.append(f);
+      }
+      c.append(w);
+    });
+    // Why is folded away and optional: it only appears once something is picked.
+    const why = document.createElement("details"); why.className = "pt-why"; why.hidden = true;
+    const sum = document.createElement("summary"), inp = document.createElement("input");
+    inp.maxLength = 140; inp.placeholder = "One line"; inp.setAttribute("aria-label", "Why you picked this");
+    inp.addEventListener("change", () => { picks[key] = { ...(picks[key] || {}), why: inp.value.trim() }; paintChoices(); store.pick(key); });
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.blur(); why.open = false; } });
+    why.append(sum, inp); c.append(why);
+    const others = document.createElement("p"); others.className = "pt-others"; others.hidden = true; c.append(others);
+    decView.append(c);
+  });
+  function paintShowing() {
+    $$(".pt-dcard[data-group]").forEach((c) => {
+      if (c.dataset.group === "role") return;
+      $$(".pt-dopt", c).forEach((w) => {
+        const on = view.tabs[c.dataset.group] === w.dataset.choice, a = $(".pt-dshowing", w), b = $(".pt-show", w);
+        if (a) { a.hidden = !on; b.hidden = on; }
+      });
+    });
+  }
   function paintChoices() {
-    DECISIONS.forEach((d) => $$(".opt", d).forEach((o) => {
-      const on = notes[d.dataset.key]?.choice === o.dataset.choice;
-      o.classList.toggle("is-picked", on);
-      const p = $(".pt-pick", o); p.setAttribute("aria-pressed", String(on)); p.textContent = on ? "Chosen" : "Choose";
-    }));
+    const n = DECISIONS.length, left = DECISIONS.filter((d) => !picks[d.dataset.key]?.choice).length;
+    DECISIONS.forEach((d) => {
+      const key = d.dataset.key, chosen = picks[key]?.choice || "", why = picks[key]?.why || "";
+      $$(".opt", d).forEach((o) => {
+        const on = chosen === o.dataset.choice, p = $(".pt-pick", o);
+        o.classList.toggle("is-picked", on); p.setAttribute("aria-pressed", String(on)); p.textContent = "";
+        if (on) p.append(icon("check")); p.append(on ? "Picked" : "Pick");
+      });
+      const c = $(`.pt-dcard[data-group="${key}"]`);
+      const st = $(".pt-dstate", c); st.textContent = ""; if (chosen) { st.append(icon("check")); st.dataset.done = ""; } else delete st.dataset.done;
+      st.append(chosen ? "Picked" : "Not picked");
+      $$(".pt-dopt", c).forEach((w) => {
+        const on = chosen === w.dataset.choice, b = $(".pt-dpick", w), m = $(".pt-dmark", w);
+        b.setAttribute("aria-pressed", String(on)); m.textContent = ""; if (on) m.append(icon("check")); m.append(on ? "Picked" : "Pick");
+      });
+      const box = $(".pt-why", c), inp = $("input", box);
+      box.hidden = !chosen; $("summary", box).textContent = why ? "Why: " + why : "Add a reason (optional)";
+      if (document.activeElement !== inp) inp.value = why;
+      const seen = bridge.others.filter((x) => x.group === key && x.choice), o = $(".pt-others", c);
+      o.hidden = !seen.length; o.textContent = seen.map((x) => (x.by?.name || "Someone") + " picked " + x.choice).join(", ");
+    });
+    const btn = $("#pt-dec-btn"); btn.hidden = !n && !ROLES.length;
+    $(".l", btn).textContent = !n ? "View as" : left ? `Decisions: ${left} of ${n} left` : "Decisions: all picked";
+    $("use", btn).setAttribute("href", n && !left ? "#i-check" : "#i-list-checks");
+    $("#pt-dec-left").textContent = !n ? "" : left ? `${left} of ${n} left` : "All picked";
   }
   const nameOf = (key) => { const d = $(`.decision[data-key="${key}"] h3`); return d ? d.textContent : key; };
-
-  // View as and option switches, above the device.
-  function selectFor(group, label, options) {
-    const l = document.createElement("label"); l.append(label + " ");
-    const s = document.createElement("select"); s.dataset.group = group;
-    options.forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; s.append(o); });
-    s.value = view.tabs[group]; l.append(s); $("#pt-bar2").append(l);
-    return s;
-  }
-  if (ROLES.length) selectFor("role", "View as", ROLES.map((r) => [r.id, r.label])).addEventListener("change", (e) => { view.tabs.role = e.target.value; root(roleStart()); });
-  VARIANTS.forEach((d) => {
-    selectFor(d.dataset.key, d.dataset.short || "Option", $$(".opt", d).map((o) => [o.dataset.choice, o.dataset.label || o.dataset.choice]))
-      .addEventListener("change", (e) => { view.tabs[d.dataset.key] = e.target.value; applyTabs(); if (d.dataset.device && d.dataset.device !== view.dev) setDev(d.dataset.device); });
-  });
-  if (ROLES.length || VARIANTS.length) $("#pt-bar2").hidden = false;
 
   // Requirements: each one opens the screen that covers it.
   $$(".req", reqs).forEach((r) => {
@@ -574,94 +790,220 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   // and a pin when one was dropped). Only ids are stored: names are looked up when drawn.
   const FB = LS + ":feedback";
   let local = lsGet(FB, []), remote = [], entries = [], me = null, userApi = null, names = {}, scope = "here", kind = "change";
-  let pinning = false, pending = null, hotPin = null;
+  let pinning = false, pending = null, hotPin = null, panel = lsGet(LS + ":panel", "notes"), editing = null, dragging = false, holdFired = false, hold = null;
   const here = () => { const { screen, overlay } = current(); const el = overlay || screen; return { id: el.dataset.id, name: el.dataset.name || el.dataset.id, el }; };
-  const whoName = (n) => (!n.author || n.author === me ? "You" : names[n.author] || "Someone");
+  const whoName = (n) => (!n.author || n.author === me ? "You" : n.byName || names[n.author] || "Someone");
+  const mine = (n) => !n.author || n.author === me;
+  const screenName = (n) => { const el = find(n.screen, n.device) || find(n.screen, other(n.device)); return (el && el.dataset.name) || n.name || n.screen; };
   const when = (s) => { const d = new Date(s); return isNaN(d) ? "" : d.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); };
-  const kindName = { change: "Change", question: "Question", idea: "Idea" };
+  const kindName = { change: "Change", question: "Question", idea: "Idea" }, kindIcon = { change: "pencil", question: "circle-question-mark", idea: "lightbulb" };
   const pinKey = (n) => n.id || n.at;
 
   function merge() { entries = [...remote, ...local].sort((a, b) => String(b.at).localeCompare(String(a.at))); paintSide(); post(); }
   const pinsHere = () => { const h = here(); return entries.filter((n) => n.pin && n.screen === h.id && n.device === view.dev).slice().reverse(); };
   function card(n, jump, num) {
-    const c = document.createElement("div"); c.className = "pt-card"; c.dataset.pinkey = pinKey(n);
+    const c = document.createElement("div"); c.className = "pt-card"; c.dataset.pinkey = pinKey(n); c.dataset.kind = n.kind;
     const top = document.createElement("div"); top.className = "pt-card-top";
     if (num) { const b = document.createElement("span"); b.className = "pt-num"; b.textContent = num; top.append(b); }
     const who = whoName(n), face = document.createElement("span"); face.className = "pt-face"; face.textContent = who[0];
     const nm = document.createElement("span"); nm.className = "pt-who"; nm.textContent = who;
     const tm = document.createElement("span"); tm.textContent = when(n.at);
-    const tag = document.createElement("span"); tag.className = "pt-tag"; tag.dataset.kind = n.kind; tag.textContent = kindName[n.kind] || "Note";
+    const tag = document.createElement("span"); tag.className = "pt-tag"; tag.append(icon(kindIcon[n.kind] || "pencil"), kindName[n.kind] || "Note");
     top.append(face, nm, tm, tag); c.append(top);
     if (n.pin && n.pin.label) { const on = document.createElement("div"); on.className = "pt-on"; on.textContent = "On: " + n.pin.label; c.append(on); }
+    if (editing === pinKey(n)) { c.append(editBox(n)); return c; }
     const p = document.createElement("p"); p.textContent = n.text; c.append(p);
     const foot = document.createElement("div"); foot.className = "pt-card-foot";
     const dev = document.createElement("span");
     const role = n.role && ROLES.find((r) => r.id === n.role);
     dev.textContent = [n.device === "laptop" ? "Laptop" : "Phone", role && role.label, n.localOnly && "on this device only"].filter(Boolean).join(" · "); foot.append(dev);
-    if (!n.author || n.author === me) {
-      const rm = document.createElement("button"); rm.type = "button"; rm.className = "pt-remove"; rm.textContent = "Remove";
-      rm.addEventListener("click", (e) => { e.stopPropagation(); removeNote(n); }); foot.append(rm);
+    if (mine(n)) {
+      const ed = document.createElement("button"); ed.type = "button"; ed.className = "pt-edit"; ed.append(icon("pencil"), "Edit");
+      ed.addEventListener("click", (e) => { e.stopPropagation(); editing = pinKey(n); paintSide(); });
+      foot.append(ed);
+    }
+    if (mine(n) || bridge.admin) {
+      const rm = document.createElement("button"); rm.type = "button"; rm.className = "pt-remove"; rm.append(icon("trash-2"), "Delete");
+      rm.addEventListener("click", (e) => { e.stopPropagation(); store.remove(n); }); foot.append(rm);
     }
     c.append(foot);
     if (jump) { c.dataset.jump = ""; c.addEventListener("click", () => goToNote(n)); }
     else if (num) { c.addEventListener("mouseenter", () => hotOn(pinKey(n))); c.addEventListener("mouseleave", () => hotOn(null)); }
     return c;
   }
+  function editBox(n) {
+    const w = document.createElement("div"), ta = document.createElement("textarea"); ta.className = "pt-edit-text"; ta.value = n.text; ta.setAttribute("aria-label", "Edit your note");
+    let k = n.kind;
+    const kinds = document.createElement("div"); kinds.className = "pt-edit-kinds";
+    Object.keys(kindName).forEach((id) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "pt-kind"; b.dataset.kind = id; b.append(icon(kindIcon[id]), kindName[id]); b.setAttribute("aria-pressed", String(id === k));
+      b.addEventListener("click", () => { k = id; $$("button", kinds).forEach((x) => x.setAttribute("aria-pressed", String(x === b))); }); kinds.append(b);
+    });
+    const foot = document.createElement("div"); foot.className = "pt-edit-foot";
+    const save = () => { const t = ta.value.trim(); editing = null; if (t && (t !== n.text || k !== n.kind)) store.update(n, { text: t, kind: k, edited: true }, "edit"); else paintSide(); };
+    const cancel = document.createElement("button"); cancel.type = "button"; cancel.className = "pt-edit"; cancel.textContent = "Cancel"; cancel.addEventListener("click", () => { editing = null; paintSide(); });
+    const ok = document.createElement("button"); ok.type = "button"; ok.className = "pt-add"; ok.textContent = "Save"; ok.addEventListener("click", save);
+    ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); save(); } });
+    foot.append(cancel, ok); w.append(ta, kinds, foot); return w;
+  }
   function hotOn(k) { hotPin = k; $$(".pt-pin", canvas).forEach((p) => p.classList.toggle("hot", p.dataset.pinkey === k)); }
   function pinBase(h, inScroll) { return inScroll ? ($("[data-scroll]", h.el) || h.el) : h.el; }
-  function drawPin(h, pin, label, key, pendingPin) {
-    const b = document.createElement("button"); b.type = "button"; b.className = "pt-pin" + (pendingPin ? " pending" : ""); b.textContent = label;
-    b.style.left = pin.x + "px"; b.style.top = pin.y + "px"; if (key) b.dataset.pinkey = key;
+  // A pin is a spot as a fraction of the screen (of the scrolling content when s is 1), plus the nearest thing that
+  // can be found again: "anchor" is the screen and a selector when the element has an id, "anchor_text" its words,
+  // ox and oy where in that element it sits. Notes from before fractions keep their pixels (x or y above 1).
+  const PIN_W = 26; // a pin takes 24px to the right of its point; the rest covers a part pixel in a scaled frame
+  const wide = (b, s) => (s ? b.scrollWidth : b.clientWidth) || 1, tall = (b, s) => (s ? b.scrollHeight : b.clientHeight) || 1;
+  const oldPin = (p) => p.x > 1 || p.y > 1;
+  const visible = (el) => el.getClientRects().length > 0;
+  const words = (el) => (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60);
+  function anchorIn(node, pin) {
+    if (!node || !pin.anchor) return { none: true };
+    const sel = pin.anchor.replace(/^\S+\s*/, "");
+    let list = [];
+    if (sel) { try { list = $$(sel, node); } catch {} }
+    if (!list.length && pin.anchor_text) list = $$("*", node).filter((el) => el.children.length < 3 && !el.closest(".pt-pin") && words(el) === pin.anchor_text);
+    return { el: list.find(visible) || list[0] || null, none: !sel && !pin.anchor_text };
+  }
+  // A pin's screen or spot is gone only when a later revision lost it; within a revision the words can change with the tabs.
+  function screenChanged(n) {
+    if (!n.pin || !n.rev || n.rev >= Number(VERSION)) return false;
+    const node = find(n.screen, n.device);
+    if (!node) return true;
+    const a = anchorIn(node, n.pin);
+    return !a.none && !a.el;
+  }
+  function pinSpot(h, pin, rev) {
+    const base = pinBase(h, pin.s);
+    if (oldPin(pin)) return { x: pin.x, y: pin.y };
+    if (rev && rev < Number(VERSION)) { // an older revision: follow the element if it moved
+      const { el } = anchorIn(h.el, pin);
+      if (el && visible(el)) {
+        const r = el.getBoundingClientRect(), b = base.getBoundingClientRect(), k = b.width / (base.clientWidth || b.width) || 1;
+        return { x: (r.left - b.left) / k + base.scrollLeft + (pin.ox || 0) * r.width / k, y: (r.top - b.top) / k + base.scrollTop + (pin.oy || 0) * r.height / k };
+      }
+    }
+    return { x: pin.x * wide(base, pin.s), y: pin.y * tall(base, pin.s) };
+  }
+  function drawPin(h, pin, label, key, n) {
+    const b = document.createElement("button"), k = n ? n.kind : kind; b.type = "button"; b.className = "pt-pin" + (n ? "" : " pending"); b.dataset.kind = k; b.textContent = label;
+    b.dataset.word = kindName[k] || "Note";
+    b.setAttribute("aria-label", (kindName[k] || "Note") + (n ? " note " + label : ", new pin"));
+    const spot = pinSpot(h, pin, n && n.rev), w = wide(pinBase(h, pin.s), pin.s);
+    // A pin and its word stay inside the screen: anything past the edge would make the screen scroll sideways.
+    b.style.left = Math.max(0, Math.min(w - PIN_W, spot.x)) + "px"; b.style.top = spot.y + "px"; b.classList.toggle("flip", spot.x > w / 2); if (key) b.dataset.pinkey = key;
     b.addEventListener("click", (e) => {
-      e.stopPropagation(); if (!key) return;
-      setSide(true); scope = "here"; paintSide();
+      e.stopPropagation(); if (!key || b.dataset.moved) { delete b.dataset.moved; return; }
+      setSide(true, "notes"); scope = "here"; paintSide();
       const c = $(`#pt-list [data-pinkey="${key}"]`); if (c) { c.classList.add("hot"); c.scrollIntoView({ block: "nearest" }); setTimeout(() => c.classList.remove("hot"), 1500); }
     });
+    if (n && mine(n)) { b.dataset.own = ""; dragPin(b, h, n); }
     pinBase(h, pin.s).appendChild(b);
   }
+  // Own pins drag. Pointer events cover mouse and touch; a press that barely moves stays a click.
+  function dragPin(b, h, n) {
+    let from = null;
+    b.addEventListener("pointerdown", (e) => {
+      if (e.button) return;
+      e.stopPropagation(); from = { x: e.clientX, y: e.clientY, left: parseFloat(b.style.left), top: parseFloat(b.style.top), id: e.pointerId, moved: false };
+      try { b.setPointerCapture(e.pointerId); } catch {}
+    });
+    b.addEventListener("pointermove", (e) => {
+      if (!from || e.pointerId !== from.id) return;
+      const base = b.parentElement, r = base.getBoundingClientRect(), k = r.width / (base.clientWidth || r.width) || 1;
+      const dx = (e.clientX - from.x) / k, dy = (e.clientY - from.y) / k;
+      if (!from.moved && Math.hypot(dx, dy) < 4) return;
+      from.moved = true; dragging = true; b.classList.add("dragging");
+      const w = wide(base, n.pin.s), left = Math.max(0, Math.min(w - PIN_W, from.left + dx));
+      b.style.left = left + "px"; b.classList.toggle("flip", left > w / 2); b.style.top = Math.max(0, Math.min(tall(base, n.pin.s), from.top + dy)) + "px";
+    });
+    const end = (e) => {
+      if (!from || e.pointerId !== from.id) return;
+      const f = from; from = null; b.classList.remove("dragging"); dragging = false;
+      if (!f.moved || e.type === "pointercancel") { if (f.moved) paintPins(); return; }
+      b.dataset.moved = "1";
+      const base = b.parentElement, r = b.getBoundingClientRect();
+      b.style.visibility = "hidden";
+      const under = document.elementFromPoint(r.left + 2, r.bottom) || h.el; // the pin's tip
+      b.style.visibility = "";
+      const x = parseFloat(b.style.left) / wide(base, n.pin.s), y = parseFloat(b.style.top) / tall(base, n.pin.s);
+      store.update(n, { pin: { ...pinFrom(h, under, r.left + 2, r.bottom, base), s: n.pin.s, x, y }, rev: Number(VERSION) }, "move");
+    };
+    b.addEventListener("pointerup", end); b.addEventListener("pointercancel", end);
+  }
   function paintPins() {
+    if (dragging) return;
     $$(".pt-pin", canvas).forEach((p) => p.remove());
     const h = here();
-    pinsHere().forEach((n, i) => drawPin(h, n.pin, i + 1, pinKey(n)));
-    if (pending) drawPin(h, pending, "+", null, true);
+    pinsHere().forEach((n, i) => drawPin(h, n.pin, i + 1, pinKey(n), n));
+    if (pending) drawPin(h, pending, "+");
+  }
+  // Where a click, a right-click or a dropped pin landed: the spot, and something to find it by next revision.
+  function pinFrom(h, target, cx, cy, base) {
+    const inScroll = base !== h.el, r = base.getBoundingClientRect(), k = r.width / (base.clientWidth || r.width) || 1;
+    const row = target.closest("[data-to],[data-tab],[data-toast],[data-root]");
+    const t = target.closest("p,h1,h2,h3,h4,td,th") || (row && ($("p", row) || $("span", row))) || target.closest("span") || target;
+    const big = t === h.el || t === base || t.children.length > 3;
+    const named = target.closest("[data-id]:not(.screen):not(.overlay),[id]"), sel = named && h.el.contains(named) && named !== h.el ? (named.dataset.id ? `[data-id="${named.dataset.id}"]` : "#" + named.id) : "";
+    const a = sel ? named : big ? null : t, ar = a && a.getBoundingClientRect();
+    const px = (cx - r.left) / k + base.scrollLeft, py = (cy - r.top) / k + base.scrollTop;
+    return { s: inScroll ? 1 : 0, x: Math.min(1, Math.max(0, px / wide(base, inScroll))), y: Math.min(1, Math.max(0, py / tall(base, inScroll))),
+      label: big ? h.name : words(t), anchor: "s-" + h.id + (sel ? " " + sel : ""), anchor_text: big ? "" : words(t),
+      ox: ar && ar.width ? Math.min(1, Math.max(0, (cx - ar.left) / ar.width)) : 0, oy: ar && ar.height ? Math.min(1, Math.max(0, (cy - ar.top) / ar.height)) : 0 };
   }
   function dropPin(e) {
-    const h = here(), sc = e.target.closest("[data-scroll]");
-    const inScroll = !!(sc && h.el.contains(sc)), base = inScroll ? sc : h.el;
-    const r = base.getBoundingClientRect(), k = r.width / (base.clientWidth || r.width) || 1;
-    const row = e.target.closest("[data-to],[data-tab],[data-toast],[data-root]");
-    const t = e.target.closest("p,h1,h2,h3,td,th") || (row && ($("p", row) || $("span", row))) || e.target.closest("span") || e.target;
-    pending = { s: inScroll ? 1 : 0, x: Math.round((e.clientX - r.left) / k + base.scrollLeft), y: Math.round((e.clientY - r.top) / k + base.scrollTop), label: (t.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60) };
-    pinning = false; canvas.classList.remove("pt-pinning"); paintPinBtn(); paintPins(); $("#pt-note-text").focus();
+    const h = here(), sc = e.target.closest("[data-scroll]"), base = sc && h.el.contains(sc) ? sc : h.el;
+    pending = pinFrom(h, e.target, e.clientX, e.clientY, base);
+    pinning = false; canvas.classList.remove("pt-pinning"); setSide(true, "notes"); paintPinBtn(); paintPins(); $("#pt-note-text").focus();
   }
+  // Pin anywhere: right-click on a laptop, press and hold on a phone. Moving the finger cancels the hold, so scrolling is safe.
+  const endHold = () => { if (hold) { clearTimeout(hold.t); hold = null; } };
+  function pinAnywhere(e) { setBefore(false); paintChip(); dropPin(e); }
+  canvas.addEventListener("contextmenu", (e) => {
+    if (e.target.closest(".pt-pin")) { e.preventDefault(); return; }
+    e.preventDefault(); endHold(); if (holdFired) return; pinAnywhere(e);
+  });
+  canvas.addEventListener("pointerdown", (e) => {
+    holdFired = false; endHold();
+    if (e.pointerType !== "touch" || e.target.closest(".pt-pin")) return;
+    const at = { target: e.target, clientX: e.clientX, clientY: e.clientY };
+    hold = { x: e.clientX, y: e.clientY, t: setTimeout(() => { hold = null; holdFired = true; pinAnywhere(at); }, 600) };
+  });
+  canvas.addEventListener("pointermove", (e) => { if (hold && Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > 10) endHold(); });
+  canvas.addEventListener("pointerup", endHold); canvas.addEventListener("pointercancel", endHold);
   function cancelPin() { pinning = false; pending = null; canvas.classList.remove("pt-pinning"); paintPinBtn(); }
   function paintPinBtn() {
     const b = $("#pt-pin-btn");
-    b.textContent = pinning ? "Click the spot on the screen…" : pending ? "Pinned" + (pending.label ? ": " + pending.label : "") + " ×" : "Pin to a spot";
+    $(".l", b).textContent = pinning ? "Click the spot on the screen…" : pending ? "Pinned" + (pending.label ? ": " + pending.label : "") + " ×" : "Pin to a spot";
     b.setAttribute("aria-pressed", String(pinning || !!pending));
   }
   $("#pt-pin-btn").addEventListener("click", () => {
     if (pinning || pending) { cancelPin(); paintPins(); return; }
     setBefore(false); pinning = true; canvas.classList.add("pt-pinning"); paintPinBtn();
+    if (window.innerWidth <= 1000) setSide(false); // the sheet covers the screen here; dropping the pin opens it again
   });
 
   function paintSide() {
     const h = here();
     $("#pt-where-name").textContent = h.name; $("#pt-where-dev").textContent = "· " + (view.dev === "phone" ? "Phone" : "Laptop");
     $$(".pt-side [data-scope]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scope === scope)));
-    $$(".pt-kind").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.kind === kind)));
-    const mine = entries.filter((n) => n.screen === h.id);
-    $(".pt-side [data-scope=here]").textContent = "This screen" + (mine.length ? " (" + mine.length + ")" : "");
+    $$(".pt-compose .pt-kind").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.kind === kind)));
+    const here_ = entries.filter((n) => n.screen === h.id);
+    $(".pt-side [data-scope=here]").textContent = "This screen" + (here_.length ? " (" + here_.length + ")" : "");
     $(".pt-side [data-scope=all]").textContent = "All" + (entries.length ? " (" + entries.length + ")" : "");
-    $("#pt-note-btn").textContent = "Notes" + (entries.length ? " (" + entries.length + ")" : "");
+    $("#pt-note-btn .l").textContent = "Notes" + (entries.length ? " (" + entries.length + ")" : "");
     const list = $("#pt-list"); list.textContent = "";
     const numbers = new Map(pinsHere().map((n, i) => [n, i + 1]));
-    const shown = scope === "here" ? mine : entries;
+    const shown = scope === "here" ? here_ : entries, moved = shown.filter(screenChanged), ok = shown.filter((n) => !moved.includes(n));
     if (!shown.length) { const e = document.createElement("p"); e.className = "pt-empty"; e.textContent = scope === "here" ? "No notes on this screen yet." : "No notes yet."; list.appendChild(e); }
-    else if (scope === "here") shown.forEach((n) => list.appendChild(card(n, false, numbers.get(n))));
+    else if (scope === "here") ok.forEach((n) => list.appendChild(card(n, false, numbers.get(n))));
     else {
-      const groups = new Map(); shown.forEach((n) => { if (!groups.has(n.name)) groups.set(n.name, []); groups.get(n.name).push(n); });
+      const groups = new Map(); ok.forEach((n) => { const name = screenName(n); if (!groups.has(name)) groups.set(name, []); groups.get(name).push(n); });
       groups.forEach((ns, name) => { const g = document.createElement("p"); g.className = "pt-group"; g.textContent = name; list.appendChild(g); ns.forEach((n) => list.appendChild(card(n, true))); });
+    }
+    if (moved.length) {
+      const g = document.createElement("p"); g.className = "pt-group"; g.append(icon("triangle-alert"), "Screen changed (" + moved.length + ")");
+      const t = document.createElement("p"); t.className = "pt-hint"; t.textContent = "What these pins pointed at changed in revision " + VERSION + ". Drag the pin to the right spot, or delete the note.";
+      list.append(g, t); moved.forEach((n) => list.appendChild(card(n, scope !== "here", numbers.get(n))));
     }
     paintPins();
   }
@@ -669,8 +1011,9 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     if (n.role && ROLES.length) view.tabs.role = n.role;
     Object.assign(view.tabs, n.options || {});
     if (n.device && n.device !== view.dev) setDev(n.device);
-    const path = (n.path || []).filter((id) => place(id, view.dev));
-    view.stack = (path.length ? path : [{ id: roleStart() }].map((x) => x.id)).map((id) => ({ id })); scope = "here"; render(null);
+    const path = (n.path && n.path.length ? n.path : [n.screen]).filter((id) => place(id, view.dev));
+    if (path.length === 1 && path[0] !== roleStart()) path.unshift(roleStart()); // so Back has somewhere to go
+    view.stack = (path.length ? path : [roleStart()]).map((id) => ({ id })); scope = "here"; render(null);
   }
   async function addNote() {
     const ta = $("#pt-note-text"), text = ta.value.trim();
@@ -679,25 +1022,24 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     VARIANTS.forEach((d) => { options[d.dataset.key] = view.tabs[d.dataset.key]; });
     const n = { screen: h.id, name: h.name, kind, text, device: view.dev, path: view.stack.map((s) => s.id), role: view.tabs.role || null, options, rev: Number(VERSION), pin: pending || null, at: new Date().toISOString() };
     ta.value = ""; pending = null; paintPinBtn(); paintAdd();
-    if (db) {
-      try { await db.collection("feedback").add({ ...n, author: me }); setSaved("Saved"); return; }
-      catch { setSaved("You can't add to the shared notes, so this stays on this device"); n.localOnly = true; }
-    } else setSaved("Saved on this device");
-    n.id = "l" + Date.now(); local.push(n); lsSet(FB, local); merge();
-  }
-  async function removeNote(n) {
-    if (String(n.id).startsWith("l")) { local = local.filter((x) => x.id !== n.id); lsSet(FB, local); merge(); return; }
-    try { await db.doc("feedback/" + n.id).delete(); } catch { setSaved("Couldn't remove that note"); }
+    await store.add(n);
   }
   const paintAdd = () => $("#pt-add").setAttribute("aria-disabled", String(!$("#pt-note-text").value.trim()));
-  function setSide(open) {
-    $("#pt-side").hidden = !open; $("#pt-note-btn").setAttribute("aria-pressed", String(open)); canvas.classList.toggle("pt-nopins", !open); lsSet(LS + ":side", open); fit();
+  function setSide(open, which) {
+    if (which) { panel = which; savePref("panel", which); }
+    if (panel === "decisions" && !$("#pt-dec-btn").hidden) { if (pinning) cancelPin(); } else panel = "notes";
+    const dec = panel === "decisions";
+    $("#pt-side").hidden = !open; $("#pt-note-btn").setAttribute("aria-pressed", String(open && !dec)); $("#pt-dec-btn").setAttribute("aria-pressed", String(open && dec));
+    $("#pt-side-title").textContent = dec ? "Decisions" : "Notes"; $("#pt-view-dec").hidden = !dec; $("#pt-view-notes").hidden = dec; $("#pt-scope").hidden = dec; $("#pt-dec-left").hidden = !dec;
+    canvas.classList.toggle("pt-nopins", !open || dec); savePref("side", open); fit();
     if (open) paintSide();
   }
-  $("#pt-note-btn").addEventListener("click", () => { setSide($("#pt-side").hidden); if (!$("#pt-side").hidden) $("#pt-note-text").focus(); });
+  const sideOn = (which) => !$("#pt-side").hidden && panel === which;
+  $("#pt-note-btn").addEventListener("click", () => { const open = !sideOn("notes"); setSide(open, "notes"); if (open) $("#pt-note-text").focus(); });
+  $("#pt-dec-btn").addEventListener("click", () => setSide(!sideOn("decisions"), "decisions"));
   $("#pt-side-close").addEventListener("click", () => setSide(false));
   $$(".pt-side [data-scope]").forEach((b) => b.addEventListener("click", () => { scope = b.dataset.scope; paintSide(); }));
-  $$(".pt-kind").forEach((b) => b.addEventListener("click", () => { kind = b.dataset.kind; paintSide(); }));
+  $$(".pt-compose .pt-kind").forEach((b) => b.addEventListener("click", () => { kind = b.dataset.kind; paintSide(); }));
   $("#pt-note-text").addEventListener("input", paintAdd);
   $("#pt-note-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); addNote(); } });
   $("#pt-add").addEventListener("click", addNote);
@@ -706,7 +1048,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   // One feedback text for Copy feedback and Starbase, in the lines the Foreman reads.
   function feedbackText() {
     const lines = [];
-    DECISIONS.forEach((d) => { const c = notes[d.dataset.key]?.choice; if (c) lines.push(`Pick ${c} for ${d.dataset.key}`); });
+    DECISIONS.forEach((d) => { const p = picks[d.dataset.key]; if (p?.choice) lines.push(`Pick ${p.choice} for ${d.dataset.key}` + (p.why ? ` (why: ${p.why})` : "")); });
     const word = { change: "needs change", question: "question", idea: "idea" };
     entries.slice().reverse().forEach((n) => {
       const where = [n.device, n.pin && n.pin.label && `at "${n.pin.label}"`, n.role].filter(Boolean).join(", ");
@@ -718,31 +1060,64 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     try { await navigator.clipboard.writeText(`Feedback on {{TITLE}}, revision ${VERSION}\n` + feedbackText()); setSaved("Copied"); } catch { setSaved("Couldn't copy here"); }
   });
 
-  // Inside Starbase: report what the page holds and where the reader is, and answer its two questions.
+  // In a frame: report what the page holds and where the reader is, and answer the parent's messages.
   function post() {
     if (!FRAMED) return;
     const packed = all.filter((n) => "pack" in n.dataset);
     const seenIds = new Set(), screens = [{ key: "overview", name: "Info", kind: "overview", status: "", choice: "" }];
-    DECISIONS.forEach((d) => screens.push({ key: d.dataset.key, name: nameOf(d.dataset.key), kind: "choice", status: notes[d.dataset.key]?.choice ? "good" : "", choice: notes[d.dataset.key]?.choice || "" }));
+    DECISIONS.forEach((d) => screens.push({ key: d.dataset.key, name: nameOf(d.dataset.key), kind: "choice", status: picks[d.dataset.key]?.choice ? "good" : "", choice: picks[d.dataset.key]?.choice || "" }));
     packed.forEach((n) => {
       if (seenIds.has(n.dataset.id)) return; seenIds.add(n.dataset.id);
       const has = entries.filter((e) => e.screen === n.dataset.id);
       screens.push({ key: "s-" + n.dataset.id, name: n.dataset.name || n.dataset.id, kind: "screen", status: has.some((e) => e.kind === "change") ? "fix" : has.length ? "ask" : "", choice: "" });
     });
-    try { window.parent.postMessage({ type: "wireframes", version: VERSION, current: pageNow === "proto" ? "s-" + here().id : "overview", screens }, "*"); } catch {}
+    toParent({ type: "wireframes", version: VERSION, current: pageNow === "proto" ? "s-" + here().id : "overview", screens });
+  }
+  // Only the frame's own parent is listened to: the site by its stamped origin, anything else (Starbase, a test
+  // harness) from the first message it sends, and on that origin only from then on.
+  function fromParent(e) {
+    if (e.source !== window.parent) return false;
+    if (bridge.origin) return e.origin === bridge.origin;
+    const t = (e.data || {}).type;
+    if (e.origin !== SITE_ORIGIN && t !== "wireframes-state" && t !== "wireframes-goto" && t !== "wireframes-feedback" && t !== "wireframes-pdf") return false;
+    bridge.origin = e.origin; return true;
+  }
+  // What the site holds for this person. The first one also restores their settings.
+  function applyState(m) {
+    const first = store.kind !== "site"; store.kind = "site";
+    me = m.me?.id ?? null; bridge.admin = !!m.me?.admin; bridge.name = m.me?.name || ""; bridge.pdf = typeof m.pdf === "string" && m.pdf ? m.pdf : null;
+    bridge.others = Array.isArray(m.others) ? m.others : [];
+    const seen = new Map(); (Array.isArray(m.notes) ? m.notes : []).forEach((w) => { const n = fromWire(w); seen.set(pinKey(n), n); });
+    remote = [...seen.values()].filter((n) => !n.deleted);
+    Object.keys(picks).forEach((k) => delete picks[k]);
+    Object.entries(m.choices || {}).forEach(([k, v]) => { picks[k] = typeof v === "string" ? { choice: v, why: "" } : { choice: v?.choice || "", why: v?.why || "" }; });
+    $("#pt-copy").hidden = true; // the frame can't reach the clipboard, and the notes are already on the site
+    if (first) {
+      const held = local.splice(0); held.forEach((n) => { delete n.id; store.add(n); });
+      const v = m.view || {}; Object.assign(bridge.prefs, v);
+      if (v.theme) setTheme(v.theme, true);
+      if (v.dev) setDev(v.dev);
+      if (v.page && PAGES[v.page]) setPage(v.page);
+      if (typeof v.side === "boolean") setSide(v.side, v.panel);
+    }
+    paintChoices(); merge(); paintPack();
   }
   if (FRAMED) window.addEventListener("message", (e) => {
+    if (!fromParent(e)) return;
     const m = e.data || {};
+    if (m.type === "wireframes-state") applyState(m);
     if (m.type === "wireframes-goto" && typeof m.key === "string") {
       if (m.key === "overview") setPage("info");
       else if (m.key.startsWith("s-")) openPath([m.key.slice(2)]);
       else { setPage("info"); const d = $(`.decision[data-key="${m.key}"]`); if (d) d.scrollIntoView({ block: "start" }); }
     }
-    if (m.type === "wireframes-feedback" && e.source) e.source.postMessage({ type: "wireframes-feedback", version: VERSION, text: feedbackText() }, e.origin === "null" ? "*" : e.origin);
+    if (m.type === "wireframes-feedback") toParent({ type: "wireframes-feedback", version: VERSION, text: feedbackText() });
+    if (m.type === "wireframes-pdf") { clearTimeout(pdfWait); setSaved(m.ok === false ? (m.reason || "There's no PDF for this revision") : ""); }
   });
 
   // The stakeholder PDF: the build prints this view with headless Chrome. Without a built PDF, the button prints it here.
   function buildPack() {
+    document.documentElement.dataset.theme = "light"; document.documentElement.classList.remove("dark"); // paper is white
     const pack = $("#pt-pack"); pack.textContent = "";
     const page = (fill) => { const p = document.createElement("section"); p.className = "pt-page"; fill(p); pack.append(p); return p; };
     page((p) => {
@@ -773,15 +1148,36 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     for (let i = 0; i < phones.length; i += 3) page((p) => { const row = document.createElement("div"); row.className = "pk-row"; phones.slice(i, i + 3).forEach((n) => row.append(shot(n, 390, 844, 0.76))); p.append(row); });
     document.body.classList.add("pt-packing");
   }
+  // Download PDF, four ways. A sandboxed frame can't download, print or open a window, so in a frame the page asks
+  // the parent, which can. Hosted or opened from disk: the published PDF if there is one, else the print window.
+  let pdfWait;
+  function paintPack() {
+    const b = $("#pt-pack-btn"), site = store.kind === "site", none = site && !bridge.pdf;
+    b.title = none ? "No PDF was published with this revision" : site ? "Downloads the PDF for this revision" : FRAMED ? "Asks Starbase for the PDF" : PACK_URL ? "Opens the published PDF" : "Opens the print window: choose Save as PDF";
+    if (none) b.setAttribute("aria-disabled", "true"); else b.removeAttribute("aria-disabled");
+  }
   $("#pt-pack-btn").addEventListener("click", () => {
+    if (store.kind === "site") { if (bridge.pdf) toParent({ type: "wireframes-pdf", url: bridge.pdf }); else setSaved("There's no PDF for this revision"); return; }
+    if (FRAMED) { toParent({ type: "wireframes-pdf" }); clearTimeout(pdfWait); pdfWait = setTimeout(() => setSaved("Starbase didn't send the PDF"), 2000); return; }
     if (PACK_URL) { const a = document.createElement("a"); a.href = PACK_URL; a.target = "_blank"; a.rel = "noopener"; document.body.append(a); a.click(); a.remove(); return; }
-    buildPack(); setTimeout(() => { window.print(); document.body.classList.remove("pt-packing"); }, 300);
+    const theme = document.documentElement.dataset.theme;
+    buildPack(); setTimeout(() => { window.print(); document.body.classList.remove("pt-packing"); setTheme(theme, true); }, 300);
   });
 
+  // Light or Dark, for the page and for the screens when the app's theme defines both.
+  function setTheme(t, quiet) {
+    const r = document.documentElement; r.dataset.theme = t; r.classList.toggle("dark", t === "dark");
+    $$("#pt-theme [data-theme-to]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeTo === t)));
+    if (!quiet) savePref("theme", t, "wf-theme");
+  }
+  $$("#pt-theme [data-theme-to]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.themeTo)));
+
   if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  const menu = $("details.menu .btn"); if (menu) menu.prepend(icon("file-text"));
+  setTheme(lsGet("wf-theme", window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), true);
   setDev(view.dev);
   setPage(lsGet(LS + ":page", "info"));
-  merge(); paintChoices(); paintPinBtn();
+  merge(); paintChoices(); paintPinBtn(); paintPack(); paintShowing();
   setSide(lsGet(LS + ":side", window.innerWidth > 1000));
   if (PACKING) buildPack();
   if (HOSTED) {
@@ -790,7 +1186,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       db = d;
       try {
         const snap = await d.collection("notes").get();
-        snap.docs.forEach((x) => { notes[x.id] = { ...(notes[x.id] || {}), ...x.data() }; });
+        snap.docs.forEach((x) => { picks[x.id] = { ...(picks[x.id] || {}), ...x.data() }; });
         paintChoices();
       } catch {}
       try { userApi = await window.claude.use("user"); if (userApi) me = await userApi.id(); } catch {}
