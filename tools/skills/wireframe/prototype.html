@@ -234,7 +234,8 @@ details.menu .btn { cursor: pointer; display: inline-flex; gap: 6px; align-items
 .pt-others { margin: 6px 0 0; font-size: 12.5px; color: var(--pt-muted); }
 @media (max-width: 1000px) {
   .pt-top { position: static; } /* it wraps tall here, and would sit over the bar below it */
-  .pt-side { position: fixed; inset: auto 0 0 0; width: auto; height: 72vh; z-index: 25; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
+  .pt-side { position: fixed; inset: auto 0 0 0; width: auto; height: 72vh; z-index: 25; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); transition: height .2s ease-out; }
+  .pt-side.pt-peek { height: 22vh; }
 }
 .pt-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pt-accent); font-weight: 600; }
 .pt-chip[hidden] { display: none; }
@@ -259,6 +260,12 @@ details.menu .btn { cursor: pointer; display: inline-flex; gap: 6px; align-items
 .pt-pin::after { content: attr(data-word); position: absolute; left: 30px; top: 1px; padding: 2px 8px; border-radius: 6px; background: #17202c; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; }
 .pt-pin:hover::after, .pt-pin:focus-visible::after, .pt-pin.hot::after { opacity: 1; }
 .pt-pin.flip::after { left: auto; right: 30px; }
+.pt-pin.pop { z-index: 37; outline: 3px solid var(--k); outline-offset: 2px; transform: scale(1.25); transform-origin: 2px 100%; animation: pt-pin-pop .8s cubic-bezier(.3, 1.4, .5, 1) 2; }
+.pt-pin.pop::before { content: ""; position: absolute; inset: -3px; border-radius: 50%; pointer-events: none; animation: pt-pin-ring .8s ease-out 3; }
+.pt-pin.pop::after { opacity: 1; }
+@keyframes pt-pin-pop { 0%, 100% { transform: scale(1.25); } 40% { transform: scale(1.9); } }
+@keyframes pt-pin-ring { from { box-shadow: 0 0 0 0 var(--k); opacity: .85; } to { box-shadow: 0 0 0 32px var(--k); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pt-pin.pop, .pt-pin.pop::before { animation: none; } }
 .canvas.pt-nopins .pt-pin { display: none; }
 .pt-pinbtn { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 6px 12px; border-radius: 12px; background: var(--pt-soft); font-size: 13px; font-weight: 500; color: var(--pt-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-pinbtn .l { overflow: hidden; text-overflow: ellipsis; }
@@ -615,7 +622,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     pageNow = p; savePref("page", p);
     Object.entries(PAGES).forEach(([k, el]) => { el.hidden = k !== p; });
     $$(".pt-top [data-page]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
-    if (p === "proto") fit();
+    if (p === "proto") { fit(); paintPins(); } // a pin drawn while this tab was hidden measured a screen with no width
     window.scrollTo(0, 0); post();
   }
   $$(".pt-top [data-page]").forEach((b) => b.addEventListener("click", () => setPage(b.dataset.page)));
@@ -898,8 +905,8 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       rm.addEventListener("click", (e) => { e.stopPropagation(); store.remove(n); }); foot.append(rm);
     }
     c.append(foot);
-    if (jump) { c.dataset.jump = ""; c.addEventListener("click", () => goToNote(n)); }
-    else if (num) { c.addEventListener("mouseenter", () => hotOn(pinKey(n))); c.addEventListener("mouseleave", () => hotOn(null)); }
+    c.dataset.jump = ""; c.addEventListener("click", () => showNote(n));
+    if (!jump && num) { c.addEventListener("mouseenter", () => hotOn(pinKey(n))); c.addEventListener("mouseleave", () => hotOn(null)); }
     return c;
   }
   function editBox(n) {
@@ -918,6 +925,22 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     foot.append(cancel, ok); w.append(ta, kinds, foot); return w;
   }
   function hotOn(k) { hotPin = k; $$(".pt-pin", canvas).forEach((p) => p.classList.toggle("hot", p.dataset.pinkey === k)); }
+  // Clicking a note makes its marker pop, going to its screen and device first when it's somewhere else.
+  const POP_MS = 2400;
+  let popKey = null, popTimer;
+  const pinOf = (k) => $$(".pt-pin", canvas).find((p) => p.dataset.pinkey === k);
+  function showNote(n) {
+    if (!n.pin) { if (n.screen !== here().id || n.device !== view.dev) goToNote(n); toast("This note is about the whole screen, so it has no marker"); return; }
+    if (!pinOf(pinKey(n))) goToNote(n);
+    const b = pinOf(pinKey(n));
+    if (!b) { toast("This note's marker isn't on the screen now"); return; }
+    clearTimeout(popTimer); popKey = pinKey(n);
+    $$(".pt-pin.pop", canvas).forEach((p) => p.classList.remove("pop"));
+    const box = b.closest("[data-scroll]"); if (box) box.scrollTop = Math.max(0, b.offsetTop - box.clientHeight / 3);
+    void b.offsetWidth; b.classList.add("pop"); // again from the start, on a second click
+    $("#pt-side").classList.add("pt-peek"); // on a phone the panel covers the screen, so it drops down for a moment
+    popTimer = setTimeout(() => { popKey = null; $$(".pt-pin.pop", canvas).forEach((p) => p.classList.remove("pop")); $("#pt-side").classList.remove("pt-peek"); }, POP_MS);
+  }
   function pinBase(h, inScroll) { return inScroll ? ($("[data-scroll]", h.el) || h.el) : h.el; }
   // A pin is a spot as a fraction of the screen (of the scrolling content when s is 1), plus the nearest thing that
   // can be found again: "anchor" is the screen and a selector when the element has an id, "anchor_text" its words,
@@ -962,6 +985,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     const spot = pinSpot(h, pin, n && n.rev), w = wide(pinBase(h, pin.s), pin.s);
     // A pin and its word stay inside the screen: anything past the edge would make the screen scroll sideways.
     b.style.left = Math.max(0, Math.min(w - PIN_W, spot.x)) + "px"; b.style.top = spot.y + "px"; b.classList.toggle("flip", spot.x > w / 2); if (key) b.dataset.pinkey = key;
+    if (key && key === popKey) b.classList.add("pop"); // the pins are redrawn when notes change
     b.addEventListener("click", (e) => {
       e.stopPropagation(); if (!key || b.dataset.moved) { delete b.dataset.moved; return; }
       setSide(true, "notes"); scope = "here"; paintSide();
