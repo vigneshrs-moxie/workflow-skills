@@ -212,6 +212,8 @@ It checks the sections and writes, under `~/.claude/wireframes/<repo>/`: `<slug>
 - Headless Chrome, when it's installed (macOS: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; Linux: `google-chrome` or `chromium`; Windows: `C:\Program Files\Google\Chrome\Application\chrome.exe`, or Edge's `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`, with a `file:///C:/…` link): `"<chrome>" --headless=new --disable-gpu --hide-scrollbars --window-size=1400,2600 --screenshot=<scratchpad>/check.png "file://<draft path>"`, then Read the PNG. One screenshot of the top; a second with `--window-size=1400,6000` when the page is long.
 Without either, skip the check and say so in the report.
 
+**Stress test a prototype before publishing a revision.** Run `python3 <skill>/stress.py <slug>.html --seeds 1-8 --mode all --device both`. It clicks through the page at random, from a seed, on laptop and phone. Fix any failure and rerun it, or tell the user which failures remain. `reference/stress.md` says what each failure means and how to replay one.
+
 **Publish a prototype page to the prototypes site first:**
 
 ```bash
