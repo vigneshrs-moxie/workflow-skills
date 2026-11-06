@@ -157,6 +157,8 @@ The page keeps three homes behind one `store` (`add`, `update`, `remove`, `pick`
 - `localStorage` and `sessionStorage` throw. `window.print()` is ignored. Popups and downloads are blocked. The clipboard rejects, so the page hides Copy feedback on the site. `pushState` works.
 - Download from the wrapper, never from the frame: that's why `wireframes-pdf` carries the link back up.
 
+**Browser Back and reload.** The browser's Back follows the page. Going deeper, a main tab (`data-root`), Start over and Show me each add an entry; Back returns to the place before it, and at the first place Back leaves the page. The page's own Back rewrites the current entry rather than moving through history, so older entries can go stale, and Back walks past them. `data-replace` replaces the entry. Each entry holds the place, so a reload stays put. The address never changes, so there are no links to a screen. In the site's frame a reload of the whole page starts the frame with no entries: the page takes `place` from `state.view` and lays the entries down again. Entries from before that reload can't be reopened, because the frame fetches them with no cookie. The site answers with a small page that sends `wireframes-gone` up, and the wrapper goes Back again, so Back past a reload leaves the page.
+
 **Down, wrapper to page.** Send `wireframes-state` after the frame's first message, and after every write, with the full list. The page's list is replaced each time, and a note with `deleted: true` is dropped.
 
 | Message | Fields |
@@ -173,7 +175,7 @@ The page keeps three homes behind one `store` (`add`, `update`, `remove`, `pick`
 | `wireframes` | `version`, `current` (`overview` or `s-<id>`), `screens`. The first one means the page is ready for `wireframes-state` |
 | `wireframes-note` | `op`: `add`, `edit`, `move` or `remove`. `note` below. On `remove`, `note.deleted` is `true` |
 | `wireframes-choice` | `key`, `choice` (`""` means un-picked: delete the row), `why` (one line, may be empty) |
-| `wireframes-view` | `view`: this person's settings, `{ theme, dev, page, side, panel }`, any subset. Keep it and send it back as `state.view` |
+| `wireframes-view` | `view`: this person's settings, `{ theme, dev, page, side, panel, place }`, any subset. `place` is `{ ids, tabs }`: the path of screens, and the tabs and role that show it. Keep it and send it back as `state.view` |
 | `wireframes-pdf` | `url`: the link from `state.pdf`, to download from the wrapper |
 | `wireframes-feedback` | `version`, `text`: the Foreman's lines |
 | `wireframes-escape` | none: Escape with nothing left to close |

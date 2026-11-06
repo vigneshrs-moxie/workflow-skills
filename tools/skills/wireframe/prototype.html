@@ -392,9 +392,13 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   const toParent = (m) => { try { window.parent.postMessage(m, bridge.origin && bridge.origin !== "null" ? bridge.origin : "*"); } catch {} };
   let prefTimer;
   function savePref(k, v, key) {
-    lsSet(key || LS + ":" + k, v);
+    lsSet(key || LS + ":" + k, v); sitePref(k, v);
+  }
+  function sitePref(k, v, now) {
     if (store.kind !== "site") return;
-    bridge.prefs[k] = v; clearTimeout(prefTimer); prefTimer = setTimeout(() => toParent({ type: "wireframes-view", view: bridge.prefs }), 150);
+    const send = () => toParent({ type: "wireframes-view", view: bridge.prefs });
+    bridge.prefs[k] = v; clearTimeout(prefTimer);
+    if (now) send(); else prefTimer = setTimeout(send, 150);
   }
   const savedDev = lsGet(LS + ":dev", firstDev);
   const view = { dev: DEVICES.includes(savedDev) ? savedDev : firstDev, stack: [], tabs: {} };
@@ -452,12 +456,66 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     do view.stack.pop(); while (view.stack.length > 1 && current().screen === was.screen && current().overlay === was.overlay);
     render("back");
   }
-  function root(id) { view.stack = [{ id }]; render(null); }
+  function root(id) { hist.jump = true; view.stack = [{ id }]; render(null); }
   function close() {
     const top = view.stack[view.stack.length - 1];
     if (view.stack.length > 1 && place(top.id, view.dev)?.overlay) { view.stack.pop(); render(null); return true; }
     return false;
   }
+
+  // The browser's Back follows the stack. Going deeper, or jumping (a main tab, Start over, Show me), adds an entry.
+  // The page's own Back rewrites the entry instead of moving through history, which would finish later than the
+  // click and could lose the next one, so older entries can go stale; popstate walks past those. e counts jumps:
+  // an entry from before a jump is a place to return to whole, even though it isn't part of today's stack.
+  // Entries hold the place, so a reload finds it there. The address never changes: a sandboxed frame can't set it.
+  const hist = { live: false, kept: false, jump: false, n: 0, e: 0, ids: [], key: "" };
+  const stackIds = () => view.stack.map((s) => s.id);
+  const sameIds = (a, b) => a.length === b.length && a.every((id, i) => id === b[i]);
+  const startsWith = (long, short) => long.length > short.length && short.every((id, i) => id === long[i]);
+  function mark() {
+    if (!hist.live) return;
+    const ids = stackIds(), key = JSON.stringify([view.tabs, view.dev]), same = sameIds(ids, hist.ids), jump = hist.jump;
+    hist.jump = false;
+    if (same && key === hist.key) return;
+    const deeper = startsWith(ids, hist.ids), add = !same && (deeper || jump);
+    let n = hist.n; const e = hist.e + (add && !deeper ? 1 : 0), entry = (path) => ({ pt: { n, e, ids: path, tabs: view.tabs, dev: view.dev } });
+    try {
+      if (!add) window.history.replaceState(entry(ids), "");
+      // A jump can land several steps down, and each step needs an entry for Back to stop on.
+      else for (let k = deeper ? hist.ids.length + 1 : 1; k <= ids.length; k++) { n++; window.history.pushState(entry(ids.slice(0, k)), ""); }
+    } catch { return; } // browsers refuse a flood, and the next step tries again
+    Object.assign(hist, { n, e, ids, key });
+    sitePref("place", { ids, tabs: view.tabs }, true); // at once: a reload can follow the tap
+  }
+  function enter(p) {
+    const known = (id) => typeof id === "string" && (find(id, view.dev) || find(id, other(view.dev)));
+    const ids = Array.isArray(p.ids) ? p.ids.filter(known) : [];
+    if (DEVICES.includes(p.dev)) view.dev = p.dev;
+    if (p.tabs && typeof p.tabs === "object") Object.assign(view.tabs, p.tabs);
+    if (ids.length) view.stack = ids.map((id) => ({ id }));
+    hist.ids = stackIds(); hist.key = JSON.stringify([view.tabs, view.dev]);
+  }
+  // The site gave back a place this frame has no entries for, so lay them down one step at a time for Back to walk.
+  function rebuild() {
+    const steps = view.stack.splice(1);
+    hist.ids = stackIds(); hist.key = ""; mark();
+    view.stack.push(...steps); mark();
+  }
+  window.addEventListener("popstate", (e) => {
+    const p = e.state?.pt;
+    if (!p || !hist.live) return;
+    const ids = stackIds(), goingBack = p.n < hist.n, earlier = p.e < hist.e, under = startsWith(ids, p.ids);
+    hist.n = p.n;
+    if (goingBack && !earlier && !under) { window.history.back(); return; } // stale: nothing here to return to
+    const was = current();
+    hist.e = p.e; hist.ids = p.ids; hist.key = ""; // the entry holds the tabs and device of its day, so render rewrites it
+    if (under) view.stack.length = p.ids.length; // keeps each step's scroll
+    else view.stack = p.ids.map((id) => ({ id }));
+    render(goingBack ? "back" : null);
+    if (pageNow !== "proto") setPage("proto");
+    const now = current();
+    if (goingBack && view.stack.length > 1 && now.screen === was.screen && now.overlay === was.overlay) window.history.back(); // this device shows that step as the one above it
+  });
 
   // Tabs, roles and option variants are one thing: a group with one selected value. data-panel shows what
   // belongs to a value ("group:a|b"), data-bind shows its label, data-tab selects it.
@@ -474,7 +532,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       if (t) b.textContent = t.dataset.label || t.textContent.trim();
     });
     const roleSel = $("#pt-role"); if (roleSel) roleSel.value = view.tabs.role;
-    paintShowing();
+    paintShowing(); mark();
   }
 
   let toastTimer;
@@ -568,7 +626,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     // A link can name a path this role can't walk. Use the main role, rather than land part way down it.
     if (ROLES.length && path.some((id) => !place(id, view.dev))) view.tabs.role = mainRole();
     const full = path.length === 1 && path[0] !== roleStart() ? [roleStart(), path[0]] : path; // so Back always has somewhere to go
-    view.stack = full.map((id) => ({ id })); setPage("proto"); render(null);
+    hist.jump = true; view.stack = full.map((id) => ({ id })); setPage("proto"); render(null);
   }
   document.addEventListener("click", (e) => {
     const l = e.target.closest("[data-open]");
@@ -1013,7 +1071,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     if (n.device && n.device !== view.dev) setDev(n.device);
     const path = (n.path && n.path.length ? n.path : [n.screen]).filter((id) => place(id, view.dev));
     if (path.length === 1 && path[0] !== roleStart()) path.unshift(roleStart()); // so Back has somewhere to go
-    view.stack = (path.length ? path : [roleStart()]).map((id) => ({ id })); scope = "here"; render(null);
+    hist.jump = true; view.stack = (path.length ? path : [roleStart()]).map((id) => ({ id })); scope = "here"; render(null);
   }
   async function addNote() {
     const ta = $("#pt-note-text"), text = ta.value.trim();
@@ -1099,6 +1157,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       if (v.dev) setDev(v.dev);
       if (v.page && PAGES[v.page]) setPage(v.page);
       if (typeof v.side === "boolean") setSide(v.side, v.panel);
+      if (v.place && !hist.kept) { enter(v.place); rebuild(); render(null); }
     }
     paintChoices(); merge(); paintPack();
   }
@@ -1175,7 +1234,11 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
   const menu = $("details.menu .btn"); if (menu) menu.prepend(icon("file-text"));
   setTheme(lsGet("wf-theme", window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), true);
+  const kept = window.history.state?.pt;
+  if (kept && !PACKING) { hist.kept = true; hist.n = kept.n || 0; hist.e = kept.e || 0; enter(kept); }
   setDev(view.dev);
+  if (!kept) hist.ids = stackIds(); // the page's first entry is the one it opened on
+  hist.live = !PACKING; mark();
   setPage(lsGet(LS + ":page", "info"));
   merge(); paintChoices(); paintPinBtn(); paintPack(); paintShowing();
   setSide(lsGet(LS + ":side", window.innerWidth > 1000));

@@ -10,7 +10,9 @@ python3 stress.py <page.html> --seeds 1-24 --steps 200 --mode all --device both 
 python3 stress.py <page.html> --seed 7 --steps 200 --mode framed --device phone --timing settled   # replay one failure
 ```
 
-Add `--expect-restore` once the page keeps its place on reload and has browser history. Without it, reload is expected to land on the first screen, and browser Back leaving the page is counted, not failed.
+Add `--expect-restore`: the page keeps its place on reload and has browser history. Without it, reload is expected to land on the first screen, and browser Back leaving the page is counted, not failed. With it, Back leaving the page fails unless the page is on its first place.
+
+On `file://` with many Chromes running, Chrome itself can lose `localStorage` across a reload, even on an empty page. A plain run then shows `pin-count` at a reload. Check whether storage was already empty before the page's scripts ran before blaming the page. On a busy machine a phone tap can also be lost, which shows as `landed-elsewhere` with the next same tap working. Replay the seed alone to tell.
 
 | Option | Choices |
 |---|---|

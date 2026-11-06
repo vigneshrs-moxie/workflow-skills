@@ -272,21 +272,28 @@ FRAME_HTML = r'''<!doctype html><html><head><meta charset="utf-8"><title>stress 
 <iframe id="f" sandbox="allow-scripts" src="__SRC__"></iframe>
 <script>
 (() => {
-  const f = document.getElementById("f"), list = [], choices = {};
+  // Like the site, this keeps what the page sent across a reload. window.name outlives it.
+  const reloaded = performance.getEntriesByType("navigation")[0]?.type === "reload";
+  if (!reloaded) window.name = ""; // the tab outlives a run
+  const saved = (() => { try { return JSON.parse(window.name || "{}"); } catch { return {}; } })();
+  const f = document.getElementById("f"), list = saved.list || [], choices = saved.choices || {};
+  let view = saved.view || {};
+  const save = () => { window.name = JSON.stringify({ list, choices, view }); };
   const F = window.__frame = { messages: 0, last: null, feedback: null, notes: list, choices,
     send(m) { f.contentWindow.postMessage(m, "*"); },
     goto(key) { F.send({ type: "wireframes-goto", key }); },
     askFeedback() { F.feedback = null; F.send({ type: "wireframes-feedback" }); },
   };
-  const state = () => F.send({ type: "wireframes-state", me: { id: "u1", name: "Sam Rivera" }, notes: list.slice(), choices: { ...choices }, pdf: null });
+  const state = () => F.send({ type: "wireframes-state", me: { id: "u1", name: "Sam Rivera" }, notes: list.slice(), choices: { ...choices }, view, pdf: null });
   f.addEventListener("load", state);
   addEventListener("message", (e) => {
     if (e.source !== f.contentWindow) return;
     const m = e.data || {}; F.messages++;
     if (m.type === "wireframes") F.last = m;
     if (m.type === "wireframes-feedback") F.feedback = m;
-    if (m.type === "wireframes-note") { list.push(m.note || m); state(); }
-    if (m.type === "wireframes-choice") { choices[m.key] = m.choice; state(); }
+    if (m.type === "wireframes-note") { list.push(m.note || m); save(); state(); }
+    if (m.type === "wireframes-choice") { choices[m.key] = m.choice; save(); state(); }
+    if (m.type === "wireframes-view") { view = m.view || {}; save(); }
   });
 })();
 </script></body></html>
@@ -571,6 +578,14 @@ class Run:
                 pass
         self.scripts = []
         self.c.call("Page.navigate", {"url": "about:blank"})
+        for left in range(40, -1, -1):  # a tab keeps 50 entries: a full one would lose this run's
+            try:
+                self.c.call("Page.resetNavigationHistory", {})
+                break
+            except HarnessError:  # Chrome says no until about:blank has landed
+                if not left:
+                    raise
+                time.sleep(0.05)
 
     # -- input. Burst dispatches at once; settled uses real mouse and touch, so what's on top decides.
     def press(self, x: float, y: float, hold: float = 0, button: str = "left"):
@@ -973,7 +988,8 @@ class Run:
             self.S(f"clickAt({p['x']},{p['y']})")
         self.settle()
         if not self.S("pending()"):
-            self.tap("#pt-pin-btn", "pin button")  # the click went somewhere else: put the button back
+            if self.ev('document.querySelector("#pt-pin-btn").getAttribute("aria-pressed") === "true"'):
+                self.tap("#pt-pin-btn", "pin button")  # the click went somewhere else: put the button back
             self.settle()
             return "skip pin (no spot taken)"
         return self.finish_note(True)
@@ -1050,7 +1066,7 @@ class Run:
             self.S('use(".pt-top [data-page=proto]")')
             self.S("click()")
         after = self.state()
-        self.dirty = False
+        self.dirty = self.expect_restore  # tabs survive a reload, so the page isn't as it first opened
         self.baseline = {}
         self.c.errors.clear() if not self.c.errors else None
         if self.expect_restore:
@@ -1064,17 +1080,33 @@ class Run:
             self.notes = []  # the sandbox has no storage and the page has no bridge yet, so its notes went with the reload
         return "reload"
 
+    def quiet(self):
+        """Back can hop through old entries, and on a busy machine the last hop lands late. Wait for it."""
+        last, same = None, 0
+        for _ in range(30):
+            now = self.ev("JSON.stringify(window.history.state)")
+            same = same + 1 if now == last else 0
+            last = now
+            if same >= 3:
+                return
+            time.sleep(0.15)
+
     def act_browser_back(self):
         before = self.state()
         self.ev("setTimeout(() => history.back(), 0), 0")
-        time.sleep(0.15)
+        # Back can walk past old entries, and in the frame it can reload the page, so give it time to land.
+        time.sleep(0.8 if self.expect_restore and self.mode == "framed" else 0.15)
         try:
             self.c.pump()
+            if self.expect_restore and self.mode != "framed":
+                self.quiet()
             alive = self.ev("!!(window.__S && __S.ready())")
         except HarnessError:
             alive = False
+        if alive and self.expect_restore and self.mode == "framed":
+            self.wait_ready()
         if not alive:
-            if self.expect_restore:
+            if self.expect_restore and self.stack is not None and len(self.stack) > 1:
                 self.fail("browser-back-left-the-page", "browser back", where=self.here(before))
             self.skip("browser Back left the page (no history in the page yet)")
             self.c.call("Page.navigate", {"url": self.url})
@@ -1082,9 +1114,9 @@ class Run:
             if self.S("page()") != "proto":
                 self.S('use(".pt-top [data-page=proto]")')
                 self.S("click()")
-            self.dirty = False
+            self.dirty = self.expect_restore
             self.baseline = {}
-            self.stack = [self.entry(self.S("roleStart()"))]
+            self.stack = None if self.expect_restore else [self.entry(self.S("roleStart()"))]
             self.state()
             if self.mode == "framed":
                 self.notes = []
@@ -1095,6 +1127,8 @@ class Run:
             st = self.land("browser back", "back-landed-elsewhere")
             if self.stack is not None:
                 self.restored("browser back", st, self.stack[-1], "back")
+        elif self.expect_restore:
+            self.stack = None  # at the bottom of the stack, Back returns to where a main tab or Start over came from
         return "browser back"
 
     def act_frame_goto(self):
