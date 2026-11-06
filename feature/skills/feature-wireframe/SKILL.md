@@ -29,9 +29,9 @@ Input: $ARGUMENTS
   - `wireframes.json`: screens (with states and exits), choices, questions, tier, `version` and the artifact URL if one was ever published;
   - `wireframes.brief.md`: the build brief for the planner and implementer.
   A job folder that already holds `wireframes.*` means this is a revision: keep its keys and the version continues.
-- **As the `feature-wireframer` worker** (the Foreman dispatched you): don't publish; Starbase shows `wireframes.html` from disk. Skip the publish and `--record-url` parts of the `wireframe` skill's step 6, and ignore the `artifact:` line the build prints.
+- **As the `feature-wireframer` worker** (the Foreman dispatched you): don't publish; Starbase shows `wireframes.html` from disk. Putting the page on the prototypes site is the human's **Publish** button on the job's Screens tab, not your step, so never run `publish.py`. Skip the publish and `--record-url` parts of the `wireframe` skill's step 6, and ignore the `artifact:` line the build prints.
 - End with the step 6 report so the Foreman can brief it, including the `status.json` artifact entry `{ "name": "Wireframes", "path": "wireframes.html", "version": "<n>" }`.
-- Feedback reaches you through the Foreman, as lines in the human's reply (`Pick A for c-entry`, `s-list: looks good | question: … | needs change: …`, or the page's Copy feedback text), not from the page. Apply them per the `wireframe` skill's step 7, keep every other key, and rebuild with the same title and `--job`; the version bumps on its own. Say what changed for the spec in your report.
+- Feedback reaches you through the Foreman, as lines in the human's reply (`Pick A for c-entry`, `s-list: looks good | question: … | needs change: …`, the page's Copy feedback text, or what the human's **Pull notes** button brought from the site), not from the page. Apply them per the `wireframe` skill's step 7, keep every other key, and rebuild with the same title and `--job`; the version bumps on its own. Say what changed for the spec in your report.
 
 ## Inside Starbase
 
