@@ -30,7 +30,8 @@ PAGE_LIB = r'''
 (() => {
   const C = __CFG__;
   if (C.mode === "framed" && window.top === window) return;
-  try { if (sessionStorage.getItem("__stress_run") !== C.run) { localStorage.clear(); sessionStorage.removeItem("__stress_db"); sessionStorage.setItem("__stress_run", C.run); } } catch (e) {}
+  const rig = () => { try { return JSON.parse(window.name || "{}"); } catch (e) { return {}; } };
+  if (rig().run !== C.run) { try { localStorage.clear(); } catch (e) {} window.name = JSON.stringify({ run: C.run }); }
 
   const $ = (q, r = document) => r.querySelector(q), $$ = (q, r = document) => Array.from(r.querySelectorAll(q));
   const CTRL = "[data-to],[data-back],[data-close],[data-tab],[data-toggle],[data-root],[data-toast]";
@@ -56,7 +57,7 @@ PAGE_LIB = r'''
   const nodes = () => $$("#pt-canvas .screen:not(.pt-before), #pt-canvas .overlay");
   const find = (id, d) => nodes().find((n) => n.dataset.id === id && n.dataset.device === d);
   const other = (d) => (d === "phone" ? "laptop" : "phone");
-  const roleNow = () => { const s = $('select[data-group="role"]'); return s ? s.value : null; };
+  const roleNow = () => { const s = $('#pt-role'); return s ? s.value : null; };
   const allowed = (el) => !el.dataset.roles || el.dataset.roles.split("|").includes(roleNow());
   function place(id, d, n = 0) {
     const el = find(id, d);
@@ -79,11 +80,11 @@ PAGE_LIB = r'''
       const sc = screens(), ov = overlays(), top = ov[0] || sc[0], b = beforeNode();
       const box = (n) => { if (!n) return null; const r = n.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; };
       const text = readable(top);
-      const opts = {}; $$("select[data-group]").forEach((s) => { opts[s.dataset.group] = s.value; });
+      const opts = {}; $$(".pt-dcard[data-group]").forEach((c) => { const w = $$(".pt-dopt", c).find((x) => { const a = $(".pt-dshowing", x); return a && !a.hidden; }); if (w) opts[c.dataset.group] = w.dataset.choice; });
       return {
         screen: sc[0] ? sc[0].dataset.id : null, screens: sc.length, overlay: ov[0] ? ov[0].dataset.id : null, overlays: ov.length,
         dev: dev(), scroll: sc[0] ? Math.round(scroller(sc[0]).scrollTop) : 0, maxScroll: sc[0] ? Math.round(scroller(sc[0]).scrollHeight - scroller(sc[0]).clientHeight) : 0,
-        fp: hash(text), textLen: text.length, screenBox: box(sc[0]), overlayBox: box(ov[0]), before: !!b, page: S.page(), role: roleNow(), opts,
+        fp: hash(text), textLen: text.length, screenBox: box(sc[0]), overlayBox: box(ov[0]), fills: !sc[0] || (sc[0].offsetWidth === $("#pt-canvas").clientWidth && sc[0].offsetHeight === $("#pt-canvas").clientHeight), before: !!b, page: S.page(), role: roleNow(), opts,
         side: !!$("#pt-side") && !$("#pt-side").hidden, active: (document.activeElement && document.activeElement.tagName) || "",
       };
     },
@@ -102,8 +103,10 @@ PAGE_LIB = r'''
         const x = r.left + r.width / 2, y = r.top + r.height / 2;
         const inView = x >= 0 && y >= 0 && x < innerWidth && y < innerHeight;
         const hit = inView ? document.elementFromPoint(x, y) : null;
+        const near = navigator.maxTouchPoints > 0 && !el.closest(".pt-pin") && $$(".pt-pin").some((p) => { const q = p.getBoundingClientRect(); return q.width && x > q.left - 12 && x < q.right + 12 && y > q.top - 12 && y < q.bottom + 12; });
+        if (near) return { x, y, ok: false, by: ".pt-pin (touch moves the tap onto it)" };
         const ok = !!hit && (hit === el || el.contains(hit) || el.closest("label") === hit);
-        return { x, y, ok, by: ok || !hit ? null : (hit.id ? "#" + hit.id : (hit.getAttribute("class") || "").trim() ? "." + hit.getAttribute("class").trim().split(/\s+/)[0] : hit.tagName) };
+        return { x, y, ok, by: ok || !hit ? null : (hit.id ? "#" + hit.id : hit.className ? "." + String(hit.className).split(/\s+/)[0] : hit.tagName) };
       };
       el.scrollIntoView({ block: "nearest", inline: "nearest" });
       let a = look();
@@ -116,7 +119,6 @@ PAGE_LIB = r'''
       const r = L.getBoundingClientRect();
       return { x: Math.min(innerWidth - 2, Math.max(2, r.left + r.width * rx)), y: Math.min(innerHeight - 2, Math.max(2, r.top + r.height * ry)) };
     },
-    onLayer(x, y) { const L = layer(), el = document.elementFromPoint(x, y); return !!L && !!el && L.contains(el); },
     clickAt(x, y) { const el = document.elementFromPoint(x, y); if (el) el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, clientX: x, clientY: y, view: window })); return !!el; },
     contextAt(x, y) { const el = document.elementFromPoint(x, y); if (el) el.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: x, clientY: y, view: window })); return !!el; },
     // Press-and-hold and drag with a finger, as pointer events. Chrome's own long-press has no menu to open when headless and stalls.
@@ -131,7 +133,7 @@ PAGE_LIB = r'''
     },
     key(k) { (document.activeElement || document.body).dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true })); },
     type(text) { const t = $("#pt-note-text"); if (!t) return false; t.value = text; t.dispatchEvent(new Event("input", { bubbles: true })); return true; },
-    selects() { return $$("select[data-group]").map((s) => ({ group: s.dataset.group, value: s.value, options: Array.from(s.options).map((o) => o.value) })); },
+    selects() { return $$("#pt-role").filter((s) => s.tagName === "SELECT").map((s) => ({ group: s.dataset.group, value: s.value, options: Array.from(s.options).map((o) => o.value) })); },
     setSelect(group, value) { const s = $(`select[data-group="${group}"]`); if (!s) return false; s.value = value; s.dispatchEvent(new Event("change", { bubbles: true })); return true; },
     decisionDevice(key) { const d = $(`.decision[data-key="${key}"]`); return d ? d.dataset.device || null : null; },
     devices() { const b = $$("#pt-devs [data-dev]"); return $("#pt-devs") && !$("#pt-devs").hidden ? b.map((x) => x.dataset.dev) : []; },
@@ -181,7 +183,6 @@ PAGE_LIB = r'''
       });
     },
     pending() { return !!$(".pt-pin.pending"); },
-    pinning() { return $("#pt-canvas").classList.contains("pt-pinning"); },
     noteTexts() { return $$("#pt-list .pt-card p").map((p) => p.textContent); },
     // Status must never be colour alone: anything showing a state also needs words, a labelled icon or a title.
     colourOnly() {
@@ -228,9 +229,9 @@ PAGE_LIB = r'''
 
   // A stand-in for the artifact runtime: database answers arrive late, with notes and choices already there.
   const firstDoc = () => { const n = nodes()[0] || {}; return n.dataset || {}; };
-  const stored = () => { try { return JSON.parse(sessionStorage.getItem("__stress_db") || "null"); } catch (e) { return null; } };
+  const stored = () => rig().data || null;
   const data = stored() || { feedback: {}, notes: {}, n: 0, seeded: false };
-  const save = () => { try { sessionStorage.setItem("__stress_db", JSON.stringify(data)); } catch (e) {} };
+  const save = () => { window.name = JSON.stringify({ run: C.run, data }); };
   const listeners = [];
   function seedOnce() {
     if (data.seeded) return;
@@ -367,10 +368,10 @@ class Socket:
 class Chrome:
     """One headless Chrome with one tab. Each worker has its own, so file:// storage never mixes."""
 
-    def __init__(self, binary: str, cache: str = ""):
+    def __init__(self, binary: str):
         self.dir = tempfile.mkdtemp(prefix="stress-chrome-")
         self.proc = subprocess.Popen(
-            [binary, "--headless=new", "--disable-gpu", "--remote-debugging-port=0", f"--user-data-dir={self.dir}", f"--disk-cache-dir={cache or self.dir}",
+            [binary, "--headless=new", "--disable-gpu", "--remote-debugging-port=0", f"--user-data-dir={self.dir}",
              "--no-first-run", "--no-default-browser-check", "--disable-background-timer-throttling",
              "--disable-renderer-backgrounding", "--disable-backgrounding-occluded-windows",
              "--disable-features=Translate,BackForwardCache,IsolateSandboxedIframes", "--disable-site-isolation-trials",
@@ -490,6 +491,7 @@ class Run:
         self.baseline: dict[tuple, str] = {}
         self.step_no = 0
         self.doing = ""
+        self.scripts: list[str] = []
         self.ctx = None
 
     # -- talking to the page
@@ -543,7 +545,7 @@ class Run:
             self.c.call("Emulation.setTouchEmulationEnabled", {"enabled": False})
         cfg = {"mode": self.mode, "hosted": self.mode == "hosted", "run": f"{self.seed}-{time.time()}"}
         src = PAGE_LIB.replace("__CFG__", json.dumps(cfg))
-        self.c.call("Page.addScriptToEvaluateOnNewDocument", {"source": src})
+        self.scripts.append(self.c.call("Page.addScriptToEvaluateOnNewDocument", {"source": src})["identifier"])
         self.c.call("Page.navigate", {"url": self.url})
         self.wait_ready()
 
@@ -560,6 +562,15 @@ class Run:
             raise HarnessError("the page never finished opening")
         time.sleep(0.25)  # the in-page Tailwind compiler runs after load
         self.c.pump()
+
+    def close(self):
+        for s in self.scripts:
+            try:
+                self.c.call("Page.removeScriptToEvaluateOnNewDocument", {"identifier": s})
+            except HarnessError:
+                pass
+        self.scripts = []
+        self.c.call("Page.navigate", {"url": "about:blank"})
 
     # -- input. Burst dispatches at once; settled uses real mouse and touch, so what's on top decides.
     def press(self, x: float, y: float, hold: float = 0, button: str = "left"):
@@ -671,6 +682,8 @@ class Run:
             self.fail("two-screens-on", what, n=st["screens"])
         elif not st["screenBox"] or min(st["screenBox"]) <= 0:
             self.fail("screen-has-no-size", what, box=st["screenBox"])
+        elif not st["fills"]:
+            self.fail("screen-does-not-fill-canvas", what, box=st["screenBox"])
         elif st["textLen"] == 0 and not st["overlay"]:
             self.fail("screen-is-empty", what)
         if st["overlays"] > 1:
@@ -693,7 +706,8 @@ class Run:
         pins = self.S("pins()")
         here = self.here(st)
         want = [n for n in self.notes if n.get("pin") and n["screen"] == here and n["dev"] == st["dev"]]
-        if len(pins) != len(want):
+        waiting = self.mode == "hosted" and self.ev("__S.held ? __S.held.length : (window.__stub && __stub.held.length) || 0")
+        if len(pins) != len(want) and not waiting:
             self.fail("pin-count", what, want=len(want), got=len(pins), where=here)
         for p in pins:
             if not p["owner"]:
@@ -740,7 +754,13 @@ class Run:
                 self.stack.pop(); closed = True; popped = self.stack[-1]
             if c["back"]:
                 if len(self.stack) > 1:
-                    self.stack.pop(); backed = True; popped = self.stack[-1]
+                    self.stack.pop(); backed = True
+                    while len(self.stack) > 1:
+                        e = self.S("expect(" + json.dumps([x["id"] for x in self.stack]) + ")")
+                        if (e["screen"], e["overlay"]) != (before["screen"], before["overlay"]):
+                            break
+                        self.stack.pop()
+                    popped = self.stack[-1]
                 else:
                     self.fail("back-did-nothing", what, why="nothing to go back to", where=self.here(before))
             if c["to"]:
@@ -942,27 +962,19 @@ class Run:
             return "skip pin (notes didn't open)"
         if self.S("state().before"):
             return "skip pin (compare on)"
-        if self.S("pending()"):
-            self.tap("#pt-pin-btn", "pin button")  # a spot is already waiting: this press would only clear it
-            self.settle()
         if not self.tap("#pt-pin-btn", "pin button"):
             return "skip pin button"
         self.settle()
         rx, ry = 0.1 + self.rng.random() * 0.8, 0.1 + self.rng.random() * 0.8
         p = self.S(f"spot({rx},{ry})")
-        if not self.S(f"onLayer({p['x']},{p['y']})"):  # the Notes panel covers this spot: a click would open a saved note, not drop a pin
-            self.S('use("#pt-pin-btn")'); self.S("click()")
-            self.settle()
-            return "skip pin (spot covered)"
         if self.settled:
             self.press(p["x"], p["y"])
         else:
             self.S(f"clickAt({p['x']},{p['y']})")
         self.settle()
         if not self.S("pending()"):
-            if self.S("pinning()"):
-                self.S('use("#pt-pin-btn")'); self.S("click()")  # the click went somewhere else: leave pin mode, or it eats the next click
-                self.settle()
+            self.tap("#pt-pin-btn", "pin button")  # the click went somewhere else: put the button back
+            self.settle()
             return "skip pin (no spot taken)"
         return self.finish_note(True)
 
@@ -1076,7 +1088,6 @@ class Run:
             self.state()
             if self.mode == "framed":
                 self.notes = []
-            self.flush()
             return "browser back (left the page, reopened)"
         self.settle()
         if self.expect_restore and self.stack is not None and len(self.stack) > 1:
@@ -1289,9 +1300,10 @@ def main():
             else:
                 print(f"{name}: {r['steps']} steps, ok [{r['log_hash']}]", flush=True)
 
+    retried = set()
+
     def worker():
         chrome = None
-        cache = tempfile.mkdtemp(prefix="stress-cache-")  # only downloads carry over, so the page's CDN files load once per worker
         while True:
             try:
                 s, m, d, t = jobs.get_nowait()
@@ -1299,14 +1311,23 @@ def main():
                 break
             run = None
             try:
-                chrome = Chrome(binary, cache)  # a new Chrome each run: a replay must start exactly as the batch run did
+                if chrome is None:
+                    chrome = Chrome(binary)
+                chrome.errors.clear()
                 url = "file://" + (frame if m == "framed" else page)
                 run = Run(chrome, url, s, a.steps, m, d, t, a.expect_restore)
                 r = run.walk()
+                run.close()
                 report(r)
-                chrome.close()
-                chrome = None
             except Exception as e:  # the rig, not the page: say so, and carry on with a new Chrome
+                if (s, m, d, t) not in retried:
+                    retried.add((s, m, d, t))
+                    print(f"seed {s} {m} {d} {t}: the rig failed ({e}), again on a new Chrome", flush=True)
+                    jobs.put((s, m, d, t))
+                    if chrome:
+                        chrome.close()
+                    chrome = None
+                    continue
                 partial = run.result() if run else {"seed": s, "mode": m, "device": d, "timing": t, "steps": 0, "failures": [], "skips": {}, "log_hash": "", "log": []}
                 partial["harness"] = f"{type(e).__name__}: {e}" + (f" (during {run.doing}, step {run.step_no})" if run and run.doing else "")
                 report(partial)
@@ -1315,7 +1336,6 @@ def main():
                 chrome = None
         if chrome:
             chrome.close()
-        shutil.rmtree(cache, ignore_errors=True)
 
     started = time.time()
     threads = [threading.Thread(target=worker) for _ in range(min(a.jobs, total))]

@@ -33,7 +33,7 @@ Both ways produce the same page; only the questions and the extra job files diff
 
 ## Which page
 
-- **Hi-fi: a prototype page,** on its own or inside a `/feature` job. A short Info tab, a Prototype tab where every click happens in place, and Requirements. Read `reference/prototype.md` and use it in place of step 5 and the section shapes below. Steps 1 to 4 still apply, except that a real design choice becomes a decision you can try live rather than two frames. Screens are laptop only unless the feature is for phones.
+- **Hi-fi: a prototype page,** on its own or inside a `/feature` job. A short Info tab, a Prototype tab where every click happens in place, and Requirements. Read `reference/prototype.md` and use it in place of step 5 and the section shapes below. Steps 1 to 4 still apply, except that a real design choice becomes a decision you can try live rather than two frames. Screens are laptop only unless the feature is for phones. The page brings the Decisions panel (View as, then a card per decision), Light/Dark, Download PDF and pins anywhere: you only draw the screens and give stable things a `data-id`. Status is never shown by colour alone: every state has a word or a labelled icon.
 - **Sketch or lo-fi: the review page** described in the rest of this file. Use it for hi-fi too if the user asks for side-by-side options or per-screen verdicts.
 
 ## 1. Understand the idea
@@ -202,7 +202,7 @@ A sketch build (`--fidelity sketch`) draws the same kit on graph paper in a hand
 cd <repository, or anywhere for an idea alone> && python3 <skill>/build.py \
   --title "Short feature name" --sections <scratchpad>/sections.html --sources <scratchpad>/sources.txt \
   [--fidelity sketch] [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "Geist"] [--preset admin] [--job <slug>] \
-  [--prototype [--start-device phone] [--changes "One line."] [--pack] [--pack-url <url>]]
+  [--prototype [--start-device phone] [--changes "One line."] [--pack] [--pack-url <url>] [--requirements <spec.md>] [--site-origin <origin>]]
 ```
 
 It checks the sections and writes, under `~/.claude/wireframes/<repo>/`: `<slug>.html` (a complete document, to open from disk), `<slug>.artifact.html` (the same page body-only, for publishing), `<slug>.brief.md` and `<slug>.json` (the revision counter); it updates the gallery, and with `--job` writes the job files. Fix any error and build again; read each warning and either fix it or know why it's fine. The same title on every build keeps the same slug, revision counter and notes; a new title is a new page.

@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Style mockup: tidier</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: oklch(0.968 0.007 249); --surface: oklch(1 0 0); --fg: oklch(0.290 0.008 250); --muted: oklch(0.47 0.030 249);
+  --line: oklch(0.929 0.013 249); --primary: oklch(0.565 0.195 249); --on-primary: oklch(0.985 0 0);
+  --blue: #0c77d8; --blue-soft: #edf6fc; --navy: #123250; --soft: #f5f9fc;
+  --good: #008d1a; --good-soft: #e6f4e8; --warn: #ffbd59; --warn-fg: #9a6207; --warn-soft: #fff2de; --bad: #d32f2f; --bad-soft: #fdeaea;
+  --pin-change: #0c77d8; --pin-change-fg: #fff; --pin-question: #ffbd59; --pin-question-fg: #123250; --pin-idea: #008d1a; --pin-idea-fg: #fff;
+  --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.160 0.020 249); --surface: oklch(0.210 0.025 249); --fg: oklch(0.984 0.003 249); --muted: oklch(0.704 0.030 249);
+  --line: oklch(1 0 0 / 12%); --primary: oklch(0.650 0.200 249); --on-primary: #08131f;
+  --blue: #3d94e6; --blue-soft: #16283c; --navy: #c9d6e4; --soft: #182433;
+  --good: #3fbf5a; --good-soft: #14301b; --warn: #ffbd59; --warn-fg: #ffbd59; --warn-soft: #3a2c12; --bad: #ef6b6b; --bad-soft: #3d1c1c;
+  --pin-change: #3d94e6; --pin-change-fg: #08131f; --pin-question: #ffbd59; --pin-question-fg: #08131f; --pin-idea: #3fbf5a; --pin-idea-fg: #08131f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.ic { flex: none; }
+.mock { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 6px 16px; font-size: 12.5px; background: var(--navy); color: var(--surface); }
+.mock b { font-weight: 600; }
+.mock a { color: inherit; margin-left: auto; font-weight: 600; }
+.stage { flex: 1; min-width: 0; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
+.device { flex: none; padding: 10px; border-radius: 46px; background: #0e141b; box-shadow: 0 10px 34px rgb(10 20 35 / .28); }
+:root[data-theme="dark"] .device { box-shadow: 0 0 0 1px rgb(255 255 255 / .16), 0 10px 34px rgb(0 0 0 / .5); }
+.canvas { position: relative; width: 390px; height: 844px; border-radius: 36px; overflow: hidden; background: var(--bg); color: var(--fg); font-size: 14px; display: flex; flex-direction: column; }
+.ph-head { display: flex; align-items: center; gap: 10px; padding: 44px 16px 12px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.ph-head b { font-size: 17px; font-weight: 600; flex: 1; min-width: 0; }
+.ph-head span { font-size: 13px; color: var(--muted); }
+.ph-icon { all: unset; cursor: pointer; width: 32px; height: 32px; display: grid; place-items: center; font-size: 20px; line-height: 1; }
+.ph-body { position: relative; flex: 1; min-height: 0; overflow-y: auto; padding: 16px; }
+.ph-lead { margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; }
+.ph-sub { margin: 2px 0 16px; color: var(--muted); }
+.ph-sec { margin: 16px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.ph-list { border-radius: 10px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+.ph-row { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.ph-row:first-child { border-top: 0; }
+.ph-row span { flex: 1; min-width: 0; }
+.ph-row b { display: block; font-weight: 600; }
+.ph-row small { display: block; font-size: 12.5px; color: var(--muted); }
+.ph-row i { font-style: normal; font-weight: 600; color: var(--muted); }
+.ph-nav { display: flex; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px 22px; }
+.ph-nav span { flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; color: var(--muted); }
+.ph-nav span.on { color: var(--blue); font-weight: 600; }
+.ph-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); font-size: 12.5px; font-weight: 500; }
+.ph-cta { all: unset; cursor: pointer; display: block; box-sizing: border-box; width: 100%; margin-top: 16px; padding: 11px 0; border-radius: 8px; text-align: center; background: var(--primary); color: var(--on-primary); font-weight: 600; }
+.ph-why { margin: 0; padding-left: 18px; } .ph-why li { padding: 4px 0; }
+.toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 90; max-width: 86%; padding: 9px 14px; border-radius: 10px; background: #17202c; color: #fff; font-size: 13.5px; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.toast.on { opacity: 1; }
+@media (max-width: 1000px) {
+  .side { position: fixed; inset: auto 0 0 0; width: auto !important; height: 72vh; z-index: 25; border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
+}
+
+.btn:focus-visible, .seg button:focus-visible, .kind:focus-visible, .act:focus-visible, .pinbtn:focus-visible, .add:focus-visible, .open:focus-visible, .x:focus-visible, .pin:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+[data-kind="change"] { --k: var(--pin-change); --ks: var(--blue-soft); --kt: var(--blue); }
+[data-kind="question"] { --k: var(--pin-question); --ks: var(--warn-soft); --kt: var(--warn-fg); }
+[data-kind="idea"] { --k: var(--pin-idea); --ks: var(--good-soft); --kt: var(--good); }
+.view { flex: 1; min-height: 0; display: flex; }
+.view[hidden] { display: none; }
+#view-info { display: block; overflow-y: auto; }
+#view-info[hidden] { display: none; }
+.side { flex: none; display: flex; flex-direction: column; min-height: 0; }
+.side[hidden] { display: none; }
+.side-head { display: flex; align-items: center; gap: 8px; }
+.side-head b { flex: 1; font-size: 16px; font-weight: 600; }
+.x { all: unset; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; color: var(--muted); }
+.x:hover { background: var(--bg); }
+.side .seg button { font-size: 13px; }
+.where { font-size: 13px; color: var(--muted); margin-bottom: 8px; } .where b { color: var(--fg); font-weight: 600; font-size: 14px; }
+.kinds { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.kind { all: unset; cursor: pointer; box-sizing: border-box; font-size: 13px; font-weight: 500; color: var(--muted); }
+.kind[aria-pressed="true"] { color: var(--kt); font-weight: 600; }
+textarea { display: block; width: 100%; min-height: 72px; padding: 10px 12px; font-size: 14.5px; resize: vertical; }
+textarea:focus { outline: 2px solid var(--blue); outline-offset: -1px; }
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.pinbtn { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; gap: 6px; align-items: center; padding: 6px 12px; font-size: 13px; font-weight: 500; }
+.add { all: unset; cursor: pointer; padding: 8px 16px; background: var(--primary); color: var(--on-primary); font-size: 14px; font-weight: 600; }
+.hint { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+.list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.note { font-size: 14.5px; }
+.note.hot { outline: 2px solid var(--k); outline-offset: 2px; border-radius: 8px; }
+.note-top { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+.num { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; background: var(--k); color: var(--kf); }
+[data-kind="change"] .num, .pin[data-kind="change"] { --kf: var(--pin-change-fg); }
+[data-kind="question"] .num, .pin[data-kind="question"] { --kf: var(--pin-question-fg); }
+[data-kind="idea"] .num, .pin[data-kind="idea"] { --kf: var(--pin-idea-fg); }
+.who { color: var(--fg); font-weight: 600; font-size: 13.5px; }
+.tag { margin-left: auto; font-size: 12px; white-space: nowrap; }
+.on { font-size: 12.5px; color: var(--muted); margin-bottom: 2px; }
+.note p { margin: 0; overflow-wrap: anywhere; }
+.acts { display: flex; gap: 12px; margin-top: 6px; font-size: 12.5px; color: var(--muted); align-items: center; }
+.act { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; font-weight: 500; }
+.act:hover { color: var(--fg); }
+.acts .sp { margin-right: auto; }
+.group { font-size: 13px; font-weight: 600; color: var(--fg); display: flex; gap: 6px; align-items: center; }
+.group + .hint { margin: -2px 2px 0; }
+.pin { all: unset; position: absolute; z-index: 35; width: 26px; height: 26px; margin: -26px 0 0 -2px; display: grid; place-items: center; box-sizing: border-box; border-radius: 50% 50% 50% 2px; background: var(--k); color: var(--kf); font-size: 12.5px; font-weight: 700; box-shadow: 0 2px 6px rgb(0 0 0 / .35); cursor: grab; }
+.pin .tip { position: absolute; left: 30px; top: 1px; padding: 2px 8px; border-radius: 6px; background: #17202c; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; }
+.pin:hover .tip, .pin:focus-visible .tip, .pin.hot .tip { opacity: 1; }
+.pin.hot { outline: 3px solid var(--k); outline-offset: 2px; }
+.info h2 { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
+.info .status { color: var(--muted); }
+.open { all: unset; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; padding: 10px 16px; background: var(--primary); color: var(--on-primary); font-weight: 600; font-size: 14px; }
+.tile b { font-weight: 600; } .tile span { font-size: 13.5px; color: var(--muted); }
+
+.top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-height: 56px; padding: 8px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.id { flex: 1 1 200px; min-width: 0; font-weight: 600; line-height: 20px; } .id small { display: block; font-size: 12px; font-weight: 400; line-height: 16px; color: var(--muted); }
+.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 16px; }
+.seg button { all: unset; cursor: pointer; padding: 6px 0; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 500; color: var(--muted); }
+.seg button[aria-pressed="true"] { color: var(--fg); border-bottom-color: var(--blue); }
+.btn { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; gap: 8px; align-items: center; height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.btn:hover { background: var(--bg); }
+.btn[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); }
+.top .ic:not(.x .ic), .bar .ic, .kind .ic, .pinbtn .ic, .open .ic, .act .ic, .tag .ic { display: none; }
+.bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-height: 48px; padding: 8px 24px; background: var(--surface); border-bottom: 1px solid var(--line); }
+#route { flex: 1 1 120px; min-width: 0; font: 12.5px var(--mono); color: var(--muted); }
+.stage { padding: 24px 16px; background: var(--bg); }
+.side { width: 400px; background: var(--surface); border-left: 1px solid var(--line); }
+.side-head { padding: 16px 24px 8px; }
+.compose { padding: 8px 24px 16px; border-bottom: 1px solid var(--line); }
+textarea { border: 1px solid var(--line); border-radius: 6px; background: transparent; }
+.kind { padding: 4px 12px; border: 1px solid var(--line); border-radius: 6px; }
+.kind[aria-pressed="true"] { border-color: currentColor; background: transparent; }
+.pinbtn { border: 1px dashed var(--line); border-radius: 6px; }
+.add { border-radius: 6px; }
+.list { padding: 0 24px 24px; }
+.note { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.note:last-child { border-bottom: 0; }
+.tag { padding: 0; color: var(--fg); font-weight: 500; }
+.tag::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 2px; background: var(--k); }
+.group { margin: 16px 0 0; }
+.group + .hint + .note { padding-top: 8px; }
+.info { max-width: 720px; padding: 48px 24px 72px; }
+.info h1 { font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -.015em; margin: 0 0 8px; }
+.info .lede { font-size: 18px; line-height: 28px; margin: 0 0 8px; }
+.info .status { margin: 0 0 24px; }
+.open { border-radius: 6px; }
+.hero { margin-bottom: 40px; }
+.tools .seg { gap: 0; height: 32px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.tools .seg button { padding: 0 12px; border: 0; font-size: 13px; line-height: 30px; }
+.tools .seg button[aria-pressed="true"] { background: var(--bg); color: var(--fg); font-weight: 600; }
+.tiles { border-top: 1px solid var(--line); }
+.tile { border-bottom: 1px solid var(--line); padding: 12px 0; display: flex; gap: 16px; justify-content: space-between; align-items: baseline; }
+</style>
+</head>
+<body>
+<div class="mock"><span><b>Mockup, not the real page.</b> Style: Orbit, tidier. Flat, more air, 8 px grid, one accent, words only. Try Light and Dark, Info and Prototype. Point at a pin to see its kind.</span><a href="style-warmer.html">See Orbit, warmer ›</a></div>
+<header class="top">
+  <div class="id">Field team on a phone<small>Draft · revision 4</small></div>
+  <div class="seg" role="group" aria-label="Page"><button type="button" data-page="info"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Info</button><button type="button" data-page="proto"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg>Prototype</button><button type="button" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></svg>Requirements</button></div>
+  <div class="tools"><button type="button" class="btn" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>What's new</button>
+    <div class="seg" role="group" aria-label="Theme"><button type="button" data-set-theme="light"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>Light</button><button type="button" data-set-theme="dark"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>Dark</button></div>
+    <button type="button" class="btn" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Download PDF</button><button type="button" class="btn" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy feedback</button></div>
+</header>
+<div class="bar" id="bar">
+  <div class="seg" role="group" aria-label="Device"><button type="button" aria-pressed="true"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>Phone</button><button type="button" data-soon="Only the phone is in this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z"/><path d="M20.054 15.987H3.946"/></svg>Laptop</button></div>
+  <span id="route">/field-ops</span>
+  <button type="button" class="btn" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 14a8 8 0 0 1-8 8"/><path d="M18 11v-1a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1"/><path d="M10 9.5V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v10"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>Show clickable</button>
+  <button type="button" class="btn" data-soon="Not part of this mockup"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Start over</button>
+  <button type="button" class="btn" data-soon="The Decisions mockups show this panel"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></svg>Decisions: 2 of 3 left</button>
+  <button type="button" class="btn" id="note-btn" aria-pressed="true"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg>Notes (4)</button>
+</div>
+<div class="view" id="view-proto">
+  <div class="stage" id="stage"><div class="device" id="device"><div class="canvas" id="canvas">
+    <div class="ph-head"><b>Team</b><span>This month</span></div>
+    <div class="ph-body"><p class="ph-lead">7 people need a look</p><p class="ph-sub">of 41 field experts</p><p class="ph-sec">Needs a look</p><div class="ph-list">
+  <button type="button" class="ph-row" data-person><span><b>Theo Brandt</b><small>Grade C · Failed VSI · No observation yet · 2 damage</small></span><i>C</i></button>
+  <button type="button" class="ph-row" data-person><span><b>Caleb Nguyen</b><small>1 feedback error · 1 damage</small></span><i>B</i></button>
+  <button type="button" class="ph-row" data-person><span><b>Imani Foster</b><small>Failed VSI · 1 feedback error</small></span><i>B</i></button>
+</div></div>
+    <div class="ph-nav"><span class="on">Team</span><span>Records</span><span>Calendar</span><span>More</span></div><button type="button" class="pin" data-kind="change" data-n="1" style="left:118px;top:216px" aria-label="Note 1, Change">1<span class="tip">Change</span></button><button type="button" class="pin" data-kind="question" data-n="2" style="left:132px;top:276px" aria-label="Note 2, Question">2<span class="tip">Question</span></button><button type="button" class="pin" data-kind="idea" data-n="3" style="left:124px;top:336px" aria-label="Note 3, Idea">3<span class="tip">Idea</span></button><div class="toast" id="toast" role="status"></div>
+  </div></div></div>
+  <aside class="side" id="side" aria-label="Notes">
+    <div class="side-head"><b>Notes</b><div class="seg" role="group" aria-label="Which notes"><button type="button" aria-pressed="true">This screen (3)</button><button type="button" data-soon="Not part of this mockup">All (4)</button></div><button type="button" class="x" id="side-x" aria-label="Close notes"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+    <div class="compose">
+      <div class="where"><b>Team</b> · Phone</div>
+      <div class="kinds" role="group" aria-label="Kind of note">
+        <button type="button" class="kind" data-kind="change" aria-pressed="true"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Change</button><button type="button" class="kind" data-kind="question" aria-pressed="false"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Question</button><button type="button" class="kind" data-kind="idea" aria-pressed="false"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>Idea</button>
+      </div>
+      <textarea aria-label="Your note" placeholder="What would you change here?"></textarea>
+      <div class="foot"><button type="button" class="pinbtn" data-soon="Pick a spot on the screen"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Pin to a spot</button><button type="button" class="add" data-soon="Adds the note">Add note</button></div>
+      <p class="hint">Or right-click the screen. On a phone, press and hold.</p>
+    </div>
+    <div class="list">
+      <article class="note" data-kind="change" data-n="1">
+  <div class="note-top"><span class="num">1</span><span class="who">You</span><span>Nov 5, 9:12 AM</span><span class="tag"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Change</span></div>
+  <div class="on">On: Theo Brandt</div><p>Put the reason first, then the grade.</p>
+  <div class="acts"><span class="sp">Phone · Team lead</span><button type="button" class="act" data-soon="Edit opens the note in place"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit</button><button type="button" class="act" data-soon="Delete asks once, then removes it"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button></div>
+</article>
+      <article class="note" data-kind="question" data-n="2">
+  <div class="note-top"><span class="num">2</span><span class="who">Sam Ortiz</span><span>Nov 5, 9:40 AM</span><span class="tag"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Question</span></div>
+  <div class="on">On: Caleb Nguyen</div><p>Does a feedback error clear when the lead signs it?</p>
+  <div class="acts"><span class="sp">Phone · Team lead</span></div>
+</article>
+      <article class="note" data-kind="idea" data-n="3">
+  <div class="note-top"><span class="num">3</span><span class="who">Kim Reyes</span><span>Nov 5, 10:03 AM</span><span class="tag"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>Idea</span></div>
+  <div class="on">On: Imani Foster</div><p>A call button on this row would save a step.</p>
+  <div class="acts"><span class="sp">Phone · Team lead</span></div>
+</article>
+      <p class="group"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Screen changed (1)</p>
+      <p class="hint">This spot moved in revision 4. Drag the pin back, or delete the note.</p>
+      <article class="note" data-kind="change" data-n="4">
+  <div class="note-top"><span class="num">4</span><span class="who">You</span><span>Nov 3, 4:20 PM</span><span class="tag"><svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Change</span></div>
+  <div class="on">On: Date filter</div><p>Keep this on one line.</p>
+  <div class="acts"><span class="sp">Phone · Team lead</span><button type="button" class="act" data-soon="Edit opens the note in place"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>Edit</button><button type="button" class="act" data-soon="Delete asks once, then removes it"><svg class="ic" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button></div>
+</article>
+    </div>
+  </aside>
+</div>
+<div class="view" id="view-info" hidden><div class="info" style="margin:0 auto">
+  <div class="hero">
+    <h1>Field team on a phone</h1>
+    <p class="lede">A field lead or manager can see who needs a look, find out why, and act, all from a phone.</p>
+    <p class="status">Draft for review. Every name and number is invented.</p>
+    <button type="button" class="open" data-open><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg>Open the prototype</button>
+  </div>
+  <h2>What's in it</h2>
+  <div class="tiles">
+    <div class="tile"><b>Team</b><span>Who needs a look</span></div>
+    <div class="tile"><b>Needs a look</b><span>Everyone flagged, and why</span></div>
+    <div class="tile"><b>Field Expert</b><span>Why they're flagged, and the next step</span></div>
+  </div>
+</div></div>
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const hash = location.hash.slice(1).split(",");
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $$("[data-set-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.setTheme === t)));
+}
+$$("[data-set-theme]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.setTheme)));
+setTheme(hash.includes("dark") ? "dark" : hash.includes("light") ? "light" : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+let tt; function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("on"), 2200); }
+function fit() {
+  const stage = $("#stage"), device = $("#device"); if (!stage || stage.offsetParent === null) return;
+  const small = innerWidth <= 520, w = small ? 390 : 410, h = small ? 844 : 864, room = stage.getBoundingClientRect();
+  const availW = Math.max(240, room.width - (small ? 0 : 24)), availH = Math.max(320, innerHeight - room.top - (small ? 0 : 30));
+  device.style.zoom = String(Math.min(1, availW / w, small ? 9 : availH / h));
+}
+addEventListener("resize", fit);
+$$("[data-soon]").forEach((b) => b.addEventListener("click", () => toast(b.dataset.soon)));
+
+function page(p) {
+  $("#view-info").hidden = p !== "info"; $("#view-proto").hidden = p !== "proto";
+  $("#bar").hidden = p !== "proto"; $("#bar").style.display = p === "proto" ? "" : "none";
+  $$("[data-page]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.page === p)));
+  fit();
+}
+$$("[data-page]").forEach((b) => b.addEventListener("click", () => page(b.dataset.page)));
+$("[data-open]").addEventListener("click", () => page("proto"));
+$$(".kind").forEach((b) => b.addEventListener("click", () => $$(".kind").forEach((x) => x.setAttribute("aria-pressed", String(x === b)))));
+$("#note-btn").addEventListener("click", () => { const s = $("#side"); s.hidden = !s.hidden; $("#note-btn").setAttribute("aria-pressed", String(!s.hidden)); fit(); });
+$("#side-x").addEventListener("click", () => $("#note-btn").click());
+const hot = (n, on) => { $$(`[data-n="${n}"]`).forEach((e) => e.classList.toggle("hot", on)); };
+$$("[data-n]").forEach((e) => { e.addEventListener("mouseenter", () => hot(e.dataset.n, true)); e.addEventListener("mouseleave", () => hot(e.dataset.n, false)); });
+$$(".pin").forEach((p) => p.addEventListener("click", () => { const c = $(`.note[data-n="${p.dataset.n}"]`); if (c) c.scrollIntoView({ block: "nearest" }); }));
+if (innerWidth <= 1000) { $("#side").hidden = true; $("#note-btn").setAttribute("aria-pressed", "false"); }
+page(hash.includes("info") ? "info" : "proto");
+if (window.ResizeObserver) new ResizeObserver(fit).observe($("#stage"));
+</script>
+</body>
+</html>
