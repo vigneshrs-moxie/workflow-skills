@@ -74,6 +74,8 @@ An id is a place. The same id on both devices is the same place, so the toggle k
 
 A decision with `data-variant` is a group named by its key, with A and B as values. Draw both versions, each in `data-panel="c-nav:A"` or `data-panel="c-nav:B"`, and the page adds **Try this in the prototype** and **Pick** on Info, and a card in the **Decisions** panel. `data-path` is where trying it opens, and `data-device` is the device it needs. A decision with no `data-variant` only gets Pick. Every option that changes a screen should be drawn, because trying it is the point.
 
+**Pick** shows that option in the prototype too, switching to the device in `data-device` if it needs to, but it stays on the screen you're on. Try also goes to where the option can be seen. Opening the page shows the saved picks; a reload keeps what was on screen, tried options included. Un-picking leaves the screens as they are.
+
 The **Decisions** button beside Notes says how many are left, in words (`Decisions: 2 of 3 left`, then `Decisions: all picked`), and opens the same right panel. Each card has the question, the options as big buttons with the pick marked by a check and the word Picked, **Show me** on each option (or Showing in the prototype on the one that is), and after a pick a folded, optional **Add a reason**. Picking and showing are separate: Show me never picks. If the role in View as can't see that option, Show me moves to the default role.
 
 `#roles` adds **View as** as the first card in that panel. Roles are the group `role`: `data-panel="role:lead|manager"` shows what those roles see, and `data-roles="lead|manager"` on a screen or overlay limits who can reach it. Changing role returns to that role's `data-start`.

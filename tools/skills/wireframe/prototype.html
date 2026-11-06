@@ -674,8 +674,21 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       } catch (e) { setSaved("Kept on this device only" + (e && e.code ? " (" + e.code + ")" : "")); }
     },
   };
-  function togglePick(key, choice) { picks[key] = { ...(picks[key] || {}), choice: picks[key]?.choice === choice ? "" : choice }; paintChoices(); store.pick(key); }
-  // Show one option in the prototype. Picking is separate.
+  // A pick shows in the prototype, without leaving the screen you're on. Un-picking leaves the screens as they are.
+  function togglePick(key, choice) {
+    const chosen = picks[key]?.choice === choice ? "" : choice;
+    picks[key] = { ...(picks[key] || {}), choice: chosen };
+    const d = VARIANTS.find((x) => x.dataset.key === key);
+    if (chosen && d) {
+      view.tabs[key] = chosen;
+      if (DEVICES.includes(d.dataset.device) && d.dataset.device !== view.dev) setDev(d.dataset.device); // it's only drawn there
+      applyTabs();
+    }
+    paintChoices(); store.pick(key);
+  }
+  // Opening the page shows the saved picks. A reload doesn't: it keeps what was on screen, tried options too.
+  function usePicks() { VARIANTS.forEach((d) => { const c = picks[d.dataset.key]?.choice; if (c) view.tabs[d.dataset.key] = c; }); }
+  // Show one option in the prototype and go to where it can be seen. It stays only a try until it's picked.
   function showOption(d, choice) {
     view.tabs[d.dataset.key] = choice;
     const path = (d.dataset.path || roleStart()).split(/\s+/).filter(Boolean);
@@ -1158,6 +1171,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       if (v.page && PAGES[v.page]) setPage(v.page);
       if (typeof v.side === "boolean") setSide(v.side, v.panel);
       if (v.place && !hist.kept) { enter(v.place); rebuild(); render(null); }
+      if (!hist.kept) { usePicks(); applyTabs(); }
     }
     paintChoices(); merge(); paintPack();
   }
@@ -1249,6 +1263,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
   setTheme(lsGet("wf-theme", window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), true);
   const kept = window.history.state?.pt;
   if (kept && !PACKING) { hist.kept = true; hist.n = kept.n || 0; hist.e = kept.e || 0; enter(kept); }
+  else usePicks();
   setDev(view.dev);
   if (!kept) hist.ids = stackIds(); // the page's first entry is the one it opened on
   hist.live = !PACKING; mark();
@@ -1263,6 +1278,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       try {
         const snap = await d.collection("notes").get();
         snap.docs.forEach((x) => { picks[x.id] = { ...(picks[x.id] || {}), ...x.data() }; });
+        if (!hist.kept) { usePicks(); applyTabs(); }
         paintChoices();
       } catch {}
       try { userApi = await window.claude.use("user"); if (userApi) me = await userApi.id(); } catch {}
