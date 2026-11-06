@@ -115,7 +115,7 @@ A pin stores where it is and what it was on, so it can be found on the next revi
 | From disk, with `--pack-url` | Opens the published PDF |
 | From disk, no link | The print window |
 
-**Styles.** Screens get their styles from Tailwind, compiled in the browser from a CDN script. The page checks that a Tailwind class and the theme really apply, and sets `data-styled` on `<html>` to `yes` or `no`. If they don't apply after 4 seconds it builds again, after 8 it loads the script again, and after 14 it tells the viewer to reload. Any failure logs to the console and, on an artifact, adds a row to the `health` collection: what failed (`no build`, `no theme`, `no classes`), what was tried, whether it worked, the size of the compiled CSS, and how the script loaded. `stress.py` won't start on a page until `data-styled` is `yes`.
+**Styles.** Screens get their styles from Tailwind, compiled in the browser from a CDN script. The page checks that a Tailwind class and the theme really apply, and sets `data-styled` on `<html>` to `yes` or `no`. If they don't apply after 4 seconds it loads the script again, and after 10 it tells the viewer to reload. Any failure logs to the console and, on an artifact, adds a row to the `health` collection: what failed (`no build`, `no theme`, `no classes`), what was tried, whether it worked, the size of the compiled CSS, and how the script loaded. `stress.py` won't start on a page until `data-styled` is `yes`.
 
 ## Make it feel real
 
