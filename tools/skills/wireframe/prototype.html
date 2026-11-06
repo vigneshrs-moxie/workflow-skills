@@ -1208,14 +1208,27 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     document.body.classList.add("pt-packing");
   }
   // Download PDF, four ways. A sandboxed frame can't download, print or open a window, so in a frame the page asks
-  // the parent, which can. Hosted or opened from disk: the published PDF if there is one, else the print window.
+  // the parent, which can. An artifact offers the published PDF. Opened from disk: the published PDF if there is one, else the print window.
   let pdfWait;
   function paintPack() {
-    const b = $("#pt-pack-btn"), site = store.kind === "site", none = site && !bridge.pdf;
-    b.title = none ? "No PDF was published with this revision" : site ? "Downloads the PDF for this revision" : FRAMED ? "Asks Starbase for the PDF" : PACK_URL ? "Opens the published PDF" : "Opens the print window: choose Save as PDF";
+    const b = $("#pt-pack-btn"), site = store.kind === "site", none = (site && !bridge.pdf) || (HOSTED && !PACK_URL);
+    b.title = none ? "No PDF was published with this revision" : site || HOSTED ? "Downloads the PDF for this revision" : FRAMED ? "Asks Starbase for the PDF" : PACK_URL ? "Opens the published PDF" : "Opens the print window: choose Save as PDF";
     if (none) b.setAttribute("aria-disabled", "true"); else b.removeAttribute("aria-disabled");
   }
+  // An artifact's frame ignores print(), and its /_blob/ link only resolves inside the frame, so a new tab says "not found".
+  // Fetch the PDF here and offer it through the downloads capability, which also asks the viewer.
+  async function savePack() {
+    try {
+      const d = await window.claude.use("downloads");
+      if (!d) return setSaved("This page can't save the PDF here");
+      const r = await fetch(PACK_URL);
+      if (!r.ok) throw new Error(String(r.status));
+      setSaved("");
+      await d.save({ filename: "{{TITLE}}.pdf", data: await r.blob() });
+    } catch (e) { if (e?.code !== "declined") setSaved("Couldn't get the PDF"); }
+  }
   $("#pt-pack-btn").addEventListener("click", () => {
+    if (HOSTED) { if (PACK_URL) savePack(); else setSaved("There's no PDF for this revision"); return; }
     if (store.kind === "site") { if (bridge.pdf) toParent({ type: "wireframes-pdf", url: bridge.pdf }); else setSaved("There's no PDF for this revision"); return; }
     if (FRAMED) { toParent({ type: "wireframes-pdf" }); clearTimeout(pdfWait); pdfWait = setTimeout(() => setSaved("Starbase didn't send the PDF"), 2000); return; }
     if (PACK_URL) { const a = document.createElement("a"); a.href = PACK_URL; a.target = "_blank"; a.rel = "noopener"; document.body.append(a); a.click(); a.remove(); return; }

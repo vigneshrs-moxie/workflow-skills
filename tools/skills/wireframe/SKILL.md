@@ -223,8 +223,8 @@ python3 <skill>/publish.py --page ~/.claude/wireframes/<repo>/<slug>.html --titl
 It sends the page, its PDF if built, and any `--requirements` or `--decisions` as the next revision, prints the link, and remembers the feature's key in `<slug>.prototype.json`. `--dry-run` shows what it would send. Use the artifact route below only when the user asks for it, or when the script exits 3 (publishing isn't set up on this laptop) or 4 (the site can't be reached); say which happened. `reference/publish.md` has every flag.
 
 **Publish as an artifact** (every review page, and a prototype as above): the `publish:` file (`<slug>.artifact.html`), never the `.html` one:
-- **Existing URL, published earlier in this conversation:** publish the same file path again. **From an earlier conversation:** read it (`action: "read"`) first, then publish with that `url`. Either way leave out `icon` and `capabilities`.
-- **New:** load the `artifact-capabilities` skill. Publish it with `icon: "wireframe"`, a one-sentence `description` and `capabilities: {"db": {}, "user": {}}`. Then record the link:
+- **Existing URL, published earlier in this conversation:** publish the same file path again. **From an earlier conversation:** read it (`action: "read"`) first, then publish with that `url`. Either way leave out `icon` and `capabilities`, unless a prototype published before `downloads` needs it for its PDF: then restate every capability it has, plus `"downloads": true`.
+- **New:** load the `artifact-capabilities` skill. Publish it with `icon: "wireframe"`, a one-sentence `description` and `capabilities: {"db": {}, "user": {}}`, plus `"assets": {}, "downloads": true` for a prototype with a PDF. Then record the link:
   `python3 <skill>/build.py --record-url <url> --title "Short feature name" [--job <slug>]` (from the same directory, with Python 3 (`python3`, or `py -3` on Windows)).
 
 Reply (standalone) or report to the Foreman (in a job) with:

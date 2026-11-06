@@ -108,8 +108,10 @@ A pin stores where it is and what it was on, so it can be found on the next revi
 |---|---|
 | On the site | Sends `wireframes-pdf` with the link; the wrapper downloads it. With no PDF the button says so |
 | In Starbase | Sends `wireframes-pdf`; says so in words if nothing answers in 2 seconds |
-| Artifact, with `--pack-url` | Opens the published PDF |
-| Artifact or from disk, no link | The print window |
+| Artifact, with `--pack-url` | Fetches the PDF inside the frame and offers it through `downloads`. The viewer confirms the save |
+| Artifact, no link | Says there's no PDF. An artifact's frame ignores `print()` |
+| From disk, with `--pack-url` | Opens the published PDF |
+| From disk, no link | The print window |
 
 ## Make it feel real
 
@@ -136,7 +138,7 @@ Don't shrink the laptop. Start again from what someone needs on a phone.
 
 The build keeps each revision's screens in `<slug>.revisions/` and compares them, so What's new, the Updated chip and Before/Now need no extra work. Say what changed with `--changes "One line."`. A rebuild with the same screens keeps the same revision.
 
-`--pack` prints the stakeholder PDF to `<slug>.pack.pdf` with headless Chrome: decisions, requirements, then every `data-pack` screen. To publish it as an artifact, declare `assets`, upload the PDF to the artifact, and rebuild with `--pack-url <url>`. Without a URL the button prints from the browser.
+`--pack` prints the stakeholder PDF to `<slug>.pack.pdf` with headless Chrome: decisions, requirements, then every `data-pack` screen. To publish it as an artifact, declare `assets` and `downloads`, upload the PDF to the artifact, and rebuild with `--pack-url <url>`. A `/_blob/` link only works inside the artifact's frame: opened in a new tab it says "not found", so the button never opens it. Without a URL the artifact says there's no PDF, and a page opened from disk prints from the browser.
 
 ## Inside Starbase
 
@@ -186,7 +188,7 @@ The page only listens to its own parent: the stamped origin, or, for anything el
 
 ## Reading feedback
 
-Publish a new page with `capabilities: {"db": {}, "user": {"scopes": ["profile"]}}`, plus `"assets": {}` for the PDF, so notes carry the writer's name. Load `ArtifactData` and read two collections:
+Publish a new page with `capabilities: {"db": {}, "user": {"scopes": ["profile"]}}`, plus `"assets": {}, "downloads": true` for the PDF, so notes carry the writer's name. Load `ArtifactData` and read two collections:
 
 - `notes`: one `c-<decision>` document each (`choice`, and `why` when someone gave a reason).
 - `feedback`: one document per note: `screen`, `name`, `kind` (`change`, `question` or `idea`), `text`, `device`, `path`, `role`, `options`, `rev`, `pin` (the shape under Pins), `author` and `at`. `action: "profiles"` turns `author` ids into names.
