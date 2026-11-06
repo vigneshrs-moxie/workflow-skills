@@ -96,6 +96,8 @@ Dead clicks are fine for controls outside the test, but prefer `data-toast`. A c
 
 **Pins.** Right-click (laptop) or press and hold for 600 ms (phone) anywhere on a screen opens the note box with a pin placed; **Pin to a spot** still works. Moving a finger cancels the hold, so scrolling never pins. You can drag your own pins, and edit or delete your own notes; an admin on the site can delete anyone's. A pin is coloured by kind, shows the kind in words on hover and in the panel, and keeps its number as its text.
 
+**Clicking a note** makes its marker pop for about two seconds: it grows, pulses a ring and shows its kind. A note on another screen or device goes there first. On a phone the panel drops down for that moment, so the marker can be seen. A note with no marker says so.
+
 A pin stores where it is and what it was on, so it can be found on the next revision:
 
 ```json
