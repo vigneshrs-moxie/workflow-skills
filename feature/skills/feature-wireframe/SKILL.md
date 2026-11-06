@@ -23,7 +23,7 @@ Input: $ARGUMENTS
   cd <checkout> && python3 ~/.claude/skills/wireframe/build.py --title "<job title>" --sections <scratchpad>/sections.html \
     --sources <scratchpad>/sources.txt [--theme ~/.claude/wireframes/<repo>/theme.css --fonts "…" | --preset …] --job <slug>
   ```
-  A hi-fi job adds `--prototype`, and the `wireframe` skill's `reference/prototype.md` sets the page's shape: a short Info, the prototype, and Requirements taken from the spec's acceptance lines. Screens are laptop only unless the spec is about phones. Add `--pack` when the Foreman asks for the stakeholder PDF (`wireframes.pack.pdf`).
+  A hi-fi job adds `--prototype`, and the `wireframe` skill's `reference/prototype.md` sets the page's shape: a short Info, the prototype, and Requirements. When the spec has FR ids, write its rows to `<job folder>/fr-table.md`, one `| FR-001 | <requirement> |` line each, leaving out removed rows, and add `--requirements <job folder>/fr-table.md`: the page then shows the same ids ops hear in the meeting. With no FR ids, take Requirements from the spec's acceptance lines. Screens are laptop only unless the spec is about phones. Add `--pack` when the Foreman asks for the stakeholder PDF (`wireframes.pack.pdf`).
   Use `--draft` while you check the page (nothing bumps); the build without it is the version. It writes to the job folder:
   - `wireframes.html`: the page as a complete document, viewable from disk;
   - `wireframes.json`: screens (with states and exits), choices, questions, tier, `version` and the artifact URL if one was ever published;

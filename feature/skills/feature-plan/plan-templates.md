@@ -98,7 +98,7 @@ Private engineering artifacts. Size each section to the change; a small enhancem
 
 What we accept as OK to push to staging and show stakeholders. A fellow developer reads it in a minute and checks each line before approving the PR. Approved by version with the plan; it goes in the PR #2 body.
 
-**Keep every line short:** one plain sentence, about 12 words at most, something you can see in the app. No IDs, no tables, no "the system shall". Numbers only.
+**Keep every line short:** one plain sentence, about 12 words at most, something you can see in the app. Then, in brackets at the end, the spec's FR ids the line covers: `(FR-003, FR-007)`. The brackets don't count toward the 12 words. Every V1 FR appears on at least one line, under "It works when" or "It must not". A line that covers no FR has no brackets, and neither does any line of a job with no FR ids (a quick plan). No other IDs, no tables, no "the system shall". Numbers only.
 
 ```markdown
 # <Feature name>: ready for staging
@@ -106,12 +106,12 @@ What we accept as OK to push to staging and show stakeholders. A fellow develope
 Version 1 · from spec v<x.y> and plan v<n> · Not approved
 
 ## It works when
-1. A manager can add a note on any customer.
-2. The newest note shows first, with name and date.
+1. A manager can add a note on any customer. (FR-001)
+2. The newest note shows first, with name and date. (FR-002, FR-003)
 3. <…>  (3–7 lines)
 
 ## It must not
-1. Show notes to techs.
+1. Show notes to techs. (FR-004)
 2. Slow down the customer list.
 
 ## Before staging

@@ -11,6 +11,7 @@ Follow the review lens rules in `~/.claude/skills/workflow-common/review-lens-ru
 
 **Your axis: do the tests prove the spec?**
 - Map each AC in the spec to the tests that cover it; list ACs with no real coverage.
+- Every V1 FR in the spec appears in brackets on at least one `acceptance.md` line, under "It works when" or "It must not"; list any that don't. Skip this for a job with no FR ids.
 - Tests that would pass even if the feature were broken: asserting on mocks, missing negative cases, testing implementation details.
 - Permission and leakage cases from the test plan are actually present (non-authorized roles, direct requests).
 - Tests that could write data, hit the network or send email outside the approved checks.
