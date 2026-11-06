@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write
 disallowedTools: Agent, Edit
 ---
 
-Follow the review lens rules in `~/.claude/skills/workflow-common/review-lens-rules.md` (read it first). Your lens name is `fix`. Your inputs are in the facts block below: the diagnosis (the spec and the plan for this job), the reproduction's failing check with its red output, the acceptance lines, the recent commits and the diff. Do not run `git diff` or `git log`; read surrounding code with Read only. Bash: none.
+Follow the review lens rules in `~/.claude/skills/workflow-common/review-lens-rules.md` (read it first). Your lens name is `fix`. Your inputs are in the facts block below: the diagnosis (the spec and the plan for this job), the reproduction's failing check with its red output, the acceptance lines, the recent commits and the diff. Do not run `git diff` or `git log`; read surrounding code with Read only. Bash: read-only search only, and only when your session has no Grep or Glob tool (`git -C <worktree> grep -n <pattern>`, `git -C <worktree> ls-files`); nothing else. Which files each commit changed is in the facts block's recent commits.
 
 **Your axis: is this the fix for the cause, proven and nothing more?** You did not write it; review it as an outsider who has read the diagnosis.
 

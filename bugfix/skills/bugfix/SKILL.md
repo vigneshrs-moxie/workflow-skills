@@ -71,7 +71,7 @@ Every dispatch prompt contains: the stage; "this is a bug job: the gates file is
 
 **Verify.** At L0, you run `npm run check` and `npm run build` in the worktree (output to a file; read its tail). At L1, you run those plus the regression test; dispatch `feature-tester` only when `evidence` is `"always"` or the diagnosis names checks beyond those. At L2 and L3, dispatch `feature-tester` (`model:` from `models.checks`) with exactly: the regression test, the suites of the changed area, `npm run check`, `npm run build`, and evidence on or off (`evidence.md`; on at L2 and L3 by default). Checks that write data, migrate, start servers or could send email need the human's yes first, each time. Then the manual test when `manual_test` is on (job-options.md, "Manual test"): brief the dev tests and wait for the result.
 
-**Review.** Build the facts block once as `review-facts.md` says (the bug sections: the diagnosis in full, the repro's failing check, the Fix section as the plan steps), save it as `review/facts.md`, and run the lenses **in parallel** on the same range. None of them is the implementer.
+**Review.** Build the facts block once as `review-facts.md` says (the bug sections: the diagnosis in full, the repro's failing check, the Fix section as the plan steps, and under the recent commits the files each commit after the base changed, `git -C <worktree> show --stat --format='%h %s' <commit>` for each, so `bug-review-fix` can see whether the fix commit edited the test without running git), save it as `review/facts.md`, and run the lenses **in parallel** on the same range. None of them is the implementer.
 
 | Lens agent | Axis | Model · effort | When (reviewers `"auto"`) |
 |---|---|---|---|
