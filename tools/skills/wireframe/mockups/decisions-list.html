@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions mockup: list</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: oklch(0.968 0.007 249); --surface: oklch(1 0 0); --fg: oklch(0.290 0.008 250); --muted: oklch(0.47 0.030 249);
+  --line: oklch(0.929 0.013 249); --primary: oklch(0.565 0.195 249); --on-primary: oklch(0.985 0 0);
+  --blue: #0c77d8; --blue-soft: #edf6fc; --navy: #123250; --soft: #f5f9fc;
+  --good: #008d1a; --good-soft: #e6f4e8; --warn: #ffbd59; --warn-fg: #9a6207; --warn-soft: #fff2de; --bad: #d32f2f; --bad-soft: #fdeaea;
+  --pin-change: #0c77d8; --pin-change-fg: #fff; --pin-question: #ffbd59; --pin-question-fg: #123250; --pin-idea: #008d1a; --pin-idea-fg: #fff;
+  --font: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: oklch(0.160 0.020 249); --surface: oklch(0.210 0.025 249); --fg: oklch(0.984 0.003 249); --muted: oklch(0.704 0.030 249);
+  --line: oklch(1 0 0 / 12%); --primary: oklch(0.650 0.200 249); --on-primary: #08131f;
+  --blue: #3d94e6; --blue-soft: #16283c; --navy: #c9d6e4; --soft: #182433;
+  --good: #3fbf5a; --good-soft: #14301b; --warn: #ffbd59; --warn-fg: #ffbd59; --warn-soft: #3a2c12; --bad: #ef6b6b; --bad-soft: #3d1c1c;
+  --pin-change: #3d94e6; --pin-change-fg: #08131f; --pin-question: #ffbd59; --pin-question-fg: #08131f; --pin-idea: #3fbf5a; --pin-idea-fg: #08131f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.ic { flex: none; }
+.mock { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 6px 16px; font-size: 12.5px; background: var(--navy); color: var(--surface); }
+.mock b { font-weight: 600; }
+.mock a { color: inherit; margin-left: auto; font-weight: 600; }
+.stage { flex: 1; min-width: 0; display: flex; justify-content: center; align-items: flex-start; overflow: hidden; }
+.device { flex: none; padding: 10px; border-radius: 46px; background: #0e141b; box-shadow: 0 10px 34px rgb(10 20 35 / .28); }
+:root[data-theme="dark"] .device { box-shadow: 0 0 0 1px rgb(255 255 255 / .16), 0 10px 34px rgb(0 0 0 / .5); }
+.canvas { position: relative; width: 390px; height: 844px; border-radius: 36px; overflow: hidden; background: var(--bg); color: var(--fg); font-size: 14px; display: flex; flex-direction: column; }
+.ph-head { display: flex; align-items: center; gap: 10px; padding: 44px 16px 12px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.ph-head b { font-size: 17px; font-weight: 600; flex: 1; min-width: 0; }
+.ph-head span { font-size: 13px; color: var(--muted); }
+.ph-icon { all: unset; cursor: pointer; width: 32px; height: 32px; display: grid; place-items: center; font-size: 20px; line-height: 1; }
+.ph-body { position: relative; flex: 1; min-height: 0; overflow-y: auto; padding: 16px; }
+.ph-lead { margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; }
+.ph-sub { margin: 2px 0 16px; color: var(--muted); }
+.ph-sec { margin: 16px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.ph-list { border-radius: 10px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+.ph-row { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 60px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.ph-row:first-child { border-top: 0; }
+.ph-row span { flex: 1; min-width: 0; }
+.ph-row b { display: block; font-weight: 600; }
+.ph-row small { display: block; font-size: 12.5px; color: var(--muted); }
+.ph-row i { font-style: normal; font-weight: 600; color: var(--muted); }
+.ph-nav { display: flex; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px 22px; }
+.ph-nav span { flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; color: var(--muted); }
+.ph-nav span.on { color: var(--blue); font-weight: 600; }
+.ph-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); font-size: 12.5px; font-weight: 500; }
+.ph-cta { all: unset; cursor: pointer; display: block; box-sizing: border-box; width: 100%; margin-top: 16px; padding: 11px 0; border-radius: 8px; text-align: center; background: var(--primary); color: var(--on-primary); font-weight: 600; }
+.ph-why { margin: 0; padding-left: 18px; } .ph-why li { padding: 4px 0; }
+.toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 90; max-width: 86%; padding: 9px 14px; border-radius: 10px; background: #17202c; color: #fff; font-size: 13.5px; line-height: 1.35; text-align: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.toast.on { opacity: 1; }
+@media (max-width: 1000px) {
+  .side { position: fixed; inset: auto 0 0 0; width: auto !important; height: 72vh; z-index: 25; border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgb(0 0 0 / .22); }
+}
+
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.id { flex: 1 1 200px; min-width: 0; font-weight: 600; } .id small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--bg); border: 1px solid var(--line); }
+.seg button { all: unset; cursor: pointer; padding: 4px 12px; border-radius: 7px; font-size: 13.5px; font-weight: 500; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.btn { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; gap: 6px; align-items: center; padding: 5px 11px; border: 1px solid var(--line); border-radius: 7px; font-size: 13px; font-weight: 500; white-space: nowrap; background: var(--surface); }
+.btn[aria-pressed="true"] { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
+.btn:focus-visible, .seg button:focus-visible, .link:focus-visible, .opt:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--line); font-size: 13px; }
+#route { flex: 1 1 120px; min-width: 0; font: 12.5px var(--mono); color: var(--muted); }
+.work { flex: 1; min-height: 0; display: flex; }
+.stage { padding: 14px 12px 18px; }
+.side { flex: none; width: 400px; display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-left: 1px solid var(--line); }
+.side[hidden] { display: none; }
+.side-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.side-head b { flex: 1; font-size: 16px; font-weight: 600; }
+.side-head span { font-size: 13px; color: var(--muted); }
+.x { all: unset; cursor: pointer; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 7px; color: var(--muted); }
+.x:hover { background: var(--bg); }
+.side-body { flex: 1; min-height: 0; overflow-y: auto; }
+.stub { margin: 24px 16px; color: var(--muted); text-align: center; }
+.link { all: unset; cursor: pointer; color: var(--blue); font-size: 13px; font-weight: 600; }
+.link:hover { text-decoration: underline; }
+.showing { font-size: 13px; font-weight: 600; color: var(--muted); display: inline-flex; gap: 4px; align-items: center; }
+.state { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.state.done { color: var(--good); display: inline-flex; gap: 4px; align-items: center; }
+.rec { font-size: 12px; font-weight: 600; color: var(--good); }
+.why { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.why input { flex: 1; min-width: 0; padding: 6px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); font-size: 13.5px; color: var(--fg); }
+.why input:focus { outline: 2px solid var(--blue); outline-offset: -1px; background: var(--surface); }
+select { font-size: 14px; font-weight: 500; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 5px 8px; }
+
+.row { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.viewas { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; background: var(--bg); }
+.q { display: flex; gap: 8px; align-items: baseline; }
+.q h3 { flex: 1; margin: 0; font-size: 14.5px; line-height: 1.35; font-weight: 600; }
+.q .n { color: var(--muted); font-weight: 600; font-size: 13px; }
+.rec-line { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.opt { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; gap: 5px; align-items: center; padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13.5px; font-weight: 500; }
+.opt:hover { border-color: var(--blue); }
+.opt[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.foot .showing { font-size: 13px; }
+.why { margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="mock"><span><b>Mockup, not the real page.</b> Decisions layout: compact list. Pick, un-pick, press Show me, change View as. The style is plain on purpose.</span><a href="decisions-cards.html">See the cards ›</a></div>
+<header class="top">
+  <div class="id">Field team on a phone<small>Draft · revision 4</small></div>
+  <div class="seg" role="group" aria-label="Page"><button type="button" data-soon="Only the Prototype tab is in this mockup">Info</button><button type="button" aria-pressed="true">Prototype</button><button type="button" data-soon="Only the Prototype tab is in this mockup">Requirements</button></div>
+  <div class="tools"><button type="button" class="btn" data-soon="Not part of this mockup">What's new</button>
+    <div class="seg" role="group" aria-label="Theme"><button type="button" data-set-theme="light">Light</button><button type="button" data-set-theme="dark">Dark</button></div>
+    <button type="button" class="btn" data-soon="Not part of this mockup">Download PDF</button><button type="button" class="btn" data-soon="Not part of this mockup">Copy feedback</button></div>
+</header>
+<div class="bar">
+  <div class="seg" role="group" aria-label="Device"><button type="button" aria-pressed="true">Phone</button><button type="button" data-soon="Only the phone is in this mockup">Laptop</button></div>
+  <span id="route"></span>
+  <button type="button" class="btn" data-soon="Not part of this mockup">Show clickable</button>
+  <button type="button" class="btn" data-soon="Not part of this mockup">Start over</button>
+  <button type="button" class="btn" id="dec-btn"></button>
+  <button type="button" class="btn" id="note-btn">Notes (3)</button>
+</div>
+<div class="work">
+  <div class="stage" id="stage"><div class="device" id="device"><div class="canvas" id="canvas"></div></div></div>
+  <aside class="side" id="side" aria-label="Side panel">
+    <div class="side-head"><b id="side-title">Decisions</b><span id="side-count"></span><button type="button" class="x" id="side-x" aria-label="Close panel"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+    <div class="side-body" id="side-body"></div>
+  </aside>
+</div>
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const hash = location.hash.slice(1).split(",");
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $$("[data-set-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.setTheme === t)));
+}
+$$("[data-set-theme]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.setTheme)));
+setTheme(hash.includes("dark") ? "dark" : hash.includes("light") ? "light" : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+let tt; function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => e.classList.remove("on"), 2200); }
+function fit() {
+  const stage = $("#stage"), device = $("#device"); if (!stage || stage.offsetParent === null) return;
+  const small = innerWidth <= 520, w = small ? 390 : 410, h = small ? 844 : 864, room = stage.getBoundingClientRect();
+  const availW = Math.max(240, room.width - (small ? 0 : 24)), availH = Math.max(320, innerHeight - room.top - (small ? 0 : 30));
+  device.style.zoom = String(Math.min(1, availW / w, small ? 9 : availH / h));
+}
+addEventListener("resize", fit);
+$$("[data-soon]").forEach((b) => b.addEventListener("click", () => toast(b.dataset.soon)));
+const PEOPLE = "<div class=\"ph-list\">\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Theo Brandt</b><small>Grade C \u00b7 Failed VSI \u00b7 No observation yet \u00b7 2 damage</small></span><i>C</i></button>\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Caleb Nguyen</b><small>1 feedback error \u00b7 1 damage</small></span><i>B</i></button>\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Imani Foster</b><small>Failed VSI \u00b7 1 feedback error</small></span><i>B</i></button>\n</div>", RECORDS = "<div class=\"ph-list\">\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Failed VSI: Theo Brandt</b><small>Truck 214 \u00b7 Oct 27</small></span></button>\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Damage: Theo Brandt</b><small>Fence post \u00b7 Oct 24</small></span></button>\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Failed VSI: Imani Foster</b><small>Truck 187 \u00b7 Oct 26</small></span></button>\n  <button type=\"button\" class=\"ph-row\" data-person><span><b>Error report: Caleb Nguyen</b><small>Oct 21</small></span></button>\n</div>", NAV = "<div class=\"ph-nav\"><span class=\"on\">Team</span><span>Records</span><span>Calendar</span><span>More</span></div>";
+
+const CHECK = `<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`;
+const G = [
+  { key: "c-nav", q: "How should people get around on a phone?", where: "team", opts: [
+    { c: "A", label: "Bottom bar", desc: "The main places are always visible.", rec: true },
+    { c: "B", label: "Menu button", desc: "More room for the page, but the menu is hidden." }] },
+  { key: "c-people", q: "How should Needs a look list things?", where: "team", opts: [
+    { c: "A", label: "One row per person", desc: "All their reasons together.", rec: true },
+    { c: "B", label: "One row per record", desc: "Same as the laptop, so one person can appear several times." }] },
+  { key: "c-action", q: "Should a person's screen offer the next step?", where: "person", opts: [
+    { c: "A", label: "Show a button", desc: "Start observation, when one is missing.", rec: true },
+    { c: "B", label: "Read only", desc: "Leads go to the form themselves." }] },
+];
+const ROLES = [["lead", "Team lead"], ["manager", "Field manager"], ["member", "Technician"], ["admin", "Admin"]];
+const S = { pick: { "c-nav": "A" }, why: { "c-nav": "The main places stay in view." }, show: { "c-nav": "A", "c-people": "A", "c-action": "A" }, role: "lead", screen: "team", panel: "decisions", open: innerWidth > 1000 };
+const stateWord = (pick) => pick ? `<span class="state done">${CHECK} Picked</span>` : `<span class="state">Not picked</span>`;
+const whyBox = (g) => S.pick[g.key] ? `<label class="why">Why <input data-why="${g.key}" value="${(S.why[g.key] || "").replace(/"/g, "&quot;")}" placeholder="One line, if you want" maxlength="140"></label>` : "";
+
+function renderGroup(g, i) {
+  const pick = S.pick[g.key], show = S.show[g.key], rec = g.opts.find((o) => o.rec);
+  const opts = g.opts.map((o) => `<button type="button" class="opt" data-pick="${g.key}:${o.c}" aria-pressed="${pick === o.c}" title="${o.desc}">${pick === o.c ? `${CHECK} Picked ` : ""}${o.c} · ${o.label}</button>`).join("");
+  const shows = `<span class="showing">Showing ${show}</span>` + g.opts.filter((o) => o.c !== show).map((o) => `<button type="button" class="link" data-show="${g.key}:${o.c}">Show me ${o.c} ›</button>`).join("");
+  return `<section class="row"><div class="q"><span class="n">${i + 1}</span><h3>${g.q}</h3>${stateWord(pick)}</div>
+    ${rec ? `<div class="rec-line">Recommended: ${rec.c}</div>` : ""}<div class="opts">${opts}</div>
+    <div class="foot">${shows}</div>${whyBox(g)}</section>`;
+}
+const renderRoles = (sel) => `<section class="row viewas"><label for="role">View as</label>${sel}</section>`;
+
+function paintPhone() {
+  const c = $("#canvas"), nav = S.show["c-nav"], people = S.show["c-people"];
+  const menu = nav === "B" ? `<button type="button" class="ph-icon" data-soon="The menu isn't part of this mockup" aria-label="Menu">≡</button>` : "";
+  const tail = `<div class="toast" id="toast" role="status"></div>`;
+  if (S.role === "member") {
+    c.innerHTML = `<div class="ph-head">${menu}<b>My Records</b></div><div class="ph-body"><p class="ph-lead">Your month so far</p><p class="ph-sub">What a technician sees. The people lists are hidden.</p></div>${nav === "A" ? NAV : ""}${tail}`;
+  } else if (S.screen === "person") {
+    const cta = S.show["c-action"] === "A" ? `<button type="button" class="ph-cta" data-soon="Starts an observation in the real app">Start observation</button>` : "";
+    c.innerHTML = `<div class="ph-head"><button type="button" class="ph-icon" data-go="team" aria-label="Back">‹</button><b>Theo Brandt</b></div><div class="ph-body"><p class="ph-sub" style="margin-bottom:8px">Field Expert · Marisol Trevino's team</p><span class="ph-tag">Needs Attention</span><p class="ph-sec">Why they're flagged</p><ul class="ph-why"><li>Scorecard grade C</li><li>1 of 4 inspections failed</li><li>No observation this period</li><li>2 property damage incidents</li></ul>${cta}</div>${nav === "A" ? NAV : ""}${tail}`;
+  } else {
+    c.innerHTML = `<div class="ph-head">${menu}<b>Team</b><span>This month</span></div><div class="ph-body"><p class="ph-lead">7 people need a look</p><p class="ph-sub">of 41 field experts</p><p class="ph-sec">Needs a look</p>${people === "A" ? PEOPLE : RECORDS}</div>${nav === "A" ? NAV : ""}${tail}`;
+  }
+  $$("[data-person]", c).forEach((b) => b.addEventListener("click", () => { S.screen = "person"; paint(); }));
+  $$("[data-go]", c).forEach((b) => b.addEventListener("click", () => { S.screen = b.dataset.go; paint(); }));
+  $$("[data-soon]", c).forEach((b) => b.addEventListener("click", () => toast(b.dataset.soon)));
+  $("#route").textContent = S.role === "member" ? "/my-records" : S.screen === "person" ? "/field-ops/theo-brandt" : "/field-ops";
+}
+function paintPanel() {
+  const left = G.filter((g) => !S.pick[g.key]).length;
+  const label = left ? `Decisions: ${left} of ${G.length} left` : `${CHECK} Decisions: all picked`;
+  const btn = $("#dec-btn"); btn.innerHTML = label; btn.setAttribute("aria-pressed", String(S.open && S.panel === "decisions"));
+  $("#note-btn").setAttribute("aria-pressed", String(S.open && S.panel === "notes"));
+  $("#side").hidden = !S.open;
+  $("#side-title").textContent = S.panel === "decisions" ? "Decisions" : "Notes";
+  $("#side-count").textContent = S.panel === "decisions" ? (left ? left + " of " + G.length + " left" : "All picked") : "";
+  const body = $("#side-body");
+  if (S.panel === "notes") { body.innerHTML = `<p class="stub">Notes share this panel. The style mockups show them.</p>`; return; }
+  const sel = `<select id="role">${ROLES.map(([v, t]) => `<option value="${v}"${v === S.role ? " selected" : ""}>${t}</option>`).join("")}</select>`;
+  const top = body.scrollTop;
+  body.innerHTML = renderRoles(sel) + G.map(renderGroup).join("");
+  body.scrollTop = top;
+  $("#role").addEventListener("change", (e) => { S.role = e.target.value; S.screen = "team"; paint(); });
+  $$("[data-pick]", body).forEach((b) => b.addEventListener("click", () => { const [k, c] = b.dataset.pick.split(":"); S.pick[k] === c ? delete S.pick[k] : S.pick[k] = c; paint(); }));
+  $$("[data-show]", body).forEach((b) => b.addEventListener("click", () => {
+    const [k, c] = b.dataset.show.split(":"), g = G.find((x) => x.key === k);
+    S.show[k] = c; S.screen = g.where; if (S.role === "member") S.role = "lead";
+    if (innerWidth <= 1000) S.open = false; // the sheet would cover the phone
+    paint(); toast("Showing " + c + ": " + g.opts.find((o) => o.c === c).label);
+  }));
+  $$("[data-why]", body).forEach((i) => i.addEventListener("input", () => { S.why[i.dataset.why] = i.value; }));
+}
+function paint() { paintPhone(); paintPanel(); fit(); }
+$("#dec-btn").addEventListener("click", () => { S.open = !(S.open && S.panel === "decisions"); S.panel = "decisions"; paint(); });
+$("#note-btn").addEventListener("click", () => { S.open = !(S.open && S.panel === "notes"); S.panel = "notes"; paint(); });
+$("#side-x").addEventListener("click", () => { S.open = false; paint(); });
+paint();
+if (window.ResizeObserver) new ResizeObserver(fit).observe($("#stage"));
+</script>
+</body>
+</html>

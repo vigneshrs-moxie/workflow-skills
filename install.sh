@@ -23,8 +23,24 @@ link() {
   ln -s "$src" "$dst"; echo "linked   $dst"
 }
 
-for d in "$HERE"/skills/*/; do link "${d%/}" "$CLAUDE_DIR/skills/$(basename "$d")"; done
-for f in "$HERE"/agents/*.md; do link "$f" "$CLAUDE_DIR/agents/$(basename "$f")"; done
+# The links, one per line: what in this repo -> which folder under ~/.claude. install.ps1 reads
+# these same lines, so the two scripts always make the same links. A pattern ending in / is folders.
+# common/ is shared by both workflows, feature/ and bugfix/ are one workflow each, tools/ are
+# standalone skills (wireframe, ship, review-walkthrough, uat-guide).
+# link: common/skills/*/ -> skills
+# link: common/agents/*.md -> agents
+# link: feature/skills/*/ -> skills
+# link: feature/agents/*.md -> agents
+# link: bugfix/skills/*/ -> skills
+# link: bugfix/agents/*.md -> agents
+# link: tools/skills/*/ -> skills
+while read -r _ _ pattern _ folder; do
+  mkdir -p "$CLAUDE_DIR/$folder"
+  for src in "$HERE"/$pattern; do
+    [ -e "$src" ] || continue
+    src="${src%/}"; link "$src" "$CLAUDE_DIR/$folder/$(basename "$src")"
+  done
+done < <(grep '^# link: ' "$HERE/install.sh")
 
 # The git workflow docs (branches, PR stages, releases) the Foreman reads first.
 if [ -d "$GIT_DOCS_DIR/.git" ]; then
@@ -36,4 +52,4 @@ else
   git clone -q "$GIT_DOCS_REPO" "$GIT_DOCS_DIR" && echo "cloned   $GIT_DOCS_DIR"
 fi
 
-echo "Done. Open Claude Code in your project and type /feature to start."
+echo "Done. Open Claude Code in your project and type /feature (a feature) or /bugfix (a bug) to start."
