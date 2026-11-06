@@ -74,7 +74,7 @@ PAGE_LIB = r'''
   const S = window.__S = {
     t: null, ctrls: [],
     ready() { return !!$("#pt-canvas .screen.is-on") && !!$("#pt-proto"); },
-    styled() { const el = $("#pt-canvas .screen.is-on [class*=flex]") || $("#pt-canvas .screen.is-on"); return !!el && document.readyState === "complete"; },
+    styled() { const el = $("#pt-canvas .screen.is-on [class*=flex]") || $("#pt-canvas .screen.is-on"); return !!el && document.readyState === "complete" && (!$('style[type="text/tailwindcss"]') || document.documentElement.dataset.styled === "yes"); },
     page() { const b = $('.pt-top [data-page][aria-pressed="true"]'); return b ? b.dataset.page : null; },
     state() {
       const sc = screens(), ov = overlays(), top = ov[0] || sc[0], b = beforeNode();

@@ -1274,5 +1274,47 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
       }, () => {});
     }).catch(() => {});
   }
+
+  // Screens get their styles from Tailwind, compiled in the browser from a CDN script. On a hosted page that has failed
+  // now and then: the page works and the screens are bare text, and nothing reports it. So check, build again, load the
+  // script again, and say so in words if it still fails. Any failure leaves a row in "health" to read back.
+  (function keepStyled() {
+    const source = () => $('style[type="text/tailwindcss"]');
+    if (!source()) return;
+    const root = document.documentElement, t0 = Date.now(), tried = [];
+    const token = (source().textContent.match(/:root\s*\{[^}]*?(--[\w-]+)\s*:/) || [])[1];
+    const probe = document.createElement("i"); probe.className = "flex";
+    probe.style.cssText = "position:absolute;visibility:hidden;width:0;height:0"; document.body.append(probe);
+    const sheet = () => [...document.querySelectorAll("style:not([type])")].find((s) => s.textContent.includes("tailwindcss v"));
+    const hasTheme = () => !token || getComputedStyle(root).getPropertyValue(token) !== "";
+    const styled = () => getComputedStyle(probe).display === "flex" && hasTheme();
+    const script = () => $('script[src*="tailwindcss"]');
+    let stage = "";
+    async function report(ok) {
+      const e = script() && performance.getEntriesByName(script().src)[0];
+      const row = { at: new Date().toISOString(), rev: Number(VERSION), ok, stage, tried, sheet: sheet()?.textContent.length || 0, ms: Date.now() - t0,
+        script: e ? { status: e.responseStatus ?? null, size: e.transferSize ?? null, ms: Math.round(e.duration) } : null };
+      console.warn("Prototype styles", row);
+      if (HOSTED) { try { const d = await window.claude.use("db"); if (d) await d.collection("health").add(row); } catch {} }
+    }
+    const fixes = [
+      [4000, "build again", () => { const s = source(); s.replaceWith(s.cloneNode(true)); }],
+      [8000, "load script again", () => { const s = document.createElement("script"); s.src = script().src + "?retry=1"; document.head.append(s); }],
+    ];
+    const timer = setInterval(() => {
+      const ok = styled(), late = Date.now() - t0;
+      if (ok || late > 14000) {
+        clearInterval(timer); probe.remove(); root.dataset.styled = ok ? "yes" : "no";
+        if (!ok) setSaved("The screens didn't load their styles. Reload the page.");
+        if (tried.length) report(ok);
+        return;
+      }
+      const next = fixes[tried.length];
+      if (next && late > next[0]) {
+        if (!stage) stage = !sheet() ? "no build" : !hasTheme() ? "no theme" : "no classes";
+        tried.push(next[1]); try { next[2](); } catch {}
+      }
+    }, 400);
+  })();
 })();
 </script>
