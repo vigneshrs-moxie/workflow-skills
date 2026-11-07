@@ -558,7 +558,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     const el = e.target.closest("[data-to],[data-back],[data-close],[data-tab],[data-toggle],[data-toast],[data-root]");
     if (!el) { flash(); return; }
     const d = el.dataset;
-    if (d.tab) { view.tabs[d.tabs] = d.tab; applyTabs(); }
+    if (d.tab) { view.tabs[d.tabs] = d.tab; applyTabs(); paintPins(); } // the new tab may be shorter than the pins' one
     if (d.toggle) {
       const open = el.getAttribute("aria-expanded") !== "true";
       $$(`[data-toggle="${d.toggle}"]`, canvas).forEach((x) => x.setAttribute("aria-expanded", String(open)));
@@ -984,7 +984,7 @@ body.pt-packing .pt-pack { display: block; font: 13px/1.45 var(--pt-font); -webk
     b.setAttribute("aria-label", (kindName[k] || "Note") + (n ? " note " + label : ", new pin"));
     const spot = pinSpot(h, pin, n && n.rev), w = wide(pinBase(h, pin.s), pin.s);
     // A pin and its word stay inside the screen: anything past the edge would make the screen scroll sideways.
-    b.style.left = Math.max(0, Math.min(w - PIN_W, spot.x)) + "px"; b.style.top = spot.y + "px"; b.classList.toggle("flip", spot.x > w / 2); if (key) b.dataset.pinkey = key;
+    b.style.left = Math.max(0, Math.min(w - PIN_W, spot.x)) + "px"; b.style.top = Math.min(tall(pinBase(h, pin.s), pin.s), spot.y) + "px"; b.classList.toggle("flip", spot.x > w / 2); if (key) b.dataset.pinkey = key;
     if (key && key === popKey) b.classList.add("pop"); // the pins are redrawn when notes change
     b.addEventListener("click", (e) => {
       e.stopPropagation(); if (!key || b.dataset.moved) { delete b.dataset.moved; return; }
