@@ -58,7 +58,7 @@ Two stages run without a stop in between: **reproduce → diagnose** when the re
 Each is a brief with Decision 1, and the job ends (`stage_state: "done"`, `next_proposed` saying what) or continues on the human's answer. Never guess past one.
 
 - **Not a bug.** The behaviour is as designed, or the ticket asks for something new. Say what the code does today (file:line) and propose `/feature` with the same ticket. Recommended when nothing is broken.
-- **Already fixed.** Name the commit on `moxie/main` and whether it is on staging or deployed (the ticket's references; `git log`); propose closing, or a verification on staging by the human.
+- **Already fixed.** Name the commit on `moxie/main` and whether it is on staging or deployed (the ticket's Links in `ticket.md`; `git log`); propose closing, or a verification on staging by the human.
 - **Cannot reproduce.** List what the reproducer tried (commands, data, rates), and offer: a) the human gives the missing piece (a record id, a user, a screenshot, steps), then reproduce again; b) at L1, a fix by inspection, where the implementer still writes the regression test first; c) close as cannot reproduce. Recommended: a.
 - **Intermittent.** Reproduced at a rate; say the rate and whether the diagnoser can work with it (usually 20% and up). Propose going on, or raising the rate first (the reproducer's prompt names how).
 - **Three failed fixes.** When the regression test is still red after the implementer's two attempts and one fix round, stop: the diagnosis is wrong or the design around it is. Brief that, propose a new diagnosis (v+1) at a higher level, and never a fourth attempt on the same diagnosis.

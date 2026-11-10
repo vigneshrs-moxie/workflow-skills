@@ -16,7 +16,7 @@ Input: $ARGUMENTS
 - Read `spec.md` (or the spec path in `workflow-status.md`) and `options.json` if present. Don't edit the spec, `status.json`, `workflow-status.md` or briefs; the Foreman owns them. `<scratchpad>` is your own scratch folder (the worker's, or `<job folder>/scratch/` if you have none).
 - **Don't ask the user questions.** Assume, and list every assumption and open decision under "Questions to settle"; the Foreman briefs them.
 - **The page is one prototype:** an Info tab, then one phone or laptop the reviewer clicks through in place, with pinned notes. The `wireframe` skill's `reference/prototype.md` sets its shape, in place of its step 5 and section shapes. A job has no text tier, sketch, lo-fi or review page, no panel per screen and no long explanation beside a screen. What a reviewer needs to know goes on the Info tab in a few lines. Each real design choice is a decision on the Info tab, with your recommended option the one the prototype shows.
-- **Laptop and phone.** Draw laptop screens always. When the spec has people using the feature on a phone, draw phone screens too, designed for the phone (`reference/prototype.md`, "Designing phone screens": one job per screen, a summary then the list, details one tap away, little colour, no tile grids), never the laptop screen squeezed.
+- **Laptop and phone.** Draw laptop screens always. When the spec has people using the feature on a phone, draw phone screens too, designed for the phone (`reference/prototype.md`, "Designing phone screens": one job per screen, a summary then the list, details one tap away, little colour, no tile grids), never the laptop screen squeezed. In a job this replaces the "Laptop first" line of `reference/prototype.md`.
 - **Title:** the job's title from `options.json` (`title`), else the spec's heading. Keep it on every rebuild: the title sets the page's slug, its revision counter and where notes attach.
 - Build **from the application checkout**, with the full command:
   ```bash
@@ -37,7 +37,7 @@ Input: $ARGUMENTS
   - `Pick A for c-nav`, or `Pick A for c-nav (why: Less on the page.)`;
   - `s-<screen id> (<device>, at "<pin label>"): <needs change | question | idea>: <text>`, such as `s-needs (phone, at "Theo Brandt"): needs change: …`. `at` comes only with a pin; Copy feedback adds the View as role when the page has roles, and Pull notes adds `on r<n>` to a note left on an earlier revision.
 
-  Apply them per the `wireframe` skill's step 7, keep every other key, and rebuild with the same title and `--job`; the version bumps on its own. Say what changed for the spec in your report.
+  Apply them per the `wireframe` skill's step 7, its prototype bullet, keep every other key, and rebuild with the same title and `--job`; the version bumps on its own. Say what changed for the spec in your report.
 
 ## Inside Starbase
 
@@ -45,7 +45,7 @@ Starbase shows `wireframes.html` in an iframe (its Screens tab and the wireframe
 - saves notes and picks to the browser's `localStorage` under the page's title and version (`wf-<repo>-<slug>-notes:v<n>`, notes under `…:feedback`), so a new version starts clean and an old one keeps its notes;
 - keeps **Copy feedback** working; its text is what the human pastes into the gate card's reply;
 - posts to its parent on load, when the screen changes, and after a note or pick:
-  `{ type: "wireframes", version, current, screens: [{ key, name, kind, status, choice }] }`. `current` is `overview` on Info, else `s-<id>`. `screens` holds Info (`overview`), each decision (`kind: "choice"`, `status` `good` once picked, `choice` `A`, `B` or `""`) and each `data-pack` screen (`kind: "screen"`, `status` `fix` with a `change` note, `ask` with any other note, else `""`);
+  `{ type: "wireframes", version, current, screens: [{ key, name, kind, status, choice }] }`. `current` is `s-<id>` on the Prototype tab, else `overview`. `screens` holds Info (`overview`), each decision (`kind: "choice"`, `status` `good` once picked, `choice` `A`, `B` or `""`) and each `data-pack` screen (`kind: "screen"`, `status` `fix` with a `change` note, `ask` with any other note, else `""`);
 - listens for `{ type: "wireframes-goto", key }` (`overview` opens Info, `s-<id>` that screen in the prototype, `c-<key>` that decision) and `{ type: "wireframes-feedback" }` (replies to the sender with `{ type: "wireframes-feedback", version, text }`, the Copy feedback text);
 - posts `{ type: "wireframes-escape" }` when `Esc` is pressed in the prototype with nothing left to close (pin mode, an overlay or a notes box closes first, and nothing is posted).
 

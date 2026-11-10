@@ -11,7 +11,7 @@ The conductor's own first look at a bug report, before anything is reproduced. N
 
 ## Decide, without asking
 
-- **Duplicate or already fixed.** A merged PR or a commit on `moxie/main` that addresses it: say which, and whether it is on staging or deployed (the ticket's references; a closed ticket does not mean production is fixed). That is the "already fixed" exit (levels.md).
+- **Duplicate or already fixed.** A merged PR or a commit on `moxie/main` that addresses it: say which, and whether it is on staging or deployed (the ticket's Links in `ticket.md`; a closed ticket does not mean production is fixed). That is the "already fixed" exit (levels.md).
 - **Not a bug.** Nothing is broken; the ticket wants a change. The "not a bug" exit: propose `/feature` with the same ticket.
 - **The level.** When none is set, propose one with a one-line reason (levels.md, "Which level"; the floor in job-options.md), as Decision 1 of the brief, and write `suggested_level`, `level_reason` and `predicted_paths` in `status.json`.
 - **The severity**, from the report:
