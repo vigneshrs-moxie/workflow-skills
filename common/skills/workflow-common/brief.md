@@ -89,7 +89,7 @@ Reply with answers like "1a 2b", or "use your recommendations".
 
 ### The wireframe brief
 
-The headline names the spec version drawn from and the wireframes version. "What happened" is the screens, one line each. Each design choice is a decision with A and B as the options and the worker's recommendation; the page's questions follow (max 3 decisions in all; the rest stay in "Concerns" as open items the page lists). "Next" says how to review and what the reply may carry.
+The headline names the spec version drawn from and the wireframes version. "What happened" is the screens, one line each. Each decision on the prototype's Info tab is a decision here with A and B as the options and the worker's recommendation; the page's questions follow (max 3 decisions in all; the rest stay in "Concerns" as open items the page lists). "Next" asks the human to click through the prototype, pin notes on the screens and pick the decisions, and says what the reply may carry.
 
 ```
 **<Feature> · screens drawn** · spec v<x> · wireframes v<n>
@@ -102,5 +102,5 @@ The headline names the spec version drawn from and the wireframes version. "What
 **Decisions for you**
 1. Where does the export start? — Recommended: A, button in the page header. B puts it in the actions menu, one click further.
 
-**Next:** review the screens in Starbase (Screens tab) or open wireframes.html. Reply "go" to keep them as drawn, with picks like "Pick A for c-entry", lines like "s-dialog: needs change: show the row count", or paste the page's Copy feedback. Agreed screens go into the spec, then investigation.
+**Next:** click through the prototype in Starbase (Screens tab) or open wireframes.html, pin notes on the screens and pick the decisions. Reply "go" to keep them as drawn, or paste the page's Copy feedback. Agreed screens go into the spec, then investigation.
 ```
