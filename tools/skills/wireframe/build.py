@@ -46,6 +46,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TAILWIND = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"
 LUCIDE = "https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"
 PRESET_FONTS = {"admin": "IBM Plex Sans", "consumer": "Nunito Sans", "mono": "Geist"}
+JOB_PRESET = "admin"  # a job's prototype with no --theme: jobs draw internal tools
 SKETCH_FONTS = "Patrick Hand,Caveat"
 TIERS = {
     "sketch": ("Sketch", "Hand-drawn: structure, flow and wording. Nothing about looks is decided."),
@@ -506,7 +507,7 @@ def main():
     ap.add_argument("--preset", choices=sorted(PRESET_FONTS), help="A bundled design instead of --theme, for ideas with no design system")
     ap.add_argument("--fonts", help='Comma-separated Google Fonts families, e.g. "Geist,Geist Mono"')
     ap.add_argument("--sources", help="File listing the repository files read, one per line")
-    ap.add_argument("--job", help="Feature slug: also write wireframes.html/.json/.brief.md to the job folder")
+    ap.add_argument("--job", help="Feature slug: build the prototype page (hi-fi) and also write wireframes.html/.json/.brief.md to the job folder")
     ap.add_argument("--slug", help="Output name (default: from the title)")
     ap.add_argument("--draft", action="store_true", help="Build <slug>.draft.html to look at, without bumping the revision or touching the job files, brief or gallery")
     ap.add_argument("--record-url", help="Only save this published artifact URL for the page (no build)")
@@ -561,6 +562,15 @@ def main():
         return
     if not (a.title and a.sections):
         sys.exit("pass --title and --sections")
+    # A job always gets the prototype page, in hi-fi; with no theme it uses the bundled admin preset.
+    if job_dir:
+        if a.fidelity in ("sketch", "lo"):
+            print("A job's screens are always the prototype page. Drop --fidelity, or build outside a job.", file=sys.stderr)
+            sys.exit(2)
+        a.prototype, a.fidelity = True, "hi"
+        if not (a.theme or a.preset):
+            a.preset = JOB_PRESET
+            print(f"no --theme or --preset: a job's prototype uses the bundled {JOB_PRESET} preset")
 
     sections = open(os.path.expanduser(a.sections), encoding="utf-8").read()
     if a.prototype and a.requirements:
