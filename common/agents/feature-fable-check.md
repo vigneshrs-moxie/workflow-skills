@@ -1,7 +1,7 @@
 ---
 name: feature-fable-check
 description: "A short, independent Fable second look at one document or change (spec, plan, code diff, review). Dispatched by the /feature or /bugfix conductor when the human asks or the job's options say."
-model: claude-fable-5-1
+model: claude-fable-5-2
 effort: high
 tools: Read, Grep, Glob, Bash
 disallowedTools: Agent, Edit, Write

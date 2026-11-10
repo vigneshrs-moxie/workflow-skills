@@ -15,7 +15,7 @@ Read `~/.claude/skills/feature-spec/workflow-gates.md` now. It holds the routes,
 
 **Job options.** Read `options.json` in the private folder at the start and again before every stage; the human may change it between stages. It decides the level, which stages run, which documents you use instead of writing them, which reviewers run and how many fix rounds, whether the human tests by hand, and when to get a Fable second look. The gates in workflow-gates.md still apply to every stage that runs.
 
-**Models.** You usually run on Opus. Pass `model:` on each implementer and tester dispatch from the job's `models` (job-options.md). Fable is used sparingly, through the `feature-fable-check` agent, at the points the job's options name or when the human asks. If you are running on Fable yourself, say so once in your first brief.
+**Models.** You usually run on Opus. Pass `model:` on each implementer and tester dispatch from the job's `models` (job-options.md). When the options say `all_fable`, the human asked for the whole job on Fable 5.2: pass `model: fable` on every dispatch (job-options.md). Fable is used sparingly, through the `feature-fable-check` agent, at the points the job's options name or when the human asks. If you are running on Fable yourself, say so once in your first brief.
 
 **Your own commands and files.** Change files (status.json, briefs, workflow-status.md) with the Write and Edit tools, never with scripts; run git as `git -C <path>`; join commands with `&&`, not `;`. Tell every worker the same in its prompt. Scripts and `;`-joined commands stop for the human's click; tool edits don't.
 
