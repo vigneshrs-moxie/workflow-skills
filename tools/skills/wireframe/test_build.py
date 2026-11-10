@@ -1,5 +1,5 @@
 """build.py in job mode and outside it, on the skill's own examples in a throwaway HOME. Run: python3 -m unittest test_build -v"""
-import json, os, shutil, subprocess, sys, tempfile, unittest
+import json, os, re, shutil, subprocess, sys, tempfile, unittest
 
 sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -8,6 +8,8 @@ PROTOTYPE_SECTIONS = os.path.join(HERE, "example", "prototype-sections.html")
 REVIEW_SECTIONS = os.path.join(HERE, "example", "sections.html")
 SLUG = "orbit-900-made-up-job"
 REFUSED = "A job's screens are always the prototype page. Drop --fidelity, or build outside a job."
+REDRAW = ("This job's screens source is in the older review-page format. A job's screens are always the prototype page: "
+          "write the source again as a prototype (reference/prototype.md), then build.")
 
 
 class Build(unittest.TestCase):
@@ -52,6 +54,26 @@ class Build(unittest.TestCase):
         self.assertIn("preset", r.stdout)
         self.assertIn('id="pt-', self.read(self.job, "wireframes.html"))
         self.assertEqual(json.loads(self.read(self.job, "wireframes.json"))["tier"], "preset")
+
+    def test_an_older_review_page_source_is_refused_with_the_redraw_message(self):
+        """an older review-page source is refused with the redraw message"""
+        r = self.run_it("--sections", REVIEW_SECTIONS, "--job", SLUG)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn(REDRAW, r.stdout + r.stderr)
+        self.assertEqual(os.listdir(self.job), [])
+
+    def test_a_prototype_source_with_a_slip_keeps_the_plain_error(self):
+        """a prototype source with a slip keeps the plain error"""
+        no_info = re.sub(r'<div id="info">.*?</div><!-- /info -->', "", self.read(PROTOTYPE_SECTIONS), flags=re.S)
+        self.assertIn('class="screen"', no_info)
+        path = os.path.join(self.home, "no-info.html")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(no_info)
+        r = self.run_it("--sections", path, "--job", SLUG)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn('fix these first:\n  no <div id="info"> block', r.stderr)
+        self.assertNotIn(REDRAW, r.stdout + r.stderr)
+        self.assertEqual(os.listdir(self.job), [])
 
     def test_outside_a_job_lo_fi_still_builds_the_review_page(self):
         """outside a job lo-fi still builds the review page"""

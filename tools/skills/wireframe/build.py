@@ -583,7 +583,12 @@ def main():
     for w in warnings:
         print(f"warning: {w}")
     if errors:
-        sys.exit("fix these first:\n  " + "\n  ".join(errors))
+        # A job's source with review-page <section data-key> blocks and no Info isn't a slip: it has to be drawn again.
+        redraw = ""
+        if job_dir and not re.search(r'<div id="info"', sections) and blocks(sections):
+            redraw = ("This job's screens source is in the older review-page format. A job's screens are always the prototype page: "
+                      "write the source again as a prototype (reference/prototype.md), then build.\n")
+        sys.exit(redraw + "fix these first:\n  " + "\n  ".join(errors))
 
     # Fidelity and the theme.
     if a.theme and a.preset:
