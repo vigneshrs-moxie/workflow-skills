@@ -51,7 +51,7 @@ class Build(unittest.TestCase):
         """a job with no theme uses the bundled preset"""
         r = self.run_it("--sections", PROTOTYPE_SECTIONS, "--job", SLUG)
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertIn("preset", r.stdout)
+        self.assertIn("no --theme or --preset: a job's prototype uses the bundled admin preset", r.stdout)
         self.assertIn('id="pt-', self.read(self.job, "wireframes.html"))
         self.assertEqual(json.loads(self.read(self.job, "wireframes.json"))["tier"], "preset")
 
