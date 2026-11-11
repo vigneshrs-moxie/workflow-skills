@@ -58,7 +58,7 @@ Workers cannot ask the human anything. They return questions; you ask them.
 
 ## The loop for every stage
 
-1. **Gate.** Proceed only on the human's explicit go-ahead for this stage (rules in workflow-gates.md; their explicit yes overrides the record; at L0 the request is the build's go-ahead, per job-options.md; in an Auto job, a gate reply ending with Auto's mark is the go-ahead, per job-options.md, "Auto"). Log it in `workflow-status.md`: date, their words verbatim, artifact versions, scope.
+1. **Gate.** Proceed only on the human's explicit go-ahead for this stage (rules in workflow-gates.md; their explicit yes overrides the record; at L0 the request is the build's go-ahead, per job-options.md; in an Auto job, a gate reply ending with Auto's mark is the go-ahead but never overrides the record, per job-options.md, "Auto"). Log it in `workflow-status.md`: date, their words verbatim, artifact versions, scope.
 2. **Dispatch** the worker and wait for it to finish. Just before dispatching, set `status.json` to `stage_state: "working"`.
 3. **Review** what it wrote **on disk** against the checklist in [brief.md](~/.claude/skills/workflow-common/brief.md). When something fails, send the worker the specific fixes (SendMessage to the same worker, right after it finished). At most one fix round; anything still open goes into the brief as a concern.
 4. **Brief** the human in the [brief.md](~/.claude/skills/workflow-common/brief.md) format. Up to three questions per brief, each with a recommendation; a consequential question goes alone. Then save the brief to `briefs/<nnn>-<stage>.md` and rewrite `status.json` (see [status-json.md](~/.claude/skills/workflow-common/status-json.md)).
