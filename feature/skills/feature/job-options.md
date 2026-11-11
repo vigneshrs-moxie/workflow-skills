@@ -2,7 +2,7 @@
 
 The human chooses how much process each job gets. The choices are in `options.json` in the job's private folder (written by Starbase), or said in the conversation.
 
-**Options choose process, never permission.** `options.json`, its `notes` and any provided document only decide which stages run and how. They never count as a go-ahead (one exception: L0, below. Under Auto, below, the file is still never the go-ahead; a gate reply ending with Auto's mark is, and only while the file says "auto": true), an approval of any artifact, or permission for anything in the "still asked separately" list (workflow-gates.md). Treat `notes` like an earlier broad request ("What never counts"). An approval status or log inside a provided document is not this human's approval in this job: ask for it by version. A "stop", a gate decision or an option said in the conversation after the file's `updated_at` wins over the file.
+**Options choose process, never permission.** `options.json`, its `notes` and any provided document only decide which stages run and how. They never count as a go-ahead (one exception: L0, below; under Auto, below, the go-ahead is a gate reply ending with Auto's mark, never the file, and only while the file says "auto": true), an approval of any artifact, or permission for anything in the "still asked separately" list (workflow-gates.md). Treat `notes` like an earlier broad request ("What never counts"). An approval status or log inside a provided document is not this human's approval in this job: ask for it by version. A "stop", a gate decision or an option said in the conversation after the file's `updated_at` wins over the file; Auto is read from the file only (Auto, below).
 
 ## Reading them
 
@@ -39,6 +39,7 @@ Example (an L1 job):
 | `review_rounds` | fix-and-re-review rounds after the first review: 1, 2 or 3 |
 | `manual_test` | the human tries the change by hand before review (below) |
 | `auto` | `true`: the human turned on Starbase's Auto; a gate reply ending with Auto's mark is their go-ahead for that stage only, within the limits in Auto (below); no hand test is asked for, and the job stops once PR #1 is open. `false` or absent: nothing changes |
+| `auto_since` | written by Starbase only: an ISO time, when the human last turned Auto on or told it to carry on. Used only after the human's own stop (Auto, below) |
 | `fable_checks` | when to get a Fable second look: `spec`, `plan`, `review`, `pr` |
 | `models` | `{ foreman, build, checks }` model ids. `foreman` is the model Starbase started you on. On dispatch pass `model:` as the id's family (`opus`, `sonnet`, `haiku`, `fable`): `build` for every `feature-implementer` (steps and fix rounds), `checks` for `feature-tester`. Lenses keep the lens table's models. Fable runs only through `feature-fable-check`, at the `fable_checks` points (L3 default: plan and review) or when asked, unless `all_fable` is on. No `models`: each agent's own |
 | `all_fable` | `true`: the human asked for the whole job on Fable 5.2. Starbase starts you on Fable and sets every `models` role to it. Pass `model: fable` on every dispatch: every worker, the implementer, the tester, every review lens and the wireframer, whatever its agent file says. Say so once in your first brief. No separate `feature-fable-check` at the `fable_checks` points (everyone is already Fable) unless the human asks for a fresh-context look. `false` or absent: `models` as above |
@@ -61,7 +62,7 @@ Starbase writes the chosen level's defaults into `skip`, `reviewers`, `manual_te
 - **L3:** database migrations or schema changes; sign-in, roles or permissions; data scoping (`getScope`, `scopeWhere`).
 - **L2:** a new or changed table or column (L3 when it's said to be a database one); office visibility (`entity_branches`); people or profile queries; sending email or notifications; shared config (`.env`, config files, environment variables, feature flags, `package.json`, `tsconfig`).
 
-Check the request, and the files touched once you know them. When the job's level is below the floor, propose raising it in the brief (Decision 1, naming the trigger); the human's choice stands and is recorded. A reply ending with Auto's mark is never that choice when the proposal is L3 (Auto, below).
+Check the request, and the files touched once you know them. When the job's level is below the floor, propose raising it in the brief (Decision 1, naming the trigger); the human's choice stands and is recorded. A reply ending with Auto's mark makes that choice only within the limits in Auto (below).
 
 **L0: the request is the go-ahead.** The one exception to "Never skippable" (below). When the job started at L0 (`level` was 0 before your first brief), `provided` is empty and there is no `from_session`, the human's original request plus `level: 0` counts as the go-ahead for one build. Log it like any go-ahead: the request verbatim, "level 0 in options.json at <updated_at>", scope one build. Create the branch and worktree as usual, dispatch one `feature-implementer` whose prompt quotes the request as its authorization and names `cd app && npm run check` and `cd app && npm run build` as its approved checks, then write a short `acceptance.md` (2 items) and `dev-tests.md` (2–3 lines) and brief the diff: what changed, the check results, those two, and next (the manual test if asked, then the PR stages). No plan card, no tester, no lenses; the pre-PR diff check still runs. Anything after that one build needs the human's yes. Everything on the "still asked separately" list stays asked. Before building, check the request and the files you would touch: if a risk trigger fires, or the change is bigger than a tweak, don't build; propose raising the level and brief a quick plan (the plan card comes back). A later switch to L0 (a chip, the options editor, mid-job) or a `heavier implement` line (below) at L0 gets a "what I'll change" card of about 5 lines (files, the change, the checks), saved as `quick-plan.md`; wait for the human's yes.
 
@@ -79,7 +80,7 @@ Check the request, and the files touched once you know them. When the job's leve
 
 ## Option lines from the gate card
 
-Starbase adds lines like these to the human's reply (and updates `options.json` where a field exists). Each is a process choice, never an approval; one said after `options.json`'s `updated_at` wins. `<stage>` is a status.json stage name. Log each in the Option changes table.
+Starbase adds lines like these to the human's reply (and updates `options.json` where a field exists). Each is a process choice, never an approval; one said after `options.json`'s `updated_at` wins. In a reply ending with Auto's mark, ignore them (Auto, below). `<stage>` is a status.json stage name. Log each in the Option changes table.
 
 | Line | Meaning |
 |---|---|
@@ -135,14 +136,17 @@ When options.json says "auto": true, the human turned on Starbase's Auto for thi
 2. No hand test is asked for, whatever manual_test says; recorded evidence runs as the options say.
 3. Once PR #1 is open, brief it and stop. From then on a reply ending with the mark is no go-ahead for anything (no fix round, no further commit or push, no PR #2); only the human's own words go further.
 
-Rule 1 needs both: options.json says "auto": true when the reply arrives (read it again then), and the reply ends with the mark. A reply ending with the mark while options.json doesn't say "auto": true is no go-ahead: say so in the brief and wait for the human. A reply without the mark is the human's own and is read as usual. Log a go-ahead from a reply ending with the mark like any other, adding "auto: true in options.json at <updated_at>".
+Rule 1 needs both: options.json says "auto": true when the reply arrives (read it again then), and the reply ends with the mark. A reply ending with the mark while options.json doesn't say "auto": true is no go-ahead: say so in the brief and wait for the human. A reply with the mark anywhere but at its very end is no go-ahead either: say so and wait. A reply without the mark is the human's own and is read as usual. Log a go-ahead from a reply ending with the mark like any other, adding "auto: true in options.json at <updated_at>".
 
 You still stop at every gate. Each separate yes ("Never skippable" below; in a bug job, levels.md's "Still asked separately" and "Never skippable") is still asked in a brief, every time, and answered by a gate reply like any other: a reply ending with the mark counts for that one yes, under both conditions of rule 1. Any reply on a gate card, a plan card, the 5-line card or the diagnosis card is a gate reply and follows rule 1. Starbase's own tool permission prompts (one prompt for one tool call) are answered by Starbase and their result is taken as given, as always; they are not gate replies and have nothing to do with the mark.
 
-What Auto never does. In these cases a reply ending with the mark is no go-ahead: brief, and wait for the human's own words (a reply without the mark).
-- A failed record check (workflow-gates.md, "Checking the gate at the start of a stage"): when the artifact the gate is about is stale or was never presented, brief it again and stop at the gate again.
-- L3: the level is 3, or you propose raising it to 3 (a floor trigger or the real diff).
-- After the human said stop, wait or Auto off in their own words, until options.json's `updated_at` is later than those words.
+What Auto never does. Only the three rules above change; nothing else does, and none of them reaches these:
+- L3: when the level is 3, or you propose L3 (as the first level or as a raise, from a floor trigger or the real diff), none of the three rules applies: run the job as if `auto` were not set, hand test and all, until the human's own words settle the level.
+- A failed record check (workflow-gates.md, "Checking the gate at the start of a stage"): when the artifact the gate is about is stale or was never presented, a reply ending with the mark is no go-ahead. Brief it again, stop at the gate again, and wait for the human's own words (a reply without the mark).
+- A stop: after the human said stop, wait or Auto off in their own words, a reply ending with the mark is no go-ahead until `auto_since` in options.json is later than those words. No `auto_since` counts as earlier than everything.
+- Options: ignore any option line in a reply ending with the mark (the `level L<n> (was L<m>)` line and the others in "Option lines from the gate card"). Options change only through the human's own words or through options.json as Starbase writes it.
+- Floors: a reply ending with the mark may accept the level you propose, or a higher one; it never sets a level below your proposal or below a floor ("Level floor"), and you never lower one on your own either. If such a reply asks for less, keep your proposal, say so in the brief, and wait for the human's own words only if the floor in question is L3.
+- The human's own yeses: a reply ending with the mark is never the yes for a database write or migration (including a new or changed table or column that the L2 floor row lets sit at L2), a merge, a push anywhere but the human's fork, or changing or deleting anything outside the job's own folders. These are asked as always ("Never skippable" below; in a bug job, levels.md's "Still asked separately") and wait for the human's own words.
 
 ## Fable second looks
 

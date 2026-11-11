@@ -51,7 +51,7 @@ Every dispatch prompt contains: the stage; "this is a bug job: the gates file is
 
 ## The loop for every stage
 
-1. **Gate.** Proceed only on the human's explicit go-ahead for this stage (levels.md; their explicit yes overrides the record; at L0 the request is the one build's go-ahead; in an Auto job, a gate reply ending with Auto's mark is the go-ahead for that stage only, within the limits in job-options.md, "Auto", and never past a failed record check). Log it in `workflow-status.md`: date, their words verbatim, artifact versions, scope.
+1. **Gate.** Proceed only on the human's explicit go-ahead for this stage (levels.md; their explicit yes overrides the record; at L0 the request is the one build's go-ahead; in an Auto job, a gate reply ending with Auto's mark is the go-ahead for that stage only, within the limits in Auto (job-options.md)). Log it in `workflow-status.md`: date, their words verbatim, artifact versions, scope.
 2. **Dispatch** the worker and wait. Just before, set `status.json` to `stage_state: "working"`.
 3. **Review** what it wrote **on disk** against the checklist in `brief.md` and the bug checks under each stage below. Send the worker the specific fixes (SendMessage, right after it finished); at most one fix round; anything still open goes in the brief as a concern.
 4. **Brief** the human (`brief.md`). Up to three questions, each with a recommendation. Save it as `briefs/<nnn>-<stage>.md` and rewrite `status.json` and the Key points (`status-json.md`).

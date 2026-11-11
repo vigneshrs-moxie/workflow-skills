@@ -57,7 +57,7 @@ Before doing the stage's work, read `workflow-status.md` and the input artifacts
 - The previous stage's entry shows it was **presented for review** at the artifact version now on disk.
 - No later edit to an input artifact has made the reviewed version stale.
 
-**The human's explicit go-ahead decides.** When the human explicitly tells you to run this stage (for example "I reviewed it, go ahead", or the invocation plus words saying so), proceed even if a check above fails: the human overrides the record. Mention the gap in one line (for example "spec stage was never formally presented; v0.3 not previously reviewed"), record their words and the gap in `workflow-status.md`, and continue with what they asked. A gate reply ending with Auto's mark never overrides the record (job-options.md, "Auto").
+**The human's explicit go-ahead decides.** When the human explicitly tells you to run this stage (for example "I reviewed it, go ahead", or the invocation plus words saying so), proceed even if a check above fails: the human overrides the record. Mention the gap in one line (for example "spec stage was never formally presented; v0.3 not previously reviewed"), record their words and the gap in `workflow-status.md`, and continue with what they asked. A gate reply ending with Auto's mark never overrides the record (one of the limits in Auto, job-options.md).
 
 When there is no explicit go-ahead (a bare invocation) and a check fails, or the request is ambiguous: present the previous stage's handoff (paths, versions, open questions, proposed scope), say what is missing, and wait. Do not treat the wait as declined.
 
