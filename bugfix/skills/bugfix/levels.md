@@ -31,7 +31,7 @@ The same four levels as a feature job, the same `options.json` fields and the sa
 
 ## The gates
 
-A gate sits between every pair of stages that run, as workflow-gates.md describes: the stage presents what it produced (paths and versions), the substantive findings, open questions, the proposed next stage, and stops. The next stage starts only on the human's explicit go-ahead, which authorizes that stage only. In an Auto job, a gate reply ending with Auto's mark is that go-ahead, only while `options.json` says `"auto": true` (job-options.md, "Auto"). Finishing a stage, silence, elapsed time and an earlier broad request never count. The human's explicit words override the record (mention the gap, log it, carry on); a reply carrying Auto's mark never does.
+A gate sits between every pair of stages that run, as workflow-gates.md describes: the stage presents what it produced (paths and versions), the substantive findings, open questions, the proposed next stage, and stops. The next stage starts only on the human's explicit go-ahead, which authorizes that stage only. In an Auto job, a gate reply ending with Auto's mark is that go-ahead for that stage only, while `options.json` says `"auto": true` and within the limits in job-options.md, "Auto". Finishing a stage, silence, elapsed time and an earlier broad request never count. The human's explicit words override the record (mention the gap, log it, carry on); a reply ending with Auto's mark never does.
 
 Two stages run without a stop in between: **reproduce → diagnose** when the reproduction succeeded (the triage yes covers both; the reproduce brief is written but not waited on). Everything else stops.
 

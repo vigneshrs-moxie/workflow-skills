@@ -25,7 +25,7 @@ This stage is authorized when the investigation was presented for review at the 
 - **Not approved, or blocking Open questions:** proceed only if the user explicitly authorized **provisional planning** on this spec version and stated its scope. Otherwise present the situation and ask. A plain `/feature-plan` invocation is not that statement.
 - A small enhancement needs clear V1 behavior and observable ACs, not a refinement stage.
 
-If evidence is missing, stale (spec or findings changed since review) or ambiguous, present the investigation handoff and wait, unless the human explicitly told you to go ahead, which overrides the record (see the gate rules).
+If evidence is missing, stale (spec or findings changed since review) or ambiguous, present the investigation handoff and wait, unless the human explicitly told you to go ahead (never a reply ending with Auto's mark), which overrides the record (see the gate rules).
 
 Record the authorization (date, who, words or invocation, spec and findings versions, provisional or not, scope) and set the stage to "feature-plan · in progress".
 

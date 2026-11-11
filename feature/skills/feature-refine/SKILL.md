@@ -21,7 +21,7 @@ If no spec path is given, ask for one and stop. A feature with no saved spec sta
 
 Read from disk: the spec, its `## Stage handoff`, its decision log and approval status, `workflow-status.md`, and every context file the user supplies (briefs, decision records). Conversation memory is not the record.
 
-Check the gate as described in workflow-gates.md. This stage is authorized when the spec stage was presented for review at the version on disk and the user has now invoked `/feature-refine` or asked for refinement in words. A user may ask for refinement on any feature, including one routed small. If the evidence is missing, stale or ambiguous, present the spec's handoff and wait, unless the human explicitly told you to go ahead, which overrides the record (see the gate rules).
+Check the gate as described in workflow-gates.md. This stage is authorized when the spec stage was presented for review at the version on disk and the user has now invoked `/feature-refine` or asked for refinement in words. A user may ask for refinement on any feature, including one routed small. If the evidence is missing, stale or ambiguous, present the spec's handoff and wait, unless the human explicitly told you to go ahead (never a reply ending with Auto's mark), which overrides the record (see the gate rules).
 
 Record the authorization in `workflow-status.md` (date, who, the invocation or words, spec version, scope) and set the current stage to "feature-refine · in progress".
 
