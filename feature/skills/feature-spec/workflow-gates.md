@@ -9,7 +9,7 @@ Shared reference for the feature workflow: the stage skills `/feature-spec`, `/f
 - **Quick change** (only when the human chooses it, in the job's options or in words): quick plan → *gate* → implement + local checks → the human's own manual test, when they asked for one (waits for their result) → review with the chosen reviewers (+ fix rounds within the quick plan) → *gate* → PR #1 → PR #2 → staging QA → PR #3. No spec, refine, investigation or plan documents; the quick plan (outcome, numbered acceptance criteria, files, checks, risks) is approved by version before coding. See `~/.claude/skills/feature/job-options.md`.
 - **Levels** (the job's options): L1 runs the quick route, L2 the small, L3 the large. L0 (a tweak) is one build with no gate before it, the one exception to the approvals below; see job-options.md.
 
-**The human's options.** The human can skip stages, hand over documents they already have (a spec, findings, a plan) to use instead of a stage's output, choose the review lenses, and ask for manual testing or Fable second looks, per job (`options.json` in the private folder; rules in `~/.claude/skills/feature/job-options.md`). Options choose process, never permission (except L0's one build, job-options.md): they are never a go-ahead or an approval. Skipping a stage removes that stage and its own gate, never the gate before the next stage that runs. Never skippable: the human's approval of every plan (quick, written or provided, and every new version) before anyone acts on it, approval of what will be built before coding (except L0, see job-options.md), and everything under "Still asked separately" below.
+**The human's options.** The human can skip stages, hand over documents they already have (a spec, findings, a plan) to use instead of a stage's output, choose the review lenses, and ask for manual testing or Fable second looks, per job (`options.json` in the private folder; rules in `~/.claude/skills/feature/job-options.md`). Options choose process, never permission (except L0's one build, job-options.md): they are never a go-ahead or an approval; under Auto (job-options.md) the go-ahead is a marked gate reply, never the file. Skipping a stage removes that stage and its own gate, never the gate before the next stage that runs. Never skippable: the human's approval of every plan (quick, written or provided, and every new version) before anyone acts on it, approval of what will be built before coding (except L0, see job-options.md), and everything under "Still asked separately" below.
 
 After review, the three PR stages follow the git workflow (`~/.claude/skills/workflow-common/git-workflow.md`): **PR #1** fork → same-named org branch (you self-review and merge it yourself), **PR #2** org branch → `staging` (Raj's GitHub approval), **PR #3** `staging` → `main` (release owner). Pushing, opening each PR and requesting reviewers each need their own go-ahead; agents never approve, merge or deploy. No stage implies permission for a later one.
 
@@ -37,7 +37,7 @@ A **gate** sits between every pair of stages that run (the quick route lists its
 3. open questions and anything blocked,
 4. the proposed next stage with its exact invocation,
 
-and then **stops**. The next stage starts only on explicit human authorization.
+and then **stops**. The next stage starts only on explicit human authorization. In an Auto job, a gate reply ending with Auto's mark is that authorization, only while `options.json` says `"auto": true` (job-options.md, "Auto").
 
 What counts as authorization:
 
