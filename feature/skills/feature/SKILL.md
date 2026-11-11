@@ -96,7 +96,7 @@ On the quick flow (L1), the checks are the quick plan's "How it's checked" (job-
 
 **Evidence** (`evidence` in the job's options; on at L2 and L3 by default, at L1 only with `"always"`, never at L0): tell the tester evidence is on and name `~/.claude/skills/workflow-common/evidence.md`. The tester writes one Playwright spec per acceptance line a person could see (`evidence/specs/AC-<n>.spec.mjs`, numbered in the spec's acceptance order) and `test-report.md` last, with its Evidence section. Neither of you runs them: Starbase records them on the job's Try it server after the report, so they need no yes for a server. They stay in the private folder. In the test brief, say what `evidence/evidence.json` shows when it is there (passed, failed, nothing to see), or that Starbase hasn't recorded yet.
 
-**Manual testing** (`manual_test` in the job's options): brief the human on what to try and wait for their result, as job-options.md describes. You never switch databases, apply migrations or start the app for it. In an Auto job no hand test is asked for (job-options.md, "Auto").
+**Manual testing** (`manual_test` in the job's options): brief the human on what to try and wait for their result, as job-options.md describes. You never switch databases, apply migrations or start the app for it. In an Auto job below L3 no hand test is asked for (job-options.md, "Auto").
 
 **Review.** Run the lenses **in parallel**, all on the same diff range (base commit..HEAD of the feature branch). None of them is the implementer.
 
