@@ -2,7 +2,7 @@
 
 - A schema change is the migration plus every place that reads or writes the changed shape.
 - Write migrations that are safe to apply once, in order, against live data. Say what happens to existing rows.
-- Applying a migration anywhere is never part of implementation: it needs a separate yes.
+- Applying a migration anywhere is never part of implementation: it needs a separate yes. In an Auto job nobody on the crew applies one, and nobody asks: Starbase applies the job's migrations to Auto's own copy of the database when the job's turn to test comes (`~/.claude/skills/feature/job-options.md`, "Auto", rule 4).
 
 **Orbit** (source of truth: `prisma/migrations/README.md`; multi-office rules: `../docs/plans/multi-office-engineering-brief.md`)
 - Migrations are raw SQL in `prisma/migrations/00NN_name/migration.sql`. The number is picked at **PR time** (highest on `moxie/main` + 1). Use the next number now, and flag in the log that it must be re-checked at PR time (`npm run db:renumber` exists).

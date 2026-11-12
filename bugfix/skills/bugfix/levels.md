@@ -11,7 +11,7 @@ The same four levels as a feature job, the same `options.json` fields and the sa
 | L0 Tweak (hotfix) | one build: the implementer writes the regression test first when there is a seam, then the fix → `npm run check` and `npm run build` → the human looks at the diff. The request is the go-ahead. No card. | none; you brief the diff | Opus conductor; Sonnet build |
 | L1 Small | triage (usually no questions) → the conductor's own diagnosis card (approve) → fix (test red → fix → green) → checks → the human tries it → review | `bug-review-fix` | Opus |
 | L2 Standard | triage (approve) → reproduce (worker; no stop when reproduced) → diagnose (approve) → fix → verify (the tester, with evidence) → the human tries it → review | `bug-review-fix`, `feature-review-conventions`, plus the lenses the SKILL.md table adds for what the diff touches | Opus; Sonnet tester |
-| L3 Risky | L2, plus a Fable second look at the diagnosis and at the review | every lens, plus `feature-fable-check` | Opus; Fable at diagnose and review |
+| L3 Risky | L2, plus a Fable second look at the diagnosis and at the review. In an Auto job it runs to PR #1 like any other level | every lens, plus `feature-fable-check` | Opus; Fable at diagnose and review |
 
 **Which level.** "Hotfix" in L0's name means the quickest route (one build, no card); it is not the S1 direct-to-main shipping exception below, which any level can take on the release owner's word. L0 when the cause is visible from the report (a typo, a wrong label, a wrong constant) and the fix is about 3 files and 50 lines in existing files with no floor trigger. L1 when the cause can be found by reading a few files and there is one obvious fix. L2 when it has to be reproduced to be sure, when the cause may be in more than one place, or when the fix touches data access, a shared component or a server action. L3 at the level floor (migrations, auth, scoping) or when the bug is in money, payroll, scheduling or anything a wrong fix would make worse. Severity (triage.md) is not the level: an S1 hotfix for a typo is L0.
 
@@ -31,7 +31,7 @@ The same four levels as a feature job, the same `options.json` fields and the sa
 
 ## The gates
 
-A gate sits between every pair of stages that run, as workflow-gates.md describes: the stage presents what it produced (paths and versions), the substantive findings, open questions, the proposed next stage, and stops. The next stage starts only on the human's explicit go-ahead, which authorizes that stage only. In an Auto job, a gate reply ending with Auto's mark is that go-ahead for that stage only, while `options.json` says `"auto": true` and within the limits in job-options.md, "Auto". Finishing a stage, silence, elapsed time and an earlier broad request never count. The human's explicit words override the record (mention the gap, log it, carry on); a reply ending with Auto's mark never does.
+A gate sits between every pair of stages that run, as workflow-gates.md describes: the stage presents what it produced (paths and versions), the substantive findings, open questions, the proposed next stage, and stops. The next stage starts only on the human's explicit go-ahead, which authorizes that stage only. In an Auto job, a gate reply ending with Auto's mark is that go-ahead for that stage only, while `options.json` says `"auto": true` and within the limits in job-options.md, "Auto". Finishing a stage, silence, elapsed time and an earlier broad request never count. The human's explicit words override the record (mention the gap, log it, carry on); a reply ending with Auto's mark never does. Nothing at L3 takes a bug job out of Auto: it runs to PR #1 under the same six rules as a feature job.
 
 Two stages run without a stop in between: **reproduce → diagnose** when the reproduction succeeded (the triage yes covers both; the reproduce brief is written but not waited on). Everything else stops.
 
@@ -49,7 +49,7 @@ Two stages run without a stop in between: **reproduce → diagnose** when the re
 - the local checks: the regression test, `npm run check`, `npm run build`;
 - a sibling occurrence only when the diagnosis or the human's answer says fix it now.
 
-**Still asked separately, every time:** anything that writes to a database (`npm run test:db`), migrations, starting servers, anything that could send email, installing dependencies, each push, each PR, each reviewer request. Agents never approve, merge or deploy.
+**Still asked separately, every time:** anything that writes to a database (`npm run test:db`), migrations, starting servers, anything that could send email, installing dependencies, each push, each PR, each reviewer request. In an Auto job the database and server ones are never asked, because Starbase applies the job's migrations and records the evidence on its own copy of the database (job-options.md, "Auto"); the rest are asked within the limits in Auto, and any a reply ending with Auto's mark cannot give waits for after PR #1. A diagnosis that contains a migration is approved by a reply ending with Auto's mark like any other diagnosis. Agents never approve, merge or deploy.
 
 **Never skippable:** the human's approval of the diagnosis (or the L1 card, or the provided document) by version before anyone fixes, except L0's one build; and every new diagnosis version after a failed fix, a review or a manual test.
 
