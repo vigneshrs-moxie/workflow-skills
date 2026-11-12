@@ -20,13 +20,14 @@ Short: nobody reads a long PR #1. About 10 lines, no template sections, no limit
 
 **Decisions:** docs/decisions/<TICKET>-<slug>.md
 
+<only in an Auto job, when a gate reply ending with Auto's mark carried the block (the latest one):>
 Decisions Auto made
 - <the block's lines, as Starbase wrote them>
 ```
 
 The Decisions line links the job's decisions file when it rides this PR (`docs/decisions/ORBIT-0479-feedback-api.md`, committed as `docs(decisions): ORBIT-479 decisions`); leave the line out when there is none, or when Orbit still ignores `docs/decisions/`.
 
-The `Decisions Auto made` block goes last, before the attribution line, only in an Auto job, only when the go-ahead carried it: copy it as written, the heading line and every `- ` line, and never write, add to or reword it (`~/.claude/skills/feature/job-options.md`, "Auto", rule 6). Otherwise leave it out.
+The `Decisions Auto made` block goes last, before the attribution line, only in an Auto job, only when a gate reply ending with Auto's mark carried it, and then the latest such block: copy it as written, the heading line and every `- ` line, and never write, add to or reword it (`~/.claude/skills/feature/job-options.md`, "Auto", rule 6). Otherwise leave it out.
 
 ## PR #2 (org branch → staging)
 
