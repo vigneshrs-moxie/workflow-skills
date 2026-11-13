@@ -48,7 +48,7 @@ The shared agents keep their `feature-` names (`feature-implementer`, `feature-t
 |---|---|
 | `feature` | The Foreman. Runs clarify → spec → screens → investigate → plan → build → test → review → PRs through the agents below, one brief per stage. Holds the job options (how much process a job gets), the levels, and stacks. |
 | `bugfix` | The bug-fix conductor. Runs triage → reproduce → diagnose → fix → verify → review → PRs. A bug has no spec or plan: the human approves one document, the diagnosis (cause, smallest fix, regression test, blast radius, risks), before anyone fixes. Holds `levels.md` (bug levels, gates, exits), `triage.md` and `templates.md`. |
-| `workflow-common` | Not a command. The rules and formats both conductors and every worker read: `worker-rules.md`, `git-workflow.md`, `status-json.md`, `brief.md`, `lock.md`, `review-lens-rules.md`, `review-facts.md`, `evidence.md`, `checklists/`. |
+| `workflow-common` | Not a command. The rules and formats both conductors and every worker read: `worker-rules.md`, `git-workflow.md`, `status-json.md`, `brief.md`, `lock.md`, `review-lens-rules.md`, `review-facts.md`, `evidence.md`, `notes-and-comments.md` (the notes and PR comment answers Starbase reads), `checklists/`. |
 | `feature-spec` | Drafts a product spec from a request and recommends the small or large route. Holds `workflow-gates.md`, the rules for what each feature stage needs before it may start. |
 | `feature-refine` | The detailed product interview for a large feature, one question at a time. |
 | `feature-investigate` | Read-only look at how the repository behaves today, written up as private findings. |
