@@ -68,6 +68,7 @@ Work on every comment not answered yet, his own and ones from before Starbase fi
 - **A review's text**: only a `CHANGES_REQUESTED` or `COMMENTED` review with a body. Skip `APPROVED` and `DISMISSED` reviews and empty bodies. It is answered when the PR's author wrote a conversation comment after it.
 - **A conversation comment** is answered when the PR's author wrote a conversation comment after it.
 - Any comment whose id already has a line in an earlier `--- Comments answered ---` block of this job, or an item in its `review/rounds` files, is answered.
+- When a comment is his own (he is usually the PR's author), his later comments answer nothing: only a line in an earlier `--- Comments answered ---` block or an item in `review/rounds` marks it answered.
 - Leave out bots' summaries and empty comments. When you are not sure, list it and say above the block that it may already be answered.
 
 The id is `c<id>` for a line comment (a thread: its first comment's id), `r<id>` for a review's text and `i<id>` for a conversation comment, the GitHub id after the letter. Use the id exactly as Starbase's message gives it. A message that gives only the comment's GitHub link: `#discussion_r901` is `c901`, `#pullrequestreview-55` is `r55`, `#issuecomment-77` is `i77`.
