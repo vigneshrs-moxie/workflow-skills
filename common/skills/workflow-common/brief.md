@@ -12,6 +12,7 @@ Check the artifact **on disk**, not the worker's summary of it.
 - **Versions:** every artifact names the versions it is based on, and those match what is on disk.
 - **Gates:** the worker stopped where it should and did not start the next stage.
 - **Proportional:** a small enhancement did not get a large-feature treatment.
+- **Ids explained:** the human reads a decision without opening another document. In "Decisions for you", in each question and option in `status.json`, and in each `consequence`, every id (R-2, FR-004, AC-002, D-005, Q-3) is followed at its first mention by what it is, in a few plain words in brackets: "Fix R-2 (the file name uses the server's date) now?". Never an id alone. Starbase also shows the meanings it can find, but write them yourself; it cannot find every one.
 - **Key points:** the summaries (`status-json.md` §3) for every document this stage produced or changed, and for this brief, are written from the files on disk.
 - **Options followed:** the level, stages, reviewers, checks and models match the job's `options.json` at the time.
 
