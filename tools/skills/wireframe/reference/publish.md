@@ -8,7 +8,10 @@ python3 <skill>/publish.py --page <slug>.html --title "…"   # a page outside a
 python3 <skill>/publish.py --notes --job <slug>             # new notes (Starbase's Pull notes runs this with --json)
 python3 <skill>/publish.py --notes --key <key>              # the same, by key
 python3 <skill>/publish.py --import-notes <file> --key <key>  # the pilot: copy an artifact's notes, once
+python3 <skill>/publish.py --add-pdf --page <slug>.html     # a PDF for the last revision, published without one
 ```
+
+Every publish carries the stakeholder PDF, so anyone can download any revision from the site's More menu. The script sends the PDF beside the page when it's at least as new as the page; otherwise it prints one from the page's `#pack` view with headless Chrome (`build.py`'s `print_pdf`; `WIREFRAME_CHROME` names another Chrome, and set to empty means none) and keeps it beside the page. With no Chrome it publishes without one, says so, and `--add-pdf` adds it later.
 
 ## Flags
 
@@ -25,7 +28,9 @@ python3 <skill>/publish.py --import-notes <file> --key <key>  # the pilot: copy 
 | `--ticket-url <url>` | publish | Link to the ticket. A job's comes from `status.json`. |
 | `--requirements <md>` | publish | Sends this file whole. A job otherwise sends the FR rows cut from its spec. |
 | `--decisions <md>` | publish | Sends this file. A job otherwise sends its `decisions.md`. |
-| `--pdf <file>` | publish | Sends this PDF. Otherwise the newest `*.pack.pdf` in the job folder, or `<slug>.pack.pdf` beside the page. |
+| `--pdf <file>` | publish, `--add-pdf` | Sends this PDF as it is. Otherwise the newest `*.pack.pdf` in the job folder, or `<slug>.pack.pdf` beside the page, printed again first when it's older than the page or missing. |
+| `--no-pdf` | publish | Publishes without a PDF. |
+| `--add-pdf` | `--job` or `--page` | Gives the record's revision a PDF, when it was published without one. Refused when the page has changed since that publish, since the PDF wouldn't match; publish again instead. The site refuses a revision that already has one. |
 | `--changes "<line>"` | publish | What changed. Default: this revision's note in the page's history. |
 | `--site <url>` | all | Uses this site instead of the token file's. |
 | `--dry-run` | all | Says what would be sent, with sizes, and sends nothing. Needs no token. Writes nothing. |
@@ -86,6 +91,12 @@ Ticket number plus the title's first four words when there's a ticket, the title
 | `pdf` | file `pack.pdf`, `application/pdf` | no | The stakeholder PDF. |
 
 Reply, 200: `{ "key", "revision": 4, "url": "https://prototypes.moxieorbit.com/f/<key>", "created": false }`. `revision` must be an integer and `url` present, or nothing is recorded.
+
+When the page and PDF together are over the request limit but each fits alone, the script sends the page without the PDF, then the PDF on its own (below).
+
+### `POST /api/features/<key>/r<n>/pdf`
+
+`Authorization: Bearer <token>`, `multipart/form-data` with one part, `pdf` (file `pack.pdf`, `application/pdf`, 25 MB). Gives revision `n` a PDF when it has none. Reply, 200: `{ "key", "revision": 4, "pdf": "https://…/f/<key>/r4/pack.pdf" }`. 404 when there's no such revision, 409 when it already has a PDF: the site replaces nothing.
 
 The manifest, the same shape from a job or a page:
 

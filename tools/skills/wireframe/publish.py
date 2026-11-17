@@ -9,15 +9,19 @@ Usage:
   python3 publish.py --notes (--job S | --page P | --key K) [--since <iso>]
                                                    print new notes as the Foreman's feedback lines
   python3 publish.py --import-notes <json> --key K  copy an artifact's notes to the site, once
+  python3 publish.py --add-pdf (--job S | --page P)  give the last published revision a PDF, when it went without one
 Every mode takes --site <url>, --dry-run and --json.
 
 The token is in ~/.claude/prototypes.json ({"site": "...", "token": "..."}, mode 600). It is never printed.
 What was published is remembered in <job folder>/prototype.json, or <slug>.prototype.json beside a page.
+Every publish carries a PDF: when there's none beside the page, or it's older than the page, headless Chrome prints one.
 
 Exit codes: 0 done; 1 a problem here (a file, a flag, a size); 2 wrong flags; 3 the token file;
 4 the site refused, or couldn't be reached. Each failure is one line on stderr.
 """
 import argparse, glob, http.client, json, os, re, sys, urllib.error, urllib.parse, urllib.request, uuid
+sys.dont_write_bytecode = True  # build.py is imported for its PDF printer; leave no __pycache__ in the skill
+from build import chrome_path, print_pdf
 from datetime import datetime, timezone
 
 DEFAULT_SITE = "https://prototypes.moxieorbit.com"
@@ -26,6 +30,7 @@ MB = 1000 * 1000
 LIMITS = {"page": 5 * MB, "pdf": 25 * MB, "requirements": 1 * MB, "decisions": 1 * MB}
 BODY_LIMIT = 4.5 * MB  # Vercel takes no more than this in one request, whatever the limits above say
 TIMEOUT = 45  # seconds; under the 60 Starbase gives this script, so a slow site gets this script's message
+PRINT_TIMEOUT = 30  # seconds for Chrome to print the PDF; a real page takes about 12
 KEY_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}$")
 TICKET_RE = re.compile(r"^[A-Za-z][A-Za-z0-9]*-\d+$")
 SHORT_TITLE_WORDS = 4
@@ -152,6 +157,7 @@ def refusal(e, missing):
     plain = {401: "The site refused the publish token. Make a new one on the site's Settings page.",
              403: "The site says this token can't do that.",
              404: missing,
+             409: "The site refused it as a conflict.",
              413: "That's too big for the site to take in one request.",
              429: "Too many publishes this hour. Try again later."}.get(e.code, f"The site answered {e.code}.")
     return f"{plain} The site said: {said}" if said else plain
@@ -353,7 +359,7 @@ def job_bundle(a):
     decisions = os.path.join(folder, "decisions.md")
     return {"page": page, "stem": stem, "info": info, "version": info.get("version"), "title": title, "ticket": ticket,
             "ticket_url": a.ticket_url or (status.get("ticket") or {}).get("url"), "job_slug": a.job,
-            "pdf": a.pdf or newest(os.path.join(folder, "*.pack.pdf")), "requirements": requirements,
+            "pdf": a.pdf or newest(os.path.join(folder, "*.pack.pdf")), "pdf_to": os.path.join(folder, "wireframes.pack.pdf"), "requirements": requirements,
             "decisions": decisions if not a.decisions and os.path.isfile(decisions) else a.decisions}
 
 
@@ -366,11 +372,37 @@ def page_bundle(a):
         raise Stop(1, f"No {os.path.basename(stem)}.json with a revision beside the page. Publish a page that build.py wrote.")
     pdf = stem + ".pack.pdf"
     return {"page": page, "stem": stem, "info": info, "version": info["revision"], "title": a.title or info.get("title") or os.path.basename(stem),
-            "ticket": a.ticket, "ticket_url": a.ticket_url, "job_slug": None, "pdf": a.pdf or (pdf if os.path.isfile(pdf) else None),
+            "ticket": a.ticket, "ticket_url": a.ticket_url, "job_slug": None, "pdf": a.pdf or (pdf if os.path.isfile(pdf) else None), "pdf_to": pdf,
             "requirements": None, "decisions": a.decisions}
 
 
 # ---------- publish ----------
+
+def pdf_for(a, b):
+    """(path or None, what happened). --pdf is sent as given. Otherwise a PDF older than the page, or none, is printed again."""
+    if a.no_pdf:
+        return None, "left out (--no-pdf)"
+    if a.pdf:
+        if os.path.getmtime(os.path.expanduser(a.pdf)) < os.path.getmtime(b["page"]):
+            warn("the PDF is older than the page, so it may show an earlier revision. Leave out --pdf and one is printed from the page.")
+        return a.pdf, "given"
+    found = b["pdf"]
+    if found and os.path.getmtime(found) >= os.path.getmtime(b["page"]):
+        return found, "beside the page"
+    if a.dry_run:
+        return None, "none fresh: one would be printed from the page"
+    if not print_pdf(b["page"], b["pdf_to"], timeout=PRINT_TIMEOUT):
+        warn("no Chrome found to print a PDF, so this revision has none. Add one later with --add-pdf." if not chrome_path()
+             else "Chrome didn't write a PDF, so this revision has none. Add one later with --add-pdf.")
+        return None, "none"
+    return b["pdf_to"], "printed from the page"
+
+
+def send_pdf(site, token, key, revision, pdf, missing):
+    """POST /api/features/<key>/r<n>/pdf: a PDF for a revision that has none."""
+    body, ctype = multipart({}, {"pdf": ("pack.pdf", "application/pdf", pdf)})
+    return call(site, token, "POST", f"/api/features/{urllib.parse.quote(key)}/r{revision}/pdf", body, ctype, missing=missing)
+
 
 def publish(a, cfg, problem, site):
     if a.ticket and not TICKET_RE.match(a.ticket):
@@ -384,9 +416,8 @@ def publish(a, cfg, problem, site):
     key = settled_key(a, state, make_key(b["title"], ticket))
 
     page = checked_page(b["page"])
-    pdf = read_file(os.path.expanduser(b["pdf"]), "PDF") if b["pdf"] else None
-    if b["pdf"] and os.path.getmtime(os.path.expanduser(b["pdf"])) < os.path.getmtime(b["page"]):
-        warn("the PDF is older than the page, so it may show an earlier revision. Build with --pack for a fresh one.")
+    pdf_path, pdf_how = pdf_for(a, b)
+    pdf = read_file(os.path.expanduser(pdf_path), "PDF") if pdf_path else None
     requirements = read_text(os.path.expanduser(a.requirements), "requirements") if a.requirements else b["requirements"]
     decisions = read_text(os.path.expanduser(b["decisions"]), "decisions") if b["decisions"] else None
     manifest = make_manifest(b["info"], b["stem"], b["version"])
@@ -399,6 +430,12 @@ def publish(a, cfg, problem, site):
     if pdf:
         files["pdf"] = ("pack.pdf", "application/pdf", pdf)
     body, ctype = multipart(fields, files)
+    # Too big with the PDF, but each fits alone: the page goes first, then the PDF in a request of its own.
+    pdf_after = None
+    if pdf and len(body) > BODY_LIMIT and not is_local(site):
+        alone, alone_type = multipart(fields, {"page": files["page"]})
+        if len(alone) <= BODY_LIMIT and len(pdf) + 1000 <= BODY_LIMIT:
+            body, ctype, pdf_after = alone, alone_type, pdf
 
     too_big = [f"The {name} is {size(n)}; the site takes {size(LIMITS[name])}." for name, n in
                (("page", len(page)), ("pdf", len(pdf or b"")), ("requirements", len((requirements or "").encode("utf-8"))), ("decisions", len((decisions or "").encode("utf-8")))) if n > LIMITS[name]]
@@ -409,7 +446,7 @@ def publish(a, cfg, problem, site):
         rows = [("site", site), ("key", f"{key} ({'kept' if state.get('key') else 'new'})"), ("title", b["title"]), ("ticket", ticket or "none"),
                 ("ticket url", b["ticket_url"] or "none"), ("job", b["job_slug"] or "none"), ("page version", b["version"]),
                 ("changes", changes or "none"), ("page", f"{b['page']}  {size(len(page))}"),
-                ("pdf", f"{b['pdf']}  {size(len(pdf))}" if pdf else "none"),
+                ("pdf", f"{pdf_path}  {size(len(pdf))}, {pdf_how}{', sent after the page' if pdf_after else ''}" if pdf else pdf_how),
                 ("manifest", f"{size(len(fields['manifest']))}: {len(manifest['screens'])} screens, {len(manifest['choices'])} choices, {len(manifest['history'])} history rows"),
                 ("requirements", f"{len(re.findall(FR_ROW.pattern, requirements, re.M))} FR rows, {size(len(requirements.encode('utf-8')))}" if requirements else "none"),
                 ("decisions", f"{b['decisions']}  {size(len(decisions.encode('utf-8')))}" if decisions else "none"),
@@ -430,7 +467,37 @@ def publish(a, cfg, problem, site):
     kept = {k: v for k, v in state.items() if k == "last_pull" and state.get("site") == site}
     write_json(path, {**kept, "key": key, "site": site, "url": reply["url"], "revision": reply["revision"],
                       "published_at": datetime.now(timezone.utc).isoformat(timespec="seconds")})
+    if pdf_after:
+        try:
+            send_pdf(site, cfg["token"], key, reply["revision"], pdf_after, missing="This site can't take a PDF on its own yet.")
+        except Stop as e:
+            warn(f"revision {reply['revision']} was published without its PDF. {e} Run this again with --add-pdf to add it.")
     print(json.dumps(reply) if a.json else f"Published revision {reply['revision']}: {reply['url']}")
+
+
+# ---------- a PDF for the last revision, published without one ----------
+
+def add_pdf(a, cfg, problem, site):
+    path = state_file(a)
+    state = read_json(path) or {}
+    if not state.get("key") or not isinstance(state.get("revision"), int):
+        raise Stop(1, "This hasn't been published yet, so there's no revision to add a PDF to.")
+    if state.get("site") != site:
+        raise Stop(1, f"This was published to {state.get('site')}, not {site}.")
+    b = job_bundle(a) if a.job else page_bundle(a)
+    published = stamp(state.get("published_at"))
+    if published and os.path.getmtime(b["page"]) > published.timestamp() + 60:
+        raise Stop(1, f"The page has changed since revision {state['revision']} was published, so its PDF wouldn't match. Publish it again instead.")
+    if problem:
+        raise Stop(3, problem)
+    pdf_path, pdf_how = pdf_for(a, b)
+    if not pdf_path:
+        raise Stop(1, "There's no PDF to send.")
+    pdf = read_file(os.path.expanduser(pdf_path), "PDF")
+    if len(pdf) + 1000 > BODY_LIMIT and not is_local(site):
+        raise Stop(1, f"The PDF is {size(len(pdf))}, and the site takes {size(BODY_LIMIT)} in one request.")
+    reply = send_pdf(site, cfg["token"], state["key"], state["revision"], pdf, missing=f"The site has no revision {state['revision']} of {state['key']}, or can't take a PDF on its own yet.")
+    print(json.dumps(reply) if a.json else f"Added a PDF ({pdf_how}) to revision {state['revision']}: {reply.get('pdf')}")
 
 
 # ---------- notes ----------
@@ -607,6 +674,8 @@ def main():
     ap.add_argument("--requirements", help="Markdown file to send as the requirements")
     ap.add_argument("--decisions", help="Markdown file to send as the decisions")
     ap.add_argument("--pdf", help="PDF to send, instead of the one beside the page")
+    ap.add_argument("--no-pdf", action="store_true", help="Publish without a PDF")
+    ap.add_argument("--add-pdf", action="store_true", help="Give the last published revision a PDF, when it went without one")
     ap.add_argument("--changes", help="One line on what changed in this revision")
     ap.add_argument("--site", help="Use this site instead of the one in ~/.claude/prototypes.json")
     ap.add_argument("--dry-run", action="store_true", help="Say what would be sent, and send nothing")
@@ -622,12 +691,16 @@ def main():
         ap.error("--notes needs --job, --page or --key")
     if a.import_notes and not (a.job or a.page or a.key):
         ap.error("--import-notes needs --key")
+    if a.add_pdf and (a.notes or a.import_notes or a.dry_run or a.no_pdf):
+        ap.error("--add-pdf goes alone, with --job or --page")
+    if a.add_pdf and not (a.job or a.page):
+        ap.error("--add-pdf needs --job or --page")
     if not (a.notes or a.import_notes or a.job or a.page):
         ap.error("pass --job or --page to publish, or --notes, or --import-notes")
     try:
         cfg, problem = load_config()
         site = pick_site(a.site, cfg)
-        (pull_notes if a.notes else import_notes if a.import_notes else publish)(a, cfg, problem, site)
+        (pull_notes if a.notes else import_notes if a.import_notes else add_pdf if a.add_pdf else publish)(a, cfg, problem, site)
     except Stop as e:
         print(e, file=sys.stderr)
         sys.exit(e.code)

@@ -206,17 +206,36 @@ def save_revision(out_dir, slug, revision, sections, snapshot):
     open(os.path.join(folder, "history.json"), "w", encoding="utf-8").write(json.dumps(snapshot["history"], indent=2) + "\n")
 
 
+def chrome_path():
+    """Chrome or Chromium on this laptop, or None. WIREFRAME_CHROME names one; set to empty, there is none."""
+    if "WIREFRAME_CHROME" in os.environ:
+        return os.environ["WIREFRAME_CHROME"] or None
+    return next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", shutil.which("google-chrome"), shutil.which("chromium"),
+                             r"C:\Program Files\Google\Chrome\Application\chrome.exe") if c and os.path.exists(c)), None)
+
+
+def print_pdf(page, pdf, timeout=120):
+    """The page's own #pack view printed to pdf by headless Chrome, saying nothing. True when it was written."""
+    chrome = chrome_path()
+    if not chrome:
+        return False
+    if os.path.exists(pdf):
+        os.remove(pdf)
+    url = "file://" + os.path.abspath(page).replace(os.sep, "/") + "#pack"
+    try:
+        subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=15000", f"--print-to-pdf={pdf}", url],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return os.path.exists(pdf)
+
+
 def print_pack(page, pdf):
     """The stakeholder PDF: the page's own #pack view, printed by headless Chrome."""
-    chrome = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", shutil.which("google-chrome"), shutil.which("chromium"),
-                               r"C:\Program Files\Google\Chrome\Application\chrome.exe") if c and os.path.exists(c)), None)
-    if not chrome:
+    if not chrome_path():
         print("warning: no Chrome found, so no PDF; the page's Stakeholder PDF button still prints from the browser")
         return
-    url = "file://" + os.path.abspath(page).replace(os.sep, "/") + "#pack"
-    subprocess.run([chrome, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=15000", f"--print-to-pdf={pdf}", url],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=120)
-    print(f"pack: {pdf}" if os.path.exists(pdf) else "warning: the PDF wasn't written")
+    print(f"pack: {pdf}" if print_pdf(page, pdf) else "warning: the PDF wasn't written")
 
 
 def summary_prototype(sections):

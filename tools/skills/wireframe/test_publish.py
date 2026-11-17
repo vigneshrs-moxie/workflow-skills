@@ -9,6 +9,10 @@ TOKEN = "ptp_made-up-token-for-tests"
 PAGE = b'<!doctype html><html><body><div id="pt-root">made up</div></body></html>'
 # The grammar both homes of these lines write: the page's feedbackText() and the Starbase tests' "Pick A for c-entry".
 PICK_LINE = re.compile(r"^Pick \w+ for [\w-]+$")
+# Stands in for headless Chrome: writes a made-up PDF where --print-to-pdf says, and remembers being run.
+FAKE_CHROME = """#!/bin/sh
+for a in "$@"; do case "$a" in --print-to-pdf=*) printf '%%PDF-printed' > "${a#--print-to-pdf=}"; echo "$a" >> "$0.ran";; esac; done
+"""
 NOTE_LINE = re.compile(r'^(s-[\w-]+|overview)( \([^()]*\))?: (needs change|question|idea|note): .*$')
 
 
@@ -33,6 +37,8 @@ class Stub(BaseHTTPRequestHandler):
         if srv.force:
             code, body, headers = srv.force
             return self.answer(code, body, headers)
+        if re.match(r"^/api/features/[\w-]+/r\d+/pdf$", self.path):
+            return self.answer(200, {"key": "k", "revision": int(self.path.split("/r")[-1][:-4]), "pdf": f"https://example.test{self.path}"})
         if self.path == "/api/publish":
             srv.revision += 1
             return self.answer(200, {"key": "k", "revision": srv.revision, "url": f"https://example.test/f/k", "created": srv.revision == 1})
@@ -67,6 +73,11 @@ class Base(unittest.TestCase):
         self.addCleanup(self.srv.shutdown)
         self.site = f"http://127.0.0.1:{self.srv.server_address[1]}"
         self.config()
+        self.chrome = self.write(os.path.join(self.home, "fake-chrome"), FAKE_CHROME)
+        os.chmod(self.chrome, 0o755)
+
+    def chrome_ran(self):
+        return os.path.exists(self.chrome + ".ran")
 
     def config(self, mode=0o600, body=None):
         path = os.path.join(self.claude, "prototypes.json")
@@ -75,8 +86,8 @@ class Base(unittest.TestCase):
         os.chmod(path, mode)
         return path
 
-    def run_it(self, *args):
-        env = {**os.environ, "HOME": self.home, "PYTHONDONTWRITEBYTECODE": "1"}
+    def run_it(self, *args, chrome=None):
+        env = {**os.environ, "HOME": self.home, "PYTHONDONTWRITEBYTECODE": "1", "WIREFRAME_CHROME": self.chrome if chrome is None else chrome}
         env.pop("STARBASE_FEATURES_DIR", None)
         env.pop("WORKSHOP_FEATURES_DIR", None)
         r = subprocess.run([sys.executable, SCRIPT, *args], capture_output=True, text=True, env=env, timeout=30)
@@ -154,7 +165,8 @@ class JobMode(Base):
 
     def test_no_spec_no_decisions_no_pdf_are_left_out(self):
         self.job(pdf=False)
-        self.assertEqual(self.run_it("--job", "orbit-296-freeze-row").returncode, 0)
+        self.assertEqual(self.run_it("--job", "orbit-296-freeze-row", "--no-pdf").returncode, 0)
+        self.assertFalse(self.chrome_ran())
         p = parts(self.srv.requests[0])
         self.assertFalse({"requirements", "decisions", "pdf"} & set(p))
 
@@ -554,9 +566,90 @@ class ImportNotes(Base):
         self.assertEqual(r.returncode, 1)
 
 
+class Pdf(Base):
+    """Every revision gets a PDF: the one beside the page when it's fresh, else one printed from the page."""
+
+    def test_a_job_with_no_pdf_gets_one_printed_and_kept(self):
+        folder = self.job(pdf=False)
+        r = self.run_it("--job", "orbit-296-freeze-row")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(parts(self.srv.requests[0])["pdf"], b"%PDF-printed")
+        self.assertTrue(os.path.exists(os.path.join(folder, "wireframes.pack.pdf")))
+        with open(self.chrome + ".ran") as f:
+            self.assertIn("wireframes.pack.pdf", f.read())
+
+    def test_a_fresh_pdf_beside_the_page_is_sent_as_it_is(self):
+        self.job()
+        self.run_it("--job", "orbit-296-freeze-row")
+        self.assertEqual(parts(self.srv.requests[0])["pdf"], b"%PDF-made-up")
+        self.assertFalse(self.chrome_ran())
+
+    def test_a_pdf_older_than_the_page_is_printed_again(self):
+        page = self.page()
+        old = self.write(page[:-5] + ".pack.pdf", b"%PDF-old")
+        os.utime(old, (os.path.getmtime(page) - 3600,) * 2)
+        self.run_it("--page", page)
+        self.assertEqual(parts(self.srv.requests[0])["pdf"], b"%PDF-printed")
+
+    def test_without_chrome_it_publishes_and_says_how_to_add_one(self):
+        page = self.page()
+        r = self.run_it("--page", page, chrome="")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertNotIn("pdf", parts(self.srv.requests[0]))
+        self.assertIn("--add-pdf", r.stderr)
+
+    def test_json_output_stays_json_when_a_pdf_is_printed(self):
+        self.job(pdf=False)
+        r = self.run_it("--job", "orbit-296-freeze-row", "--json")
+        self.assertEqual(json.loads(r.stdout)["revision"], 1)
+
+    def test_dry_run_prints_nothing(self):
+        page = self.page()
+        r = self.run_it("--page", page, "--dry-run")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("one would be printed", r.stdout)
+        self.assertFalse(self.chrome_ran())
+        self.assertFalse(os.path.exists(page[:-5] + ".pack.pdf"))
+
+    def test_add_pdf_gives_the_last_revision_one(self):
+        page = self.page()
+        self.run_it("--page", page, "--no-pdf")
+        r = self.run_it("--add-pdf", "--page", page)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        req = self.srv.requests[-1]
+        self.assertEqual((req["method"], req["path"]), ("POST", "/api/features/field-team-mobile-test/r1/pdf"))
+        self.assertEqual(parts(req)["pdf"], b"%PDF-printed")
+        self.assertIn("Added a PDF", r.stdout)
+
+    def test_add_pdf_refuses_a_page_changed_since_it_was_published(self):
+        page = self.page()
+        self.run_it("--page", page, "--no-pdf")
+        later = os.path.getmtime(page) + 3600
+        os.utime(page, (later, later))
+        r = self.run_it("--add-pdf", "--page", page)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("changed since", r.stderr)
+        self.assertEqual(len(self.srv.requests), 1)
+
+    def test_add_pdf_needs_a_publish_first(self):
+        r = self.run_it("--add-pdf", "--page", self.page())
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("hasn't been published", r.stderr)
+        self.assertEqual(self.srv.requests, [])
+
+    def test_add_pdf_says_so_when_the_revision_has_one(self):
+        page = self.page()
+        self.run_it("--page", page, "--no-pdf")
+        self.srv.force = (409, {"error": "Revision 1 already has a PDF."}, [])
+        r = self.run_it("--add-pdf", "--page", page)
+        self.assertEqual(r.returncode, 4)
+        self.assertIn("already has a PDF", r.stderr)
+
+
 class Flags(Base):
     def test_wrong_combinations(self):
-        for args in ([], ["--job", "a", "--page", "b"], ["--notes"], ["--notes", "--import-notes", "f", "--key", "k"], ["--since", "2026-11-05T00:00:00Z", "--job", "a"], ["--import-notes", "f"]):
+        for args in ([], ["--job", "a", "--page", "b"], ["--notes"], ["--notes", "--import-notes", "f", "--key", "k"], ["--since", "2026-11-05T00:00:00Z", "--job", "a"], ["--import-notes", "f"],
+                     ["--add-pdf"], ["--add-pdf", "--page", "p", "--dry-run"], ["--add-pdf", "--notes", "--key", "k"]):
             self.assertEqual(self.run_it(*args).returncode, 2, args)
 
 
